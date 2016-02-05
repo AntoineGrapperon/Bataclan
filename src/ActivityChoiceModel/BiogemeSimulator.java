@@ -21,7 +21,7 @@ public class BiogemeSimulator {
 	
 	InputDataReader myInputDataReader = new InputDataReader();
 	OutputFileWritter myOutputFileWriter = new OutputFileWritter();
-	ArrayList<DecisionMaker> myPopulationSample = new ArrayList<DecisionMaker>();
+	ArrayList<BiogemeAgent> myPopulationSample = new ArrayList<BiogemeAgent>();
 	public static ArrayList<BiogemeHypothesis> modelHypothesis = new ArrayList<BiogemeHypothesis>();
 	
 	public BiogemeSimulator(String pathControleFile,  String pathHypothesis) throws IOException{
@@ -60,7 +60,7 @@ public class BiogemeSimulator {
 	}
 
 	public void applyModelOnTravelSurveyPopulation(String outputPath) throws IOException{
-		for(DecisionMaker person: myPopulationSample){
+		for(BiogemeAgent person: myPopulationSample){
 			ArrayList<Integer> choiceSet = person.processChoiceSet();
 			//System.out.println(choiceSet);
 			person.applyModel(choiceSet);
@@ -69,7 +69,7 @@ public class BiogemeSimulator {
 		myOutputFileWriter.OpenFile(outputPath);
 		String headers = "Observed choice, Simulated choice, Weigh";
 		myOutputFileWriter.WriteToFile(headers);
-		for(DecisionMaker person: myPopulationSample){
+		for(BiogemeAgent person: myPopulationSample){
 			
 			for(BiogemeChoice temp: biogemeGenerator.choiceIndex){
 				if(temp.biogeme_id == Integer.parseInt(person.myAttributes.get(UtilsTS.sim))){
@@ -135,7 +135,7 @@ public class BiogemeSimulator {
     	 {
     			//for (int j=0; j<decisionMakerAttributes.size();j++)
     			//{
-    				DecisionMaker newDecisionMaker = new DecisionMaker();
+    				BiogemeAgent newDecisionMaker = new BiogemeAgent();
     				newDecisionMaker.setAttributes(decisionMakerAttributes, data.get(i));
     				myPopulationSample.add(newDecisionMaker);
     			//}

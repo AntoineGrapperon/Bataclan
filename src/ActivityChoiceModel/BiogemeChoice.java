@@ -19,7 +19,7 @@ public class BiogemeChoice {
 		
 	}
 
-	public boolean isAffecting(BiogemeHypothesis currH, DecisionMaker currAgent) {
+	public boolean isAffecting(BiogemeHypothesis currH, BiogemeAgent currAgent) {
 		// TODO Auto-generated method stub
 		
 		for(int i = 0; i < currH.affectingCategories.size();i++){
@@ -62,7 +62,7 @@ public class BiogemeChoice {
 		return false;
 	}
 
-	public double getAffectingValue(BiogemeHypothesis currH, DecisionMaker currAgent) {
+	public double getAffectingValue(BiogemeHypothesis currH, BiogemeAgent currAgent) {
 		// TODO Auto-generated method stub
 		for(int i = 0; i < currH.affectingCategories.size();i++){
 			if(choiceCombination.get(currH.affectingDimensionName) == currH.affectingCategories.get(i)){

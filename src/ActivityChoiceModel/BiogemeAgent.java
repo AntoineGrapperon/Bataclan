@@ -12,12 +12,12 @@ import Utils.RandomNumberGen;
  * @author Antoine
  *
  */
-public class DecisionMaker {
+public class BiogemeAgent {
 	
 	HashMap<String, String> myAttributes;
 	protected static RandomNumberGen randGen = new RandomNumberGen();
 	
-	public DecisionMaker(){
+	public BiogemeAgent(){
 		myAttributes = new HashMap<String, String>();
 	}
 
