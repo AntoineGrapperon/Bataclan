@@ -33,12 +33,19 @@ public class TravelSurveyPreparator {
 	HashMap<String, ArrayList<Object>> myData = new HashMap<String, ArrayList<Object>>();
 	protected RandomNumberGen randGen = new RandomNumberGen();
 	
+	public TravelSurveyPreparator(){
+		
+	}
 	
-	public TravelSurveyPreparator(String path){
+	public void initialize(String path){
 		myInputDataReader.OpenFile(path);
 		String[] temp;
 		temp=path.split(".csv");
-		myOutputFileWritter.OpenFile(temp[0] + "_prepared.csv");	
+		myOutputFileWritter.OpenFile(temp[0] + "_prepared.csv");
+	}
+	
+	public TravelSurveyPreparator(String path){
+		initialize(path);	
 	}
 	
 	public void processData(int choiceSetSize) throws IOException{

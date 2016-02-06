@@ -62,22 +62,33 @@ public class BiogemeControlFileGenerator {
 		  String[] tok = strTok.split(Utils.COLUMN_DELIMETER);
 		  BiogemeHypothesis currHypothesis = new BiogemeHypothesis();
 		  
+		  
+		  boolean isDummy = tok[3].equals("dummy");
+		  currHypothesis.isDummy = isDummy;
 		  String coefName = tok[0];
 		  currHypothesis.setCoefName(coefName);
 		  
-		  String[] affectingTok = tok[1].split("=");
-		  String dimName = affectingTok[0].trim();
-		  String[]affectingCategoriesTok =affectingTok[1].split("-");
-		  ArrayList<Integer> categories = new ArrayList<Integer>();
-		  for(String e: affectingCategoriesTok){
-			  categories.add(Integer.parseInt(e.trim()));
+		  if(isDummy){
+			  String[] affectingTok = tok[1].split("=");
+			  String dimName = affectingTok[0].trim();
+			  String[]affectingCategoriesTok =affectingTok[1].split("-");
+			  ArrayList<Integer> categories = new ArrayList<Integer>();
+			  for(String e: affectingCategoriesTok){
+				  categories.add(Integer.parseInt(e.trim()));
+			  }
+			  currHypothesis.setAffectingDimension(dimName, categories);
 		  }
-		  currHypothesis.setAffectingDimension(dimName, categories);
+		  
+		  else if(!isDummy){
+			  String[] affectingTok = tok[1].split("=");
+			  String dimName = affectingTok[0].trim();
+			  currHypothesis.setAffectingDimension(dimName, null);
+		  }
 		  
 		  String[] affectedTok = tok[2].split("=");
-		  dimName = affectedTok[0].trim();
-		  String[]affectedCategoriesTok =affectingTok[1].split("-");
-		  categories = new ArrayList<Integer>();
+		  String dimName = affectedTok[0].trim();
+		  String[]affectedCategoriesTok = affectedTok[1].split("-");
+		  ArrayList<Integer> categories = new ArrayList<Integer>();
 		  for(String e: affectedCategoriesTok){
 			  categories.add(Integer.parseInt(e.trim()));
 		  }

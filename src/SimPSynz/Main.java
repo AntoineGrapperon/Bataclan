@@ -35,7 +35,7 @@ public class Main {
 	    ConditionalGenerator condGenerator = new ConditionalGenerator();
 	    
 	    //TravelSurveyPreparator odPreparator = new TravelSurveyPreparator("D:\\Recherche\\model\\model\\ODprepared.csv");
-	    //TravelSurveyPreparator odGatineau = new TravelSurveyPreparator("D:\\Recherche\\modelGatineau\\odGatineau.csv");
+	    TravelSurveyPreparator odGatineau = new TravelSurveyPreparator();
 	    BiogemeSimulator odGatineauValidation;
 	    
 	    String city = "Gatineau";
@@ -144,20 +144,21 @@ public class Main {
 	    	//However, the time consuming operation I have been trying to avoid is going through all possible alternatives and finding the closest ones.
 	    	//Therefore, it is no honest to separate in subsample, because by doing so I am assuming that alternatives in the other samples are not reachable.
 	    	//Which is false. Therefore, the non multithreading function should be used. (it is 8 hours against 1/2 hours).
-
-	    	/*int numberOfLogicalProcessors = Runtime.getRuntime().availableProcessors() -1;
+	    	odGatineau.initialize("D:\\Recherche\\modelGatineau\\odGatineau.csv");
+	    	int numberOfLogicalProcessors = Runtime.getRuntime().availableProcessors() -1;
+	    	numberOfLogicalProcessors = 1;
 	    	System.out.println("--computation with: " + numberOfLogicalProcessors + " logical processors");
 	    	//odPreparator.processDataMultiThreads(numberOfLogicalProcessors, 7);
 	    	odGatineau.processDataMultiThreads(numberOfLogicalProcessors, 8, 
 	    			Utils.DATA_DIR + "\\ctrl\\biogeme_ctrl_file.txt", 
 	    			Utils.DATA_DIR + "\\biogeme\\biogeme_input_prepared.mod",
-	    			Utils.DATA_DIR + "\\ctrl\\biogeme_hypothesis_desc.txt");*/
+	    			Utils.DATA_DIR + "\\ctrl\\biogeme_hypothesis_desc.txt");
 	    	
 	    	
 	    	//############################################################################################
 	    	//Load Agents and simulate their choices
 	    	//############################################################################################
-	    	odGatineauValidation = new BiogemeSimulator( 
+	    	/*odGatineauValidation = new BiogemeSimulator( 
 	    			Utils.DATA_DIR + "\\ctrl\\biogeme_ctrl_file.txt", 
 	    			Utils.DATA_DIR + "\\ctrl\\biogeme_hypothesis_desc.txt");
 	    	System.out.println("--initialization of simulator");

@@ -23,7 +23,7 @@ public class BiogemeModelReader {
 	}
 	
 	public void loadModel(String path) throws IOException{
-		myInputDataReader.OpenFile(path);
+		/*myInputDataReader.OpenFile(path);
 		ArrayList <String> lines = myInputDataReader.StoreLineByLine();
 		String[] list;
 		int cur = 0;
@@ -36,7 +36,7 @@ public class BiogemeModelReader {
 	 		String coefName = strTok[1].trim();
 	 		double coefValue = Double.parseDouble(strTok[3]);
 	 		//BiogemeSimulator.updateHypothesis(coefName,coefValue);
-	 	}
+	 	}*/
 	}
 	
 
