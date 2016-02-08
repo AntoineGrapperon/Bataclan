@@ -71,24 +71,39 @@ public class BiogemeSimulator {
 		myOutputFileWriter.WriteToFile(headers);
 		for(BiogemeAgent person: myPopulationSample){
 			
-			for(BiogemeChoice temp: biogemeGenerator.choiceIndex){
+			/*for(BiogemeChoice temp: biogemeGenerator.choiceIndex){
 				if(temp.biogeme_id == Integer.parseInt(person.myAttributes.get(UtilsTS.sim))){
 					
 				}
-			}
+			}*/
 			
 			String newLine = getChoice(person.myAttributes.get(UtilsTS.alternative)) + 
 					Utils.COLUMN_DELIMETER +getChoice(person.myAttributes.get(UtilsTS.sim)) +
 					Utils.COLUMN_DELIMETER + person.myAttributes.get(UtilsTS.weigth);
-			/*String newLine = person.myAttributes.get(UtilsTS.alternative) + 
-					Utils.COLUMN_DELIMETER + person.myAttributes.get(UtilsTS.sim) +
-					Utils.COLUMN_DELIMETER + person.myAttributes.get(UtilsTS.weigth);*/
 			myOutputFileWriter.WriteToFile(newLine);
 		}
 		myOutputFileWriter.CloseFile();
 	}
 	
-
+	public void applyModel(String outputPath) throws IOException{
+		for(BiogemeAgent person: myPopulationSample){
+			ArrayList<Integer> choiceSet = person.processChoiceSet();
+			//System.out.println(choiceSet);
+			person.applyModel(choiceSet);
+		}
+		
+		myOutputFileWriter.OpenFile(outputPath);
+		String headers = "Observed choice, Simulated choice";
+		myOutputFileWriter.WriteToFile(headers);
+		for(BiogemeAgent person: myPopulationSample){
+			String newLine = getChoice(person.myAttributes.get(UtilsTS.alternative)) + 
+					Utils.COLUMN_DELIMETER +getChoice(person.myAttributes.get(UtilsTS.sim)) +
+					Utils.COLUMN_DELIMETER + person.myAttributes.get(UtilsTS.weigth);
+			myOutputFileWriter.WriteToFile(newLine);
+		}
+		myOutputFileWriter.CloseFile();
+	}
+	
 	private String getChoice(String string) {
 		// TODO Auto-generated method stub
 		for(BiogemeChoice temp: biogemeGenerator.choiceIndex){
