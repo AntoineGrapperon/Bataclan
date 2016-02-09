@@ -92,6 +92,10 @@ public class BiogemeSimulator {
 	public void applyModel(String outputPath) throws IOException{
 		int n = 0;
 		int N = myPopulationSample.size();
+		
+		
+		
+		
 		for(BiogemeAgent person: myPopulationSample){
 			ArrayList<Integer> choiceSet = person.processChoiceSet();
 			person.applyModel(choiceSet);
