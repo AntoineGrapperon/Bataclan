@@ -129,8 +129,6 @@ public class TravelSurveyPreparator {
 					(int)myData.get(UtilsTS.kids).get(i));
 			myData.get(UtilsTS.motor).add(motor);
 		}
-		
-		
 	}
 
 	public void processMinMaxTourLength(){
@@ -918,32 +916,33 @@ public class TravelSurveyPreparator {
 		headers.add(UtilsTS.ageGroup);
 		headers.add(UtilsTS.licence);
 		headers.add(UtilsTS.weigth);
+		headers.add(UtilsTS.motor);
 		
 		headers.add(UtilsTS.pStatut);
-		/*headers.add(UtilsTS.firstDep + "Short");//FIRST departure
+		headers.add(UtilsTS.firstDep + "Short");//FIRST departure
 		headers.add(UtilsTS.lastDep + "Short");
-		headers.add(UtilsTS.firstDep);//FIRST departure
+		headers.add(UtilsTS.fidelPtRange);
+		headers.add(UtilsTS.nAct);
+		/*headers.add(UtilsTS.firstDep);//FIRST departure
 		headers.add(UtilsTS.lastDep);
 		headers.add(UtilsTS.chainLength);
 		headers.add(UtilsTS.maxActTime);
 		headers.add(UtilsTS.minDist);
 		headers.add(UtilsTS.maxDist);
 		headers.add(UtilsTS.fidelPt);
-		headers.add(UtilsTS.fidelPtRange);
-		headers.add(UtilsTS.nAct);
 		headers.add(UtilsTS.tourType);*/
 		headers.add(UtilsTS.alternative);
 		for(int i = 0; i < choiceSetSize; i++){
-			/*headers.add(UtilsTS.pStatut+Integer.toString(i));
+			headers.add(UtilsTS.pStatut+Integer.toString(i));
 			headers.add(UtilsTS.firstDep + "Short" +Integer.toString(i));
 			headers.add(UtilsTS.lastDep + "Short" +Integer.toString(i));
-			headers.add(UtilsTS.chainLength+Integer.toString(i));
+			headers.add(UtilsTS.fidelPtRange+Integer.toString(i));
+			headers.add(UtilsTS.nAct+Integer.toString(i));
+			/*headers.add(UtilsTS.chainLength+Integer.toString(i));
 			headers.add(UtilsTS.maxActTime+Integer.toString(i));
 			headers.add(UtilsTS.minDist+Integer.toString(i));
 			headers.add(UtilsTS.maxDist+Integer.toString(i));
 			headers.add(UtilsTS.fidelPt+Integer.toString(i));
-			headers.add(UtilsTS.fidelPtRange+Integer.toString(i));
-			headers.add(UtilsTS.nAct+Integer.toString(i));
 			headers.add(UtilsTS.tourType+Integer.toString(i));*/
 			headers.add(UtilsTS.alternative+Integer.toString(i));
 		}
@@ -1002,14 +1001,15 @@ public class TravelSurveyPreparator {
 	    return subSamples;
 	}
 	
-	public void processDataMultiThreads(int numberOfCores, int nAlternatives, String pathControleFile, String pathOutput, String pathHypothesis) throws IOException
+	public void processDataMultiThreads(int numberOfCores, int nAlternatives, BiogemeControlFileGenerator ctrlGen/*String pathControleFile, String pathOutput, String pathHypothesis*/) throws IOException
     {
 		String workingDir = System.getProperty("user.dir");
     	//BiogemeControlFileGenerator biogemeGenerator = new BiogemeControlFileGenerator(workingDir + "\\ctrl\\ctrlForBiogemeGenerator.txt", workingDir + "\\ctrl\\biogeme_input_prepared.mod");
     	//biogemeGenerator.generateBiogemeControlFile();	
 		
-    	biogemeGenerator.generateBiogemeControlFile(pathControleFile, pathOutput, pathHypothesis);
-    	HashMap<String,Integer> dictionnary = biogemeGenerator.getCombinations();
+		/*biogemeGenerator.generateBiogemeControlFile();
+    	biogemeGenerator.initialize(pathControleFile, pathOutput, pathHypothesis);*/
+		biogemeGenerator = ctrlGen;
     	
     	
 		storeData();
@@ -1120,10 +1120,9 @@ public class TravelSurveyPreparator {
 	
 	private int getChoiceIndex(HashMap<String, Integer> myCombinationChoice) {
 		// TODO Auto-generated method stub
-		
 		for(BiogemeChoice currChoice: BiogemeControlFileGenerator.choiceIndex){
 			if(areEquals(currChoice.choiceCombination,myCombinationChoice)){
-				return currChoice.biogeme_id;
+				return currChoice.biogeme_group_id;
 			}
 		}
 		System.out.println("--error: combination index was not found for code: " + myCombinationChoice.toString());

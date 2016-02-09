@@ -37,6 +37,8 @@ public class Main {
 	    //TravelSurveyPreparator odPreparator = new TravelSurveyPreparator("D:\\Recherche\\model\\model\\ODprepared.csv");
 	    TravelSurveyPreparator odGatineau = new TravelSurveyPreparator();
 	    BiogemeSimulator odGatineauValidation;
+	    BiogemeControlFileGenerator myCtrlGenerator = new BiogemeControlFileGenerator();
+	    BiogemeSimulator mySimulator;
 	    
 	    String city = "Gatineau";
 	    UtilsTS odDictionnary = new UtilsTS(city);
@@ -87,8 +89,10 @@ public class Main {
 	    	//###############################################################################
 	    	//Synthetic population generator by batches
 	    	//###############################################################################
+	    	// BE SURE YOU ARE USING THE RIGTH DISTRIBUTIONS FROM THE RIGTH DATASET
+	    	
 	    	String pathToSeeds = Utils.DATA_DIR + "data\\CMA505PUMF2006.csv";
-	    	myWorld.Initialize(true, 1);// we need this for writting headers
+	    	myWorld.Initialize(true, 1);// we need this for writing headers
 	    		    	
 	    	//Initialize the statistical log
             OutputFileWritter localStatAnalysis = new OutputFileWritter();
@@ -136,6 +140,18 @@ public class Main {
 	    	//############################################################################################
 	    	//odPreparator.processData( 1 );
 	    	
+	    	
+	    	//############################################################################################
+	    	//Load hypothesis and dimension for the Joint model with Biogeme
+	    	//############################################################################################
+	    	
+	    	String pathControlFile =Utils.DATA_DIR + "\\ctrl\\biogeme_ctrl_file.txt";
+			String pathOutput = Utils.DATA_DIR + "\\biogeme\\biogeme_input_prepared.mod";
+			String pathHypothesis = Utils.DATA_DIR + "\\ctrl\\biogeme_hypothesis_desc.txt";
+	    	
+	    	myCtrlGenerator.initialize(pathControlFile, pathOutput, pathHypothesis);
+			myCtrlGenerator.generateBiogemeControlFile();
+	    	
 	    	//############################################################################################
 	    	//prepare OD data for modeling using multithreading, input: travel survey as CSV file
 	    	//############################################################################################
@@ -144,41 +160,38 @@ public class Main {
 	    	//However, the time consuming operation I have been trying to avoid is going through all possible alternatives and finding the closest ones.
 	    	//Therefore, it is no honest to separate in subsample, because by doing so I am assuming that alternatives in the other samples are not reachable.
 	    	//Which is false. Therefore, the non multithreading function should be used. (it is 8 hours against 1/2 hours).
+			
 	    	/*odGatineau.initialize("D:\\Recherche\\modelGatineau\\odGatineau.csv");
 	    	int numberOfLogicalProcessors = Runtime.getRuntime().availableProcessors() -1;
-	    	numberOfLogicalProcessors = 1;
+	    	//numberOfLogicalProcessors = 1;
 	    	System.out.println("--computation with: " + numberOfLogicalProcessors + " logical processors");
-	    	//odPreparator.processDataMultiThreads(numberOfLogicalProcessors, 7);
-	    	odGatineau.processDataMultiThreads(numberOfLogicalProcessors, 8, 
-	    			Utils.DATA_DIR + "\\ctrl\\biogeme_ctrl_file.txt", 
-	    			Utils.DATA_DIR + "\\biogeme\\biogeme_input_prepared.mod",
-	    			Utils.DATA_DIR + "\\ctrl\\biogeme_hypothesis_desc.txt");*/
-	    	
+	    	odGatineau.processDataMultiThreads(numberOfLogicalProcessors, 8, myCtrlGenerator);*/
 	    	
 	    	//############################################################################################
 	    	//Load Agents and simulate their choices from the travel survey
 	    	//############################################################################################
-	    	odGatineauValidation = new BiogemeSimulator( 
-	    			Utils.DATA_DIR + "\\ctrl\\biogeme_ctrl_file.txt", 
-	    			Utils.DATA_DIR + "\\ctrl\\biogeme_hypothesis_desc.txt");
-	    	odGatineauValidation.initialize(Utils.DATA_DIR + "\\odGatineau_prepared.csv");
-	    	odGatineauValidation.importBiogemeModel(Utils.DATA_DIR + "\\biogeme\\biogeme_input_prepared.F12");
-	    	odGatineauValidation.biogemeGenerator.printChoiceIndex(Utils.DATA_DIR + "\\biogeme\\choiceIndex.csv");
-	    	odGatineauValidation.applyModelOnTravelSurveyPopulation(Utils.DATA_DIR + "\\biogeme\\simulationResults.csv");
-	    	odGatineauValidation.printHypothesis(Utils.DATA_DIR + "\\biogeme\\hypothesisIndex.csv");
 	    	
+			//BE CAREFUL : HYPOTHESIS SHOULD NOT BE CHANGED, HOWEVER IT IS IMPORTANT TO EDIT THE CONTROL FILE
+			//BEFORE CALIBRATING THE MODEL WITH BIOGEME : THE FIXED PARAMETER SHOULD BE CHOOSEN, DUMMIES SHOULD SPECIFIED
+			//AND 
+			
+			/*mySimulator = new BiogemeSimulator(myCtrlGenerator);
+			mySimulator.initialize(Utils.DATA_DIR + "biogeme\\data.csv");
+			mySimulator.importBiogemeModel(Utils.DATA_DIR + "biogeme\\ctrl.F12");
+			mySimulator.applyModelOnTravelSurveyPopulation(Utils.DATA_DIR + "biogeme\\simulationResults.csv");*/
+			
+			//############################################################################################
+	    	//Load synthetic Agents and simulate their choices f
+	    	//############################################################################################
 	    	
-	    	//############################################################################################
-	    	//Load Agents and simulate their choices from the travel survey
-	    	//############################################################################################
-	    	odGatineauValidation = new BiogemeSimulator( 
-	    			Utils.DATA_DIR + "\\ctrl\\biogeme_ctrl_file.txt", 
-	    			Utils.DATA_DIR + "\\ctrl\\biogeme_hypothesis_desc.txt");
-	    	odGatineauValidation.initialize(Utils.DATA_DIR + "\\synthetic_population.csv");
-	    	odGatineauValidation.importBiogemeModel(Utils.DATA_DIR + "\\biogeme\\biogeme_input_prepared.F12");
-	    	odGatineauValidation.biogemeGenerator.printChoiceIndex(Utils.DATA_DIR + "\\biogeme\\choiceIndex.csv");
-	    	odGatineauValidation.applyModelOnTravelSurveyPopulation(Utils.DATA_DIR + "\\biogeme\\simulationResults.csv");
-	    	odGatineauValidation.printHypothesis(Utils.DATA_DIR + "\\biogeme\\hypothesisIndex.csv");
+			//BE CAREFUL : HYPOTHESIS SHOULD NOT BE CHANGED, HOWEVER IT IS IMPORTANT TO EDIT THE CONTROL FILE
+			//BEFORE CALIBRATING THE MODEL WITH BIOGEME : THE FIXED PARAMETER SHOULD BE CHOOSEN, DUMMIES SHOULD SPECIFIED
+			//AND 
+			
+			mySimulator = new BiogemeSimulator(myCtrlGenerator);
+			mySimulator.initialize(Utils.DATA_DIR + "data\\505\\createdPopulation.csv");
+			mySimulator.importBiogemeModel(Utils.DATA_DIR + "biogeme\\ctrl.F12");
+			mySimulator.applyModel(Utils.DATA_DIR + "Outputs\\simulationResults.csv");
 	    	
 	    	//###############################################################################
 	    	//Generate a synthetic population and output statistical analysis of the goodness

@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import Utils.ConditionalDataReader;
+import Utils.InputDataReader;
 import Utils.OutputFileWritter;
 import Utils.Utils;
 
@@ -20,30 +20,17 @@ import Utils.Utils;
  *
  */
 public class BiogemeControlFileGenerator {
-	ConditionalDataReader descReader = new ConditionalDataReader();
-	ConditionalDataReader hypothesisReader = new ConditionalDataReader();
-    OutputFileWritter myDataWriter =  new OutputFileWritter();
+	InputDataReader descReader = new InputDataReader();
+	InputDataReader hypothesisReader = new InputDataReader();
+	OutputFileWritter myDataWriter =  new OutputFileWritter();
     HashMap<String, Integer> choiceDimensions = new HashMap<String,Integer>();
     ArrayList<String> order = new ArrayList<String>();
     ArrayList<HashMap<String,Integer>> combinations = new ArrayList<HashMap<String,Integer>>();
-    ArrayList<BiogemeHypothesis> hypothesis = new ArrayList<BiogemeHypothesis>();
+    public static ArrayList<BiogemeHypothesis> hypothesis = new ArrayList<BiogemeHypothesis>();
     public static ArrayList<BiogemeChoice> choiceIndex = new ArrayList<BiogemeChoice>();
     
     public BiogemeControlFileGenerator(){
     	
-    }
-    
-    public BiogemeControlFileGenerator(String pathControleFile, String pathOutput) throws IOException{
-    	descReader.OpenFile(pathControleFile);
-    	myDataWriter.OpenFile(pathOutput);
-    	choiceDimensions = getTripChainAlternatives();
-    }
-    
-    public void initialize(String pathControleFile, String pathHypothesis) throws IOException{
-    	descReader.OpenFile(pathControleFile);
-    	hypothesisReader.OpenFile(pathHypothesis);
-    	choiceDimensions = getTripChainAlternatives();
-    	hypothesis = getHypothesis();
     }
     
     public void initialize(String pathControleFile, String pathOutput, String pathToHypothesis) throws IOException{
@@ -52,6 +39,8 @@ public class BiogemeControlFileGenerator {
     	myDataWriter.OpenFile(pathOutput);
     	choiceDimensions = getTripChainAlternatives();
     	hypothesis = getHypothesis();
+    	generateCombinations();
+    	choiceIndex.addAll(getChoiceIndex());
     }
     
   private ArrayList<BiogemeHypothesis> getHypothesis() throws NumberFormatException, IOException {
@@ -63,7 +52,7 @@ public class BiogemeControlFileGenerator {
 		  BiogemeHypothesis currHypothesis = new BiogemeHypothesis();
 		  
 		  
-		  boolean isDummy = tok[3].equals("dummy");
+		  boolean isDummy = tok[3].trim().equals("dummy");
 		  currHypothesis.isDummy = isDummy;
 		  String coefName = tok[0];
 		  currHypothesis.setCoefName(coefName);
@@ -100,13 +89,6 @@ public class BiogemeControlFileGenerator {
 		return answer;
 	}
 
-	//this function expect the input data to be in format:
-    /*
-     * name of category, number of alternatives  ex: 
-     * departure hour, 3
-     * last dep hour, 3
-     * nActivities, 4
-     */
     public HashMap<String, Integer> getTripChainAlternatives() throws IOException{
     	HashMap<String, Integer> answer = new HashMap<String, Integer>();
     	String strTok;
@@ -119,52 +101,46 @@ public class BiogemeControlFileGenerator {
     
     public void generateBiogemeControlFile() throws IOException{
     	writeUpperPart();
-    	generateCombinations();
-    	writeBetas();
+    	writeBetaPart();
     	writeCombinations();
-    	choiceIndex = getChoiceIndex();
-    	//writeCategories();
     	writeLowerPart();
     	descReader.CloseFile();
     	myDataWriter.CloseFile();
     }
     
-    public void generateBiogemeControlFile(String pathControleFile, String pathHypothesis) throws IOException{
-    	initialize(pathControleFile, pathHypothesis);
-    	generateCombinations();
-    	choiceIndex.addAll(getChoiceIndex());
-    	descReader.CloseFile();
-    	hypothesisReader.CloseFile();
-    }
-    
-    public void generateBiogemeControlFile(String pathControleFile, String pathOutput, String pathHypothesis) throws IOException{
-    	initialize(pathControleFile, pathOutput, pathHypothesis);
-    	writeUpperPart();
-    	generateCombinations();
-    	writeBetas();
-    	writeCoefficients();
-    	choiceIndex.addAll(getChoiceIndex());
-    	writeCombinations();
-    	//writeCategories();
-    	writeLowerPart();
-    	descReader.CloseFile();
-    	myDataWriter.CloseFile();
-    }
-    
-    public void generateCombinations() throws IOException{
+    private void writeBetaPart() throws IOException {
+		// TODO Auto-generated method stub
+    	myDataWriter.WriteToFile("[Beta]");
+    	writeConstants();
+    	writeHypothesisBeta();
+	}
+
+	public void generateCombinations() throws IOException{
     	for(String key: choiceDimensions.keySet()){
     		updateCombinations(key);
     	}
     }
     
-    public void writeBetas() throws IOException{
-    	myDataWriter.WriteToFile("[Beta]");
-    	Iterator<HashMap<String,Integer>> it = combinations.iterator();
-    	int n = 0;
-    	boolean home = false;
-    	boolean ptUser = false;
-    	boolean first = false;
+    public void writeConstants() throws IOException{
+    	String headers = "// ";
+    	for(String key: combinations.get(0).keySet()){
+			headers+= "_"+key;
+		}
+    	myDataWriter.WriteToFile(headers);	
     	
+    	ArrayList<String> alreadyWritten = new ArrayList<String>();
+    	Iterator<BiogemeChoice> it = choiceIndex.iterator();
+    	while(it.hasNext()){
+    		BiogemeChoice currChoice = it.next();
+    		String choiceName = currChoice.getConstantName();
+    		if(!alreadyWritten.contains(choiceName)){
+    			alreadyWritten.add(choiceName);
+    			myDataWriter.WriteToFile(choiceName + " 	    0.0          -100.0     100.0         0");	
+    		}
+    	}
+    	
+    	/*
+    	Iterator<HashMap<String,Integer>> it = combinations.iterator();
 		while(it.hasNext()){
 			
 			HashMap<String,Integer> currCombination = it.next();
@@ -180,44 +156,46 @@ public class BiogemeControlFileGenerator {
 				first = true;
 			}
 			
-			if(currCombination.get(UtilsTS.nAct) == 0 && !home){
-				output = "C_HOME";
-				home = true;
-				myDataWriter.WriteToFile(output + " 	    0.0          -10.0     10.0         0");
-				n++;
-			}
-			else if(currCombination.get(UtilsTS.nAct)!= 0 && currCombination.get(UtilsTS.fidelPtRange)==0 && !ptUser){
-				output = "C_NOT_PT_RIDER";
-				ptUser = true;
-				myDataWriter.WriteToFile(output + " 	    0.0          -10.0     10.0         0");
-				n++;
-			}
-			else if(currCombination.get(UtilsTS.nAct)!=0 && currCombination.get(UtilsTS.fidelPtRange)!=0){
+			if(shouldWrite(currCombination, home, ptUser)){
 				for(String key: currCombination.keySet()){
 					output+= "_"+currCombination.get(key);
 				}
-				myDataWriter.WriteToFile("C" + output + " 	    0.0          -10.0     10.0         0");
-				n++;
+				myDataWriter.WriteToFile("C" + output + " 	    0.0          -10.0     10.0         0");	
 			}
-			
-		}
+		}*/
     }
     
-    public void writeCoefficients() throws IOException{
+    /*private boolean shouldWrite(HashMap<String, Integer> currCombination, String home, String ptUser){
+    	boolean answer = false;
+    	if(currCombination.get(Utils.nAct) == 0 && home.equals("0")){
+			home = "1";
+			answer = true;
+		}
+		else if(currCombination.get(Utils.nAct)!= 0 && currCombination.get(Utils.fidelPtRange)==0 && ptUser.equals("0")){
+			ptUser = "1";
+			answer = true;
+		}
+		else if(currCombination.get(Utils.nAct)!=0 && currCombination.get(Utils.fidelPtRange)!=0){
+			answer = true;
+		}
+    	return answer;
+    }*/
+    
+    public void writeHypothesisBeta() throws IOException{
     	for(BiogemeHypothesis h: hypothesis){
-    		myDataWriter.WriteToFile(h.coefName + " 	    0.0          -10.0     10.0         0");
+    		myDataWriter.WriteToFile(h.coefName + " 	    0.0          -100.0     100.0         0");
     	}
     }
     
-    public String processChoice(HashMap<String,Integer> combination, HashMap<String, Integer> dictionnary){
+   /* public String processChoice(HashMap<String,Integer> combination, HashMap<String, Integer> dictionnary){
 	
 		String ref = new String();
 		
-		if((int)combination.get(UtilsTS.nAct) == 0){
-			ref = UtilsTS.stayedHome;
+		if((int)combination.get(Utils.nAct) == 0){
+			ref = Utils.stayedHome;
 		}
-		else if(combination.get(UtilsTS.fidelPtRange)==0){
-			ref = UtilsTS.noPT;
+		else if(combination.get(Utils.fidelPtRange)==0){
+			ref = Utils.noPT;
 		}
 		else{
 			Iterator<String> it = order.iterator();
@@ -228,91 +206,24 @@ public class BiogemeControlFileGenerator {
 		}
 		String choice = Integer.toString(dictionnary.get(ref));
 		return choice;
-	}
+	}*/
     
     private void writeCombinations() throws IOException{
 
     	myDataWriter.WriteToFile("[Utilities]");
-    	HashMap<String, Integer> dictionnary = getCombinations();
-    	Iterator<HashMap<String,Integer>> it = combinations.iterator();
-    	boolean home = false;
-    	boolean ptUser = false;
-    	
-		while(it.hasNext()){
-			
-			HashMap<String,Integer> currCombination = it.next();
-			String choice = processChoice(currCombination, dictionnary);
-			String output = new String();
-			
-			if(currCombination.get(UtilsTS.nAct) == 0 && !home){
-				output = UtilsTS.biogemeStayedHome;
-				home = true;
-				output = choice + "	" + output + "	avail	"+ output +" * one";
-				output = output + addCoefficients(currCombination);
-				myDataWriter.WriteToFile(output);
-			}
-			else if(currCombination.get(UtilsTS.nAct)!= 0 && currCombination.get(UtilsTS.fidelPtRange)==0 && !ptUser){
-				output = UtilsTS.noPt;
-				ptUser = true;
-				output = choice + "	" + output + "	avail	"+ output +" * one";
-				output = output + addCoefficients(currCombination);
-				myDataWriter.WriteToFile(output);
-			}
-			else if(currCombination.get(UtilsTS.nAct)!=0 && currCombination.get(UtilsTS.fidelPtRange)!=0){
-				for(String key: currCombination.keySet()){
-					output+= "_"+currCombination.get(key);
-				}
-				output = choice + "	C" + output + "	avail	C"+ output +" * one";
-				output = output + addCoefficients(currCombination);
-				myDataWriter.WriteToFile(output);
-			}	
-		}
-    }
-	
-    @Deprecated
-    private void writeCombinationsWithoutDictionnary() throws IOException{
-
-    	myDataWriter.WriteToFile("[Utilities]");
-    	Iterator<HashMap<String,Integer>> it = combinations.iterator();
-    	int n = 0;
-    	boolean home = false;
-    	boolean ptUser = false;
-    	
-		while(it.hasNext()){
-			
-			HashMap<String,Integer> currCombination = it.next();
-			String output = new String();
-			
-			if(currCombination.get(UtilsTS.nAct) == 0 && !home){
-				output = UtilsTS.biogemeStayedHome;
-				home = true;
-				output = n + "	" + output + "	avail	"+ output +" * one";
-				n++;
-				output = output + addCoefficients(currCombination);
-				myDataWriter.WriteToFile(output);
-			}
-			else if(currCombination.get(UtilsTS.nAct)!= 0 && currCombination.get(UtilsTS.fidelPtRange)==0 && !ptUser){
-				output = UtilsTS.noPt;
-				ptUser = true;
-				output = n + "	" + output + "	avail	"+ output +" * one";
-				n++;
-				output = output + addCoefficients(currCombination);
-				myDataWriter.WriteToFile(output);
-			}
-			else if(currCombination.get(UtilsTS.nAct)!=0 && currCombination.get(UtilsTS.fidelPtRange)!=0){
-				for(String key: currCombination.keySet()){
-					output+= "_"+currCombination.get(key);
-				}
-				output = n + "	C" + output + "	avail	C"+ output +" * one";
-				n++;
-				output = output + addCoefficients(currCombination);
-				myDataWriter.WriteToFile(output);
-			}
-			else{
-				n++;
-			}
-				
-		}
+    	ArrayList<String> alreadyWritten = new ArrayList<String>();
+    	Iterator<BiogemeChoice> it = choiceIndex.iterator();
+    	while(it.hasNext()){
+    		BiogemeChoice currChoice = it.next();
+    		String choiceName = currChoice.getConstantName();
+    		Integer choiceId = currChoice.biogeme_group_id;
+    		String output = new String();
+    		if(!alreadyWritten.contains(choiceName)){
+    			alreadyWritten.add(choiceName);
+    			output = choiceId + "	" + choiceName + "	avail " + choiceName + " * one" + addCoefficients(currChoice.choiceCombination);	
+    			myDataWriter.WriteToFile(output);
+    		}
+    	}
     }
     
     private String addCoefficients(HashMap<String, Integer> currCombination) {
@@ -367,42 +278,63 @@ public class BiogemeControlFileGenerator {
 
 	
 	 public ArrayList<BiogemeChoice> getChoiceIndex(){
-		 ArrayList<BiogemeChoice> choiceIndex = new ArrayList<BiogemeChoice>();
-	    	
-	    	Iterator<HashMap<String,Integer>> it = combinations.iterator();
-	    	int n = 0;
-	    	
-			while(it.hasNext()){
-				
-				HashMap<String,Integer> currCombination = it.next();
-				String ref = new String();
-				BiogemeChoice currChoice = new BiogemeChoice();
-				
-				if(currCombination.get(UtilsTS.nAct) == 0){
-					currChoice.biogeme_id = n;
-					currChoice.choiceCombination = currCombination;
-					n++;
-				}
-				else if(currCombination.get(UtilsTS.nAct)!= 0 && currCombination.get(UtilsTS.fidelPtRange)==0){
-					currChoice.biogeme_id = n;
-					currChoice.choiceCombination = currCombination;
-					n++;
-				}
-				else if(currCombination.get(UtilsTS.nAct)!=0 && currCombination.get(UtilsTS.fidelPtRange)!=0){
-					currChoice.biogeme_id = n;
-					currChoice.choiceCombination = currCombination;
-					n++;
+		ArrayList<BiogemeChoice> choiceIndex = new ArrayList<BiogemeChoice>();
+    	boolean home = false;
+    	boolean pt = false;
+    	
+    	Iterator<HashMap<String,Integer>> it = combinations.iterator();
+    	int combinationId = 0;
+    	int combinationGroupHome = 0;
+    	int combinationGroupPt = 0;
+    	
+		while(it.hasNext()){
+			
+			HashMap<String,Integer> currCombination = it.next();
+			String ref = new String();
+			BiogemeChoice currChoice = new BiogemeChoice();
+			
+			if(currCombination.get(UtilsTS.nAct) == 0){
+				currChoice.biogeme_id = combinationId;
+				currChoice.choiceCombination = currCombination;
+				if(!home){
+					home = true;
+					combinationGroupHome = combinationId;
+					currChoice.biogeme_group_id = combinationGroupHome;
 				}
 				else{
-					System.out.println("there was a problem in the index generation");
-					n++;
+					currChoice.biogeme_group_id = combinationGroupHome;
 				}
-				choiceIndex.add(currChoice);
+				combinationId++;
 			}
-	    	return choiceIndex;
-	    }
+			else if(currCombination.get(UtilsTS.nAct)!= 0 && currCombination.get(UtilsTS.fidelPtRange)==0){
+				currChoice.biogeme_id = combinationId;
+				currChoice.choiceCombination = currCombination;
+				if(!pt){
+					pt = true;
+					combinationGroupPt = combinationId;
+					currChoice.biogeme_group_id = combinationGroupPt;
+				}
+				else{
+					currChoice.biogeme_group_id = combinationGroupPt;
+				}
+				combinationId++;
+			}
+			else if(currCombination.get(UtilsTS.nAct)!=0 && currCombination.get(UtilsTS.fidelPtRange)!=0){
+				currChoice.biogeme_id = combinationId;
+				currChoice.choiceCombination = currCombination;
+				currChoice.biogeme_group_id = combinationId;
+				combinationId++;
+			}
+			else{
+				System.out.println("there was a problem in the index generation");
+				combinationId++;
+			}
+			choiceIndex.add(currChoice);
+		}
+    	return choiceIndex;
+    }
 	
-    public HashMap<String, Integer> getCombinations(){
+    /*public HashMap<String, Integer> getCombinations(){
     	HashMap<String, Integer> dictionnary = new HashMap<String,Integer>();
     	
     	Iterator<HashMap<String,Integer>> it = combinations.iterator();
@@ -415,19 +347,19 @@ public class BiogemeControlFileGenerator {
 			HashMap<String,Integer> currCombination = it.next();
 			String ref = new String();
 			
-			if(currCombination.get(UtilsTS.nAct) == 0 && !home){
-				ref = UtilsTS.stayedHome;
+			if(currCombination.get(Utils.nAct) == 0 && !home){
+				ref = Utils.stayedHome;
 				dictionnary.put(ref, n);
 				n++;
 				home = true;
 			}
-			else if(currCombination.get(UtilsTS.nAct)!= 0 && currCombination.get(UtilsTS.fidelPtRange)==0 && ptUser){
-				ref = UtilsTS.noPT;
+			else if(currCombination.get(Utils.nAct)!= 0 && currCombination.get(Utils.fidelPtRange)==0 && ptUser){
+				ref = Utils.noPT;
 				dictionnary.put(ref, n);
 				n++;
 				ptUser = false;
 			}
-			else if(currCombination.get(UtilsTS.nAct)!=0 && currCombination.get(UtilsTS.fidelPtRange)!=0){
+			else if(currCombination.get(Utils.nAct)!=0 && currCombination.get(Utils.fidelPtRange)!=0){
 				for(String key: currCombination.keySet()){
 					ref += Integer.toString(currCombination.get(key));
 				}
@@ -440,7 +372,7 @@ public class BiogemeControlFileGenerator {
 		}
     	System.out.println(dictionnary.toString());
     	return dictionnary;
-    }
+    }*/
     
     public void writeUpperPart() throws IOException{
     	myDataWriter.WriteToFile("//Auto generated control file to use with Biogeme for windows");
@@ -449,7 +381,7 @@ public class BiogemeControlFileGenerator {
     	Date date = new Date();
     	myDataWriter.WriteToFile("//date: " + dateFormat.format(date)); 
     	myDataWriter.WriteToFile("[Choice]\r\n" + 
-    			UtilsTS.choice);
+    			UtilsTS.alternative);
     	
     }
     
@@ -457,8 +389,10 @@ public class BiogemeControlFileGenerator {
     	myDataWriter.WriteToFile("[Expressions] ");
     	myDataWriter.WriteToFile("one = 1 ");
     	myDataWriter.WriteToFile("avail = 1 ");
+    	writeDummies();
     	myDataWriter.WriteToFile("EARLY_WORKER_var = (OCCUP == 0 ) * (FIRST_DEPShort * 0 )");
     	myDataWriter.WriteToFile("RETIRE_FIRST_DEP_var = (OCCUP == 2 ) * (FIRST_DEPShort * 2 )");
+    	myDataWriter.WriteToFile("NO_MOTOR_var = (MOTOR == 0 )");
     	myDataWriter.WriteToFile("[Exclude]");
     	myDataWriter.WriteToFile("(GRPAGE == 0) >= 1");
     			
@@ -467,6 +401,20 @@ public class BiogemeControlFileGenerator {
     	myDataWriter.WriteToFile("$MNL");
     }
     
+
+	private void writeDummies() throws IOException {
+		// TODO Auto-generated method stub
+		for(BiogemeHypothesis currH : hypothesis){
+			if(currH.isDummy){
+				String newExpression = currH.affectingDimensionName + UtilsTS.var + " = ";
+				for(int i : currH.affectingCategories){
+					newExpression+= " (" + currH.affectingDimensionName + " == " + i + " ) *";
+				}
+				newExpression = newExpression.trim().substring(0, newExpression.length() -1);
+				myDataWriter.WriteToFile(newExpression);
+			}
+		}
+	}
 
 	public void printChoiceIndex(String path) throws IOException{
 		OutputFileWritter tempWriter = new OutputFileWritter();

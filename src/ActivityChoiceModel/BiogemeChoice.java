@@ -5,6 +5,7 @@ package ActivityChoiceModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import Utils.Utils;
 
 /**
  * @author Antoine
@@ -13,6 +14,7 @@ import java.util.HashMap;
 public class BiogemeChoice {
 	
 	int biogeme_id;
+	int biogeme_group_id;
 	HashMap<String,Integer> choiceCombination = new HashMap<String,Integer> ();
 	
 	public BiogemeChoice(){
@@ -53,14 +55,14 @@ public class BiogemeChoice {
 		return false;
 	}
 	
-	public boolean isCst(BiogemeHypothesis currH){
+	/*public boolean isCst(BiogemeHypothesis currH){
 		// TODO Auto-generated method stub
 		if(currH.coefName.equals(getConstantName())){
 			return true;
 		}
 		
 		return false;
-	}
+	}*/
 
 	public double getAffectingValue(BiogemeHypothesis currH, BiogemeAgent currAgent) {
 		// TODO Auto-generated method stub
@@ -96,8 +98,9 @@ public class BiogemeChoice {
 	public String toString(){
 		String answer = Integer.toString(biogeme_id);
 		for(String key: choiceCombination.keySet()){
-			answer+= Utils.Utils.COLUMN_DELIMETER + key + Utils.Utils.COLUMN_DELIMETER + choiceCombination.get(key);
+			answer+= Utils.COLUMN_DELIMETER + key + Utils.COLUMN_DELIMETER + choiceCombination.get(key);
 		}
 		return answer;
 	}
+	
 }

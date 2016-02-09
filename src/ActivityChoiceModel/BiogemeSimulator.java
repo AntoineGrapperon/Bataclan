@@ -5,6 +5,7 @@ package ActivityChoiceModel;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Scanner;
 
 import Utils.InputDataReader;
@@ -17,26 +18,30 @@ import Utils.Utils;
  */
 public class BiogemeSimulator {
 
-	public BiogemeControlFileGenerator biogemeGenerator = new BiogemeControlFileGenerator();
+	public BiogemeControlFileGenerator myCtrlGen;
 	
-	InputDataReader myInputDataReader = new InputDataReader();
+	InputDataReader myReader = new InputDataReader();
 	OutputFileWritter myOutputFileWriter = new OutputFileWritter();
 	ArrayList<BiogemeAgent> myPopulationSample = new ArrayList<BiogemeAgent>();
 	public static ArrayList<BiogemeHypothesis> modelHypothesis = new ArrayList<BiogemeHypothesis>();
 	
-	public BiogemeSimulator(String pathControleFile,  String pathHypothesis) throws IOException{
-		biogemeGenerator.generateBiogemeControlFile(pathControleFile,  pathHypothesis);
+	public BiogemeSimulator() throws IOException{
 	}
 	
 	public BiogemeSimulator(String pathControleFile, String pathOutput, String pathHypothesis) throws IOException{
-		biogemeGenerator.generateBiogemeControlFile(pathControleFile, pathOutput, pathHypothesis);
+		myCtrlGen.generateBiogemeControlFile();
+		myCtrlGen.initialize(pathControleFile, pathOutput, pathHypothesis);
+	}
+	
+	public BiogemeSimulator(BiogemeControlFileGenerator ctrlGen){
+		myCtrlGen = ctrlGen;
 	}
 	
 	public void initialize(String path ) throws IOException{
-		myInputDataReader.OpenFile(path);
+		myReader.OpenFile(path);
 		createAgents();
 		System.out.println("--agents created");
-		addHypothesis(biogemeGenerator.hypothesis);
+		addHypothesis(myCtrlGen.hypothesis);
 		ArrayList<BiogemeHypothesis> constants = generateConstantHypothesis();
 		addHypothesis(constants);
 	}
@@ -60,23 +65,22 @@ public class BiogemeSimulator {
 	}
 
 	public void applyModelOnTravelSurveyPopulation(String outputPath) throws IOException{
+		int n = 0;
+		int N = myPopulationSample.size();
 		for(BiogemeAgent person: myPopulationSample){
 			ArrayList<Integer> choiceSet = person.processChoiceSet();
 			//System.out.println(choiceSet);
 			person.applyModel(choiceSet);
+			n++;
+			if(n%1000 == 0){
+				System.out.println("-- " + n + " agents were processed out of " + N);
+			}
 		}
 		
 		myOutputFileWriter.OpenFile(outputPath);
 		String headers = "Observed choice, Simulated choice, Weigh";
 		myOutputFileWriter.WriteToFile(headers);
 		for(BiogemeAgent person: myPopulationSample){
-			
-			/*for(BiogemeChoice temp: biogemeGenerator.choiceIndex){
-				if(temp.biogeme_id == Integer.parseInt(person.myAttributes.get(UtilsTS.sim))){
-					
-				}
-			}*/
-			
 			String newLine = getChoice(person.myAttributes.get(UtilsTS.alternative)) + 
 					Utils.COLUMN_DELIMETER +getChoice(person.myAttributes.get(UtilsTS.sim)) +
 					Utils.COLUMN_DELIMETER + person.myAttributes.get(UtilsTS.weigth);
@@ -86,27 +90,21 @@ public class BiogemeSimulator {
 	}
 	
 	public void applyModel(String outputPath) throws IOException{
+		int n = 0;
+		int N = myPopulationSample.size();
 		for(BiogemeAgent person: myPopulationSample){
 			ArrayList<Integer> choiceSet = person.processChoiceSet();
-			//System.out.println(choiceSet);
 			person.applyModel(choiceSet);
+			n++;
+			if(n%1000 == 0){System.out.println("-- " + n + " agents were processed out of " + N);}
 		}
-		
-		myOutputFileWriter.OpenFile(outputPath);
-		String headers = "Observed choice, Simulated choice";
-		myOutputFileWriter.WriteToFile(headers);
-		for(BiogemeAgent person: myPopulationSample){
-			String newLine = getChoice(person.myAttributes.get(UtilsTS.alternative)) + 
-					Utils.COLUMN_DELIMETER +getChoice(person.myAttributes.get(UtilsTS.sim)) +
-					Utils.COLUMN_DELIMETER + person.myAttributes.get(UtilsTS.weigth);
-			myOutputFileWriter.WriteToFile(newLine);
-		}
-		myOutputFileWriter.CloseFile();
+		writeSimulationResults(outputPath);
 	}
 	
+
 	private String getChoice(String string) {
 		// TODO Auto-generated method stub
-		for(BiogemeChoice temp: biogemeGenerator.choiceIndex){
+		for(BiogemeChoice temp: myCtrlGen.choiceIndex){
 			if(temp.biogeme_id == Integer.parseInt(string)){
 				return temp.getConstantName();
 			}
@@ -164,7 +162,7 @@ public class BiogemeSimulator {
     	ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
 
     		int i=0;
-    		while((line=myInputDataReader.myFileReader.readLine())!= null)
+    		while((line=myReader.myFileReader.readLine())!= null)
     		{
     			data.add(new ArrayList<String>());
     			scanner = new Scanner(line);
@@ -203,4 +201,36 @@ public class BiogemeSimulator {
 		tempWriter.CloseFile();
 	}
 	
+	public void writeSimulationResults(String outputPath) throws IOException {
+
+		myOutputFileWriter.OpenFile(outputPath);
+		printHeaders();
+		Iterator<BiogemeAgent> it = myPopulationSample.iterator();
+		while(it.hasNext()){
+			BiogemeAgent currAgent = it.next();
+			printAgent(currAgent);
+		}
+		myOutputFileWriter.CloseFile();
+	}
+	
+	private void printAgent(BiogemeAgent currAgent) throws IOException {
+		// TODO Auto-generated method stub
+		String newLine = new String();
+		for(String header: currAgent.myAttributes.keySet()){
+			newLine += currAgent.myAttributes.get(header) + Utils.COLUMN_DELIMETER;
+		}
+		newLine += getChoice(currAgent.myAttributes.get(UtilsTS.alternative)) + 
+				Utils.COLUMN_DELIMETER +getChoice(currAgent.myAttributes.get(UtilsTS.sim)) ;
+		myOutputFileWriter.WriteToFile(newLine);
+	}
+
+	private void printHeaders() throws IOException {
+		// TODO Auto-generated method stub
+		String headers = new String();
+		for(String header: myPopulationSample.get(0).myAttributes.keySet()){
+			headers += header + Utils.COLUMN_DELIMETER;
+		}
+		headers += headers + UtilsTS.alternative + "_DEF" + Utils.COLUMN_DELIMETER + UtilsTS.sim + "_DEF";
+		myOutputFileWriter.WriteToFile(headers);
+	}
 }
