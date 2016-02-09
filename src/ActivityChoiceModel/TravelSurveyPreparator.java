@@ -1359,7 +1359,7 @@ public class TravelSurveyPreparator {
 		myData.put(UtilsTS.firstDep + "Short", new ArrayList());
 		for(int i = 0; i < myData.get(UtilsTS.id).size(); i++){
 			String temp = (String) myData.get(UtilsTS.firstDep).get(i);
-			if(temp.equals("1")){myData.get(UtilsTS.firstDep+ "Short").add("0");} //living earlier then peak hour
+			if(temp.equals("1")){myData.get(UtilsTS.firstDep+ "Short").add("0");} //living earlier then peak hour (before 7am)
 			else if (temp.equals("2")){myData.get(UtilsTS.firstDep+ "Short").add("1");} // leaving during peak hour (6-9am)
 			else if (temp.equals("10")){myData.get(UtilsTS.firstDep+ "Short").add("10");}
 			else {myData.get(UtilsTS.firstDep+ "Short").add("2");} 

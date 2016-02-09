@@ -29,7 +29,7 @@ public class SmartcardDataManager extends DataManager{
 	public void prepareData(String inputData) throws IOException{
 		initialize(inputData);
 		createSmartcards();
-		identifyNeighborhood();
+		localizeSmartcardHoldersNeighborhood();
 	}
 
 	/**
@@ -37,15 +37,18 @@ public class SmartcardDataManager extends DataManager{
 	 * The basic assumption is that every morning, the smart card holder validate his smart card at a bus stop.
 	 * The location of the bus stop is known, we look over a month of data and we infer that the most frequent dissemination area is the place of living.
 	 */
-	private void identifyNeighborhood() {
+	private void localizeSmartcardHoldersNeighborhood() {
 		// TODO Auto-generated method stub
-		
+		for(Smartcard currSm : mySmartcards){
+			currSm.identifyDailyFirstTransaction();
+			currSm.identifyZoneOfLiving();
+		}
 	}
 
 	
 	private void createSmartcards() {
 		// TODO Auto-generated method stub
-		for(int i = 0; i < myData.get(UtilsSM.id).size(); i++){
+		for(int i = 0; i < myData.get(UtilsSM.cardId).size(); i++){
 			Smartcard currSm = getSmartcard(i);
 			updateSmartcard(currSm,i);
 		}
@@ -58,14 +61,14 @@ public class SmartcardDataManager extends DataManager{
 	 * @return
 	 */
 	public Smartcard getSmartcard(int i){
-		int id = Integer.parseInt(myData.get(UtilsSM.id).get(i));
+		int id = Integer.parseInt(myData.get(UtilsSM.cardId).get(i));
 		for(Smartcard currS : mySmartcards){
-			if(currS.id == id){
+			if(currS.cardId == id){
 				return currS;
 			}
 		}
 		Smartcard newSm = new Smartcard();
-		newSm.setId(Integer.parseInt(myData.get(UtilsSM.id).get(i)));
+		newSm.setId(Integer.parseInt(myData.get(UtilsSM.cardId).get(i)));
 		createDataStructure(newSm);
 		mySmartcards.add(newSm);
 		return newSm;
@@ -73,7 +76,7 @@ public class SmartcardDataManager extends DataManager{
 	
 	public boolean containsSmartcard(int id){
 		for(Smartcard currS : mySmartcards){
-			if(currS.id == id){
+			if(currS.cardId == id){
 				return true;
 			}
 		}

@@ -5,6 +5,7 @@ package ActivityChoiceModel;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Scanner;
 
@@ -24,6 +25,11 @@ public class BiogemeSimulator {
 	OutputFileWritter myOutputFileWriter = new OutputFileWritter();
 	ArrayList<BiogemeAgent> myPopulationSample = new ArrayList<BiogemeAgent>();
 	public static ArrayList<BiogemeHypothesis> modelHypothesis = new ArrayList<BiogemeHypothesis>();
+	
+	/**
+	 * choiceUniverse is required only for simulating the model with smart card data. For simulating the model with the travel survey, alternatives are computed a bit differently.
+	 */
+	HashMap<String, BiogemeChoice> choiceUniverse = new HashMap<String, BiogemeChoice>();
 	
 	public BiogemeSimulator() throws IOException{
 	}

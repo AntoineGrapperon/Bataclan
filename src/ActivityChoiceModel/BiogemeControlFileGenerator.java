@@ -333,6 +333,30 @@ public class BiogemeControlFileGenerator {
 		}
     	return choiceIndex;
     }
+	 
+	 public int returnChoiceId(HashMap<String, Integer> myCombinationChoice) {
+			// TODO Auto-generated method stub
+			for(BiogemeChoice currChoice: BiogemeControlFileGenerator.choiceIndex){
+				if(areEquals(currChoice.choiceCombination,myCombinationChoice)){
+					return currChoice.biogeme_group_id;
+				}
+			}
+			System.out.println("--error: combination index was not found for code: " + myCombinationChoice.toString());
+			return 0;
+		}
+		
+		public boolean areEquals(HashMap<String,Integer> m1,HashMap<String,Integer> m2){
+			for(String key: m1.keySet()){
+				if(!m2.containsKey(key)){
+					System.out.println("mapping problem");
+					return false;
+				}
+				if(m1.get(key) != m2.get(key)){
+					return false;
+				}
+			}
+			return true;
+		}
 	
     /*public HashMap<String, Integer> getCombinations(){
     	HashMap<String, Integer> dictionnary = new HashMap<String,Integer>();
