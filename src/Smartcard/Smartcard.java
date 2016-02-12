@@ -4,6 +4,8 @@
 package Smartcard;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 
 /**
@@ -24,9 +26,9 @@ public class Smartcard {
 	
 	public void setChoiceId(){
 		HashMap<String, Integer> myCombination = new HashMap<String, Integer>();
-		int firstDep = getFirstDep();
-		int lastDep = getLastDep();
-		int nAct = getActivityCount();
+		int firstDep = getWeekDayAverageFirstDep();
+		int lastDep = getWeekDayAverageLastDep();
+		int nAct = getWeekDayAverageActivityCount(UtilsSM.timeThreshold);
 		int ptFidelity = getPtFidelity();
 		
 		
@@ -40,14 +42,17 @@ public class Smartcard {
 	 * For first departure of the day, this function implements the following categorization (0am to 7 am, 7am to 9 am, after 9am)
 	 * @return the departure hour category according the methodology developed 
 	 */
-	private int getFirstDep() {
+	private int getWeekDayAverageFirstDep() {
 		// TODO Auto-generated method stub
 		int counter = 0;
 		double averageDepHour = 0;
 		for(int i = 0; i < myData.get(UtilsSM.cardId).size(); i++){
-			if(myData.get(UtilsSM.firstTrans).get(i).equals(UtilsSM.isFirst)){
-				counter++;
-				averageDepHour += hourStrToDouble(myData.get(UtilsSM.time).get(i));
+			String currDate = myData.get(UtilsSM.date).get(i);
+			if(isWeekDay(currDate)){
+				if(myData.get(UtilsSM.firstTrans).get(i).equals(UtilsSM.isFirst)){
+					counter++;
+					averageDepHour += hourStrToDouble(myData.get(UtilsSM.time).get(i));
+				}
 			}
 		}
 		averageDepHour = averageDepHour/counter;
@@ -75,16 +80,18 @@ public class Smartcard {
 	 * For first departure of the day, this function implements the following categorization (before 3.30pm, 3.30pm to 6pm, after 6pm)
 	 * @return the departure hour category according the methodology developed 
 	 */
-	private int getLastDep() {
+	private int getWeekDayAverageLastDep() {
 		// TODO Auto-generated method stub
 		int counter = 0;
 		double averageDepHour = 0;
 		for(int i = 0; i < myData.get(UtilsSM.cardId).size(); i++){
 			String date = myData.get(UtilsSM.date).get(i);
 			double time = hourStrToDouble(myData.get(UtilsSM.time).get(i));
-			if(isLast(date,time)){
-				counter++;
-				averageDepHour += hourStrToDouble(myData.get(UtilsSM.time).get(i));
+			if(isWeekDay(date)){
+				if(isLast(date,time)){
+					counter++;
+					averageDepHour += hourStrToDouble(myData.get(UtilsSM.time).get(i));
+				}
 			}
 		}
 		averageDepHour = averageDepHour/counter;
@@ -104,14 +111,78 @@ public class Smartcard {
 		}
 	}
 	
-	public int getActivityCount(){
-		return 0;
+	/**
+	 * This function identifies activities out of boarding time.
+	 * @param timeThreshold in minutes, is the time limit between two boardings to consider it as an activity.
+	 * @return the number of activities
+	 */
+	public int getWeekDayAverageActivityCount(double timeThreshold){
+		
+		HashMap<String, ArrayList<Double>> boardingTimes = new HashMap<String, ArrayList<Double>>();
+		for(int i = 0; i < myData.get(UtilsSM.cardId).size();i++){
+			String currDate = myData.get(UtilsSM.date).get(i);
+			Double time = hourStrToDouble(myData.get(UtilsSM.time).get(i));
+			if(isWeekDay(currDate)){
+				if(!boardingTimes.containsKey(currDate)){
+					boardingTimes.put(currDate, new ArrayList<Double>());
+					boardingTimes.get(currDate).add(time);
+				}
+				else{
+					boardingTimes.get(currDate).add(time);
+				}
+			}
+		}
+		int nAct = 0;
+		int dayCounter = 0;
+		for(String date: boardingTimes.keySet()){
+			dayCounter++;			
+			Collections.sort(boardingTimes.get(date));
+			for(int j = 0; j < boardingTimes.get(date).size()-1; j++){
+				double timeInterval = boardingTimes.get(date).get(j+1) - boardingTimes.get(date).get(j);
+				if(timeInterval < timeThreshold){
+					nAct++;
+				}
+			}
+		}
+		nAct = nAct/dayCounter;
+		return nAct;
 	}
 	
-	public int getPtFidelity(){
+	public int getPtFidelity(double distanceThreshold){
+		int counterTripLegs = 0;
+		int counterNonPt = 0;
+		for(int i = 0; i < myData.get(UtilsSM.cardId).size()-1;i++){
+			String currDate = myData.get(UtilsSM.date).get(i);
+			if(isWeekDay(currDate)){
+				int stationId = Integer.parseInt(myData.get(UtilsSM.stationId).get(i));
+				int nextStationId = Integer.parseInt(myData.get(UtilsSM.nextStationId).get(i));
+				if(nextStationId != 0){
+					Station station = PublicTransitSystem.myStations.get(stationId);
+					Station nextStation = PublicTransitSystem.myStations.get(nextStationId);
+					station.getDistance(nextStation);
+					if(station.getDistance(nextStation)>distanceThreshold){
+						counterNonPt ++;
+					}
+				}
+				else{
+					counterNonPt++;
+				}
+				counterTripLegs++;
+			}
+		}
 		
-		return 0;
+		double ptFidelity = counterNonPt/counterTripLegs;
+		if(ptFidelity < 0.5){return 0;}
+		else if(ptFidelity < 0.95){return 1;}
+		else{return 2;}
 	}
+	
+	private boolean isWeekDay(String currDate) {
+		// TODO Auto-generated method stub
+		return !Arrays.asList(UtilsSM.weekEnd).contains(currDate);
+	}
+
+	
 
 	/**
 	 * Assign to the smart card instance the identifier of the local area where the smart card holder did validate the most frequently.
