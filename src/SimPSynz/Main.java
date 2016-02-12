@@ -13,6 +13,7 @@ import ActivityChoiceModel.CensusPreparator;
 import ActivityChoiceModel.TravelSurveyPreparator;
 import ActivityChoiceModel.UtilsTS;
 import SimulationObjects.World;
+import Smartcard.PublicTransitSystem;
 
 import java.util.*;
 
@@ -49,6 +50,8 @@ public class Main {
 	   
 	    CensusPreparator census = new CensusPreparator(Utils.DATA_DIR + "CMA505CENSUSPROFIL2006.csv");
 	    System.out.println("--census file was found");
+	    
+	    PublicTransitSystem myPublicTransitSystem = new PublicTransitSystem();
 		
 		
 	    
@@ -108,7 +111,7 @@ public class Main {
             // Initialize the population pool log
             OutputFileWritter population =  new OutputFileWritter();
         	population.OpenFile(Utils.DATA_DIR + "data\\505\\createdPopulation.csv");
-        	headers = "zoneId" + Utils.COLUMN_DELIMETER + "zoneId";
+        	headers = "agentId" + Utils.COLUMN_DELIMETER + UtilsST.stationId;
             for(int i = 0; i < ConfigFile.AttributeDefinitions.size(); i++){
     			headers = headers + Utils.COLUMN_DELIMETER + ConfigFile.AttributeDefinitions.get(i).category ;
             }
@@ -181,17 +184,16 @@ public class Main {
 			mySimulator.applyModelOnTravelSurveyPopulation(Utils.DATA_DIR + "biogeme\\simulationResults.csv");*/
 			
 			//############################################################################################
-	    	//Load synthetic Agents and simulate their choices f
+	    	//Load Smartcard data and process them to label with a choice id
 	    	//############################################################################################
 	    	
-			//BE CAREFUL : HYPOTHESIS SHOULD NOT BE CHANGED, HOWEVER IT IS IMPORTANT TO EDIT THE CONTROL FILE
-			//BEFORE CALIBRATING THE MODEL WITH BIOGEME : THE FIXED PARAMETER SHOULD BE CHOOSEN, DUMMIES SHOULD SPECIFIED
-			//AND 
+			myPublicTransitSystem.initialize(myCtrlGenerator, Utils.DATA_DIR + "ptSystem\\smartcardData.txt", Utils.DATA_DIR + "\\ptSystem\\stops.txt");
 			
-			mySimulator = new BiogemeSimulator(myCtrlGenerator);
+			
+			/*mySimulator = new BiogemeSimulator(myCtrlGenerator);
 			mySimulator.initialize(Utils.DATA_DIR + "data\\505\\createdPopulation.csv");
 			mySimulator.importBiogemeModel(Utils.DATA_DIR + "biogeme\\ctrl.F12");
-			mySimulator.applyModel(Utils.DATA_DIR + "Outputs\\simulationResults.csv");
+			mySimulator.applyModel(Utils.DATA_DIR + "Outputs\\simulationResults.csv");*/
 	    	
 	    	//###############################################################################
 	    	//Generate a synthetic population and output statistical analysis of the goodness

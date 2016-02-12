@@ -26,10 +26,23 @@ public class SmartcardDataManager extends DataManager{
 		myCtrlFileGenerator = biogemeGenerator;
 	}
 	
-	public void prepareData(String inputData) throws IOException{
-		initialize(inputData);
+	public ArrayList<Smartcard> prepareSmartcards(String smartcardData) throws IOException{
+		initialize(smartcardData);
+		System.out.println("--smartcard manager initialized");
 		createSmartcards();
+		System.out.println("--smartcard created");
 		localizeSmartcardHoldersNeighborhood();
+		System.out.println("--assign bus station");
+		assignChoiceId();
+		System.out.println("--identify choice Id");
+		return mySmartcards;
+	}
+
+	private void assignChoiceId() {
+		// TODO Auto-generated method stub
+		for(Smartcard currSm: mySmartcards){
+			currSm.setChoiceId();
+		}
 	}
 
 	/**

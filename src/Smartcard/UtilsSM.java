@@ -23,7 +23,6 @@ public class UtilsSM {
 	public static String zoneId = "zoneId";
 	public static String lineId = "NM_LI";
 	public static String stationId = "NUM_ARRET";
-
 	public static String nextStationId = "DER_Num_Arret_Dest";
 	
 	public static double morningPeakHourStart = 420; 

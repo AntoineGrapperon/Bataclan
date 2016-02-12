@@ -18,7 +18,7 @@ import ActivityChoiceModel.UtilsTS;
 public class Smartcard {
 
 	int cardId;
-	String zoneId;
+	String stationId;
 	int choiceId;
 	protected HashMap<String, ArrayList<String>> myData = new HashMap<String, ArrayList<String>>();
 	
@@ -197,16 +197,16 @@ public class Smartcard {
 	 * Assign to the smart card instance the identifier of the local area where the smart card holder did validate the most frequently.
 	 */
 	public void identifyZoneOfLiving(){
-		HashMap<String, Integer> zoneFrequencies = getZoneFrequencies();
-		String myZoneId = new String();
+		HashMap<String, Integer> stationFrequencies = getStationFrequencies();
+		String myStationId = new String();
 		Integer freq = 0;
-		for(String key: zoneFrequencies.keySet()){
-			if(zoneFrequencies.get(key)>freq){
-				myZoneId = key;
-				freq = zoneFrequencies.get(key);
+		for(String key: stationFrequencies.keySet()){
+			if(stationFrequencies.get(key)>freq){
+				myStationId = key;
+				freq = stationFrequencies.get(key);
 			}
 		}
-		zoneId = myZoneId;
+		stationId = myStationId;
 	}
 
 	/**
@@ -214,24 +214,24 @@ public class Smartcard {
 	 * The value is the number of time he validated in in the zone.
 	 * @return a HashMap which keyset is the local zone identifier and the value is the count of time the first validation of day was made in this specific local area.
 	 */
-	public HashMap<String,Integer> getZoneFrequencies() {
+	public HashMap<String,Integer> getStationFrequencies() {
 		// TODO Auto-generated method stub
-		HashMap<String, Integer> zoneFrequencies = new HashMap<String, Integer>();
+		HashMap<String, Integer> stopFrequencies = new HashMap<String, Integer>();
 		for(int i = 0; i < myData.get(UtilsSM.cardId).size(); i++){
 			String date = myData.get(UtilsSM.date).get(i);
 			double time = hourStrToDouble(myData.get(UtilsSM.time).get(i));
 			if(isFirst(date, time)){
-				String zoneId = myData.get(UtilsSM.zoneId).get(i);
-				if(zoneFrequencies.containsKey(zoneId)){
-					int fr = zoneFrequencies.get(zoneId) + 1;
-					zoneFrequencies.put(zoneId, fr);
+				String stopId = myData.get(UtilsSM.stationId).get(i);
+				if(stopFrequencies.containsKey(stopId)){
+					int fr = stopFrequencies.get(stopId) + 1;
+					stopFrequencies.put(stopId, fr);
 				}
 				else{
-					zoneFrequencies.put(zoneId, 1);
+					stopFrequencies.put(stopId, 1);
 				}
 			}
 		}
-		return zoneFrequencies;
+		return stopFrequencies;
 	}
 	
 	public void identifyDailyFirstTransaction(){
