@@ -334,7 +334,7 @@ public class BiogemeControlFileGenerator {
     	return choiceIndex;
     }
 	 
-	 public int returnChoiceId(HashMap<String, Integer> myCombinationChoice) {
+	 public static int returnChoiceId(HashMap<String, Integer> myCombinationChoice) {
 			// TODO Auto-generated method stub
 			for(BiogemeChoice currChoice: BiogemeControlFileGenerator.choiceIndex){
 				if(areEquals(currChoice.choiceCombination,myCombinationChoice)){
@@ -345,7 +345,7 @@ public class BiogemeControlFileGenerator {
 			return 0;
 		}
 		
-		public boolean areEquals(HashMap<String,Integer> m1,HashMap<String,Integer> m2){
+		public static boolean areEquals(HashMap<String,Integer> m1,HashMap<String,Integer> m2){
 			for(String key: m1.keySet()){
 				if(!m2.containsKey(key)){
 					System.out.println("mapping problem");

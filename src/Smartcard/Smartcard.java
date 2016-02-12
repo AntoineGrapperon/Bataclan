@@ -8,6 +8,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 
+import ActivityChoiceModel.BiogemeControlFileGenerator;
+import ActivityChoiceModel.UtilsTS;
+
 /**
  * @author Antoine
  *
@@ -29,9 +32,12 @@ public class Smartcard {
 		int firstDep = getWeekDayAverageFirstDep();
 		int lastDep = getWeekDayAverageLastDep();
 		int nAct = getWeekDayAverageActivityCount(UtilsSM.timeThreshold);
-		int ptFidelity = getPtFidelity();
-		
-		
+		int ptFidelity = getWeekDayAveragePtFidelity(UtilsSM.distanceThreshold);
+		myCombination.put(UtilsTS.firstDep, firstDep);
+		myCombination.put(UtilsTS.lastDep, lastDep);
+		myCombination.put(UtilsTS.nAct, nAct);
+		myCombination.put(UtilsTS.fidelPtRange, ptFidelity);
+		choiceId = BiogemeControlFileGenerator.returnChoiceId(myCombination);
 	}
 	
 	/**
@@ -144,11 +150,14 @@ public class Smartcard {
 				}
 			}
 		}
-		nAct = nAct/dayCounter;
-		return nAct;
+		
+		double avgNAct = nAct/dayCounter;
+		int answer = (int) Math.round(avgNAct);
+		if(answer<4){return answer;}
+		else{return 4;}
 	}
 	
-	public int getPtFidelity(double distanceThreshold){
+	public int getWeekDayAveragePtFidelity(double distanceThreshold){
 		int counterTripLegs = 0;
 		int counterNonPt = 0;
 		for(int i = 0; i < myData.get(UtilsSM.cardId).size()-1;i++){
