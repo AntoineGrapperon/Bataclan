@@ -348,7 +348,7 @@ public class BiogemeControlFileGenerator {
 		public static boolean areEquals(HashMap<String,Integer> m1,HashMap<String,Integer> m2){
 			for(String key: m1.keySet()){
 				if(!m2.containsKey(key)){
-					System.out.println("mapping problem");
+					System.out.println("mapping problem: key " + key + " is not in " + m2.keySet());
 					return false;
 				}
 				if(m1.get(key) != m2.get(key)){

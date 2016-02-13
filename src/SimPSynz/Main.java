@@ -48,8 +48,7 @@ public class Main {
 	    String workingDir = System.getProperty("user.dir");
 		System.out.println("Current working directory : " + workingDir);
 	   
-	    CensusPreparator census = new CensusPreparator(Utils.DATA_DIR + "CMA505CENSUSPROFIL2006.csv");
-	    System.out.println("--census file was found");
+	    
 	    
 	    PublicTransitSystem myPublicTransitSystem = new PublicTransitSystem();
 		
@@ -85,7 +84,10 @@ public class Main {
 	    	//Create the zonal input file for population sinthesis (DAUID , Population)
 	    	//###############################################################################
 	    	//census.writeZonalInputFile();
-	    	/*int nBatch = 150;
+	    	/*
+	    	CensusPreparator census = new CensusPreparator(Utils.DATA_DIR + "CMA505CENSUSPROFIL2006.csv");
+	    	System.out.println("--census file was found"); 
+	     	int nBatch = 150;
 	    	census.writeZonalInputFile(nBatch);	
 	    	census.writeCtrlFile(nBatch);
 	    	
@@ -154,6 +156,7 @@ public class Main {
 	    	
 	    	myCtrlGenerator.initialize(pathControlFile, pathOutput, pathHypothesis);
 			myCtrlGenerator.generateBiogemeControlFile();
+			myCtrlGenerator.printChoiceIndex(Utils.DATA_DIR + "biogeme\\choiceIndex.csv");
 	    	
 	    	//############################################################################################
 	    	//prepare OD data for modeling using multithreading, input: travel survey as CSV file
@@ -187,7 +190,12 @@ public class Main {
 	    	//Load Smartcard data and process them to label with a choice id
 	    	//############################################################################################
 	    	
-			myPublicTransitSystem.initialize(myCtrlGenerator, Utils.DATA_DIR + "ptSystem\\smartcardData.txt", Utils.DATA_DIR + "\\ptSystem\\stops.txt");
+			myPublicTransitSystem.initialize(
+					myCtrlGenerator, 
+					Utils.DATA_DIR + "ptSystem\\smartcardData.txt", 
+					Utils.DATA_DIR + "ptSystem\\stops.txt",
+					Utils.DATA_DIR + "ptSystem\\dictionnaryDaStation.csv"
+					);
 			
 			
 			/*mySimulator = new BiogemeSimulator(myCtrlGenerator);

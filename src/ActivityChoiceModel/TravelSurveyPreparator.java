@@ -815,7 +815,7 @@ public class TravelSurveyPreparator {
     		 myData.put(headers.get(i), new ArrayList());
     	 }
 
-    	 for (int i=1; i<data.size()-1; i++)
+    	 for (int i=1; i<data.size(); i++)
     	 {
     			for (int j=0; j<data.get(i).size();j++)
     			{

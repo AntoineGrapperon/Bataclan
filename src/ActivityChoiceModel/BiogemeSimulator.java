@@ -31,7 +31,7 @@ public class BiogemeSimulator {
 	 */
 	HashMap<String, BiogemeChoice> choiceUniverse = new HashMap<String, BiogemeChoice>();
 	
-	public BiogemeSimulator() throws IOException{
+	public BiogemeSimulator(){
 	}
 	
 	public BiogemeSimulator(String pathControleFile, String pathOutput, String pathHypothesis) throws IOException{

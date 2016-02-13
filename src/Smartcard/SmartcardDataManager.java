@@ -31,7 +31,7 @@ public class SmartcardDataManager extends DataManager{
 		System.out.println("--smartcard manager initialized");
 		createSmartcards();
 		System.out.println("--smartcard created");
-		localizeSmartcardHoldersNeighborhood();
+		identifyMostFrequentStation();
 		System.out.println("--assign bus station");
 		assignChoiceId();
 		System.out.println("--identify choice Id");
@@ -50,21 +50,23 @@ public class SmartcardDataManager extends DataManager{
 	 * The basic assumption is that every morning, the smart card holder validate his smart card at a bus stop.
 	 * The location of the bus stop is known, we look over a month of data and we infer that the most frequent dissemination area is the place of living.
 	 */
-	private void localizeSmartcardHoldersNeighborhood() {
+	private void identifyMostFrequentStation() {
 		// TODO Auto-generated method stub
 		for(Smartcard currSm : mySmartcards){
-			currSm.identifyDailyFirstTransaction();
-			currSm.identifyZoneOfLiving();
+			currSm.tagFirstTransaction();
+			currSm.identifyMostFrequentStation();
 		}
 	}
 
 	
 	private void createSmartcards() {
 		// TODO Auto-generated method stub
+		System.out.println("-- number of records to process " + myData.get(UtilsSM.cardId).size());
 		for(int i = 0; i < myData.get(UtilsSM.cardId).size(); i++){
 			Smartcard currSm = getSmartcard(i);
 			updateSmartcard(currSm,i);
 		}
+		System.out.println("--number of smart cards " + mySmartcards.size());
 	}
 	
 	/**
@@ -74,14 +76,14 @@ public class SmartcardDataManager extends DataManager{
 	 * @return
 	 */
 	public Smartcard getSmartcard(int i){
-		int id = Integer.parseInt(myData.get(UtilsSM.cardId).get(i));
+		double id = Double.parseDouble(myData.get(UtilsSM.cardId).get(i));
 		for(Smartcard currS : mySmartcards){
 			if(currS.cardId == id){
 				return currS;
 			}
 		}
 		Smartcard newSm = new Smartcard();
-		newSm.setId(Integer.parseInt(myData.get(UtilsSM.cardId).get(i)));
+		newSm.setId(Double.parseDouble(myData.get(UtilsSM.cardId).get(i)));
 		createDataStructure(newSm);
 		mySmartcards.add(newSm);
 		return newSm;

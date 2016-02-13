@@ -10,6 +10,7 @@ import java.util.HashMap;
 
 import ActivityChoiceModel.BiogemeControlFileGenerator;
 import ActivityChoiceModel.UtilsTS;
+import Utils.Utils;
 
 /**
  * @author Antoine
@@ -17,12 +18,12 @@ import ActivityChoiceModel.UtilsTS;
  */
 public class Smartcard {
 
-	int cardId;
+	double cardId;
 	String stationId;
 	int choiceId;
 	protected HashMap<String, ArrayList<String>> myData = new HashMap<String, ArrayList<String>>();
 	
-	public void setId(int id) {
+	public void setId(double id) {
 		// TODO Auto-generated method stub
 		this.cardId = id;
 	}
@@ -33,8 +34,8 @@ public class Smartcard {
 		int lastDep = getWeekDayAverageLastDep();
 		int nAct = getWeekDayAverageActivityCount(UtilsSM.timeThreshold);
 		int ptFidelity = getWeekDayAveragePtFidelity(UtilsSM.distanceThreshold);
-		myCombination.put(UtilsTS.firstDep, firstDep);
-		myCombination.put(UtilsTS.lastDep, lastDep);
+		myCombination.put(UtilsTS.firstDep+"Short", firstDep);
+		myCombination.put(UtilsTS.lastDep+"Short", lastDep);
 		myCombination.put(UtilsTS.nAct, nAct);
 		myCombination.put(UtilsTS.fidelPtRange, ptFidelity);
 		choiceId = BiogemeControlFileGenerator.returnChoiceId(myCombination);
@@ -153,8 +154,8 @@ public class Smartcard {
 		
 		double avgNAct = nAct/dayCounter;
 		int answer = (int) Math.round(avgNAct);
-		if(answer<4){return answer;}
-		else{return 4;}
+		if(answer<3){return answer;}
+		else{return 3;}
 	}
 	
 	public int getWeekDayAveragePtFidelity(double distanceThreshold){
@@ -179,11 +180,16 @@ public class Smartcard {
 				counterTripLegs++;
 			}
 		}
+		if(counterTripLegs != 0){
+			double ptFidelity = counterNonPt/counterTripLegs;
+			if(ptFidelity < 0.5){return 0;}
+			else if(ptFidelity < 0.95){return 1;}
+			else{return 2;}
+		}
+		else{
+			return 0;
+		}
 		
-		double ptFidelity = counterNonPt/counterTripLegs;
-		if(ptFidelity < 0.5){return 0;}
-		else if(ptFidelity < 0.95){return 1;}
-		else{return 2;}
 	}
 	
 	private boolean isWeekDay(String currDate) {
@@ -196,7 +202,7 @@ public class Smartcard {
 	/**
 	 * Assign to the smart card instance the identifier of the local area where the smart card holder did validate the most frequently.
 	 */
-	public void identifyZoneOfLiving(){
+	public void identifyMostFrequentStation(){
 		HashMap<String, Integer> stationFrequencies = getStationFrequencies();
 		String myStationId = new String();
 		Integer freq = 0;
@@ -234,8 +240,8 @@ public class Smartcard {
 		return stopFrequencies;
 	}
 	
-	public void identifyDailyFirstTransaction(){
-		myData.put(UtilsSM.firstTrans, new ArrayList<String>());
+	public void tagFirstTransaction(){
+		myData.put(UtilsSM.firstTrans, new ArrayList<String>());	
 		for(int i = 0; i < myData.get(UtilsSM.cardId).size(); i++){
 			String date = myData.get(UtilsSM.date).get(i);
 			double time = hourStrToDouble(myData.get(UtilsSM.time).get(i));

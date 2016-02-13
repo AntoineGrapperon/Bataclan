@@ -29,6 +29,7 @@ public class DataManager {
 		temp=path.split(".csv");
 		myOutputFileWriter.OpenFile(temp[0] + "_prepared.csv");
 		storeData();
+		myInputDataReader.CloseFile();
 	}
 	
 	public void storeData() throws IOException
@@ -41,7 +42,7 @@ public class DataManager {
     		 myData.put(headers.get(i), new ArrayList<String>());
     	 }
 
-    	 for (int i=1; i<data.size()-1; i++)
+    	 for (int i=1; i<data.size(); i++)
     	 {
     			for (int j=0; j<data.get(i).size();j++)
     			{
