@@ -6,10 +6,13 @@ package Smartcard;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import ActivityChoiceModel.BiogemeAgent;
+import ActivityChoiceModel.BiogemeChoice;
 import ActivityChoiceModel.BiogemeControlFileGenerator;
 import ActivityChoiceModel.BiogemeSimulator;
+import Utils.Utils;
 
 /**
  * @author Antoine
@@ -20,6 +23,14 @@ public class PublicTransitSystem {
 	public static HashMap<Integer, Station> myStations = new HashMap<Integer, Station>();
 	public static ArrayList<Smartcard> mySmartcards = new ArrayList<Smartcard>();
 	public static HashMap<Double,ArrayList<BiogemeAgent>> myDaZones = new HashMap<Double,ArrayList<BiogemeAgent>>();
+	public static HashMap<Double, ArrayList<Smartcard>> zonalChoiceSets = new HashMap<Double, ArrayList<Smartcard>>();
+	public static ArrayList<BiogemeAgent> myPopulation = new ArrayList<BiogemeAgent>();
+	PopulationWriter myPopWriter = new PopulationWriter();
+	double[][] costMatrix;
+	
+	/**
+	 * The geoDico has zonal identifier has keys and an ArrayList of close station identifiers.
+	 */
 	public static HashMap<Double,ArrayList<Integer>> geoDico = new HashMap<Double,ArrayList<Integer>>();
 	public static BiogemeSimulator mySimulator = new BiogemeSimulator();
 
@@ -38,7 +49,48 @@ public class PublicTransitSystem {
 		myStations = myStationManager.prepareStations(pathStations);
 		mySmartcards = mySmartcardManager.prepareSmartcards(pathSmartcard);
 		geoDico = myGeoDico.getDico(pathGeoDico);
+		myPopulation = mySimulator.initialize(Utils.DATA_DIR + "populationSynthesis\\population.csv");
 	}
 	
+	public void assignPotentialSmartcardsToZones(){
+		for(double currZone : geoDico.keySet()){
+			ArrayList<Integer> closeStations = geoDico.get(currZone);
+			ArrayList<Smartcard> zonalChoiceSet = new ArrayList<Smartcard>();
+			Iterator<Smartcard> universalChoiceSet = mySmartcards.iterator();
+			while(universalChoiceSet.hasNext()){
+				Smartcard currCard = universalChoiceSet.next();
+				if(closeStations.contains(currCard.stationId)){
+					zonalChoiceSet.add(currCard);
+				}
+			}
+			zonalChoiceSets.put(currZone,zonalChoiceSet);
+		}
+	}
+	
+	/*public void applyModelOnSmartcard(String outputPath) throws IOException{
+		int n = 0;
+		int N = myPopulation.size();
+		
+		for(BiogemeAgent person: myPopulation){
+			ArrayList<BiogemeChoice> choiceSet = person.processChoiceSetFromSmartcard(UtilsSM.choiceSetSize);
+			person.applyModelSmartcard(choiceSet);
+			n++;
+			if(n%1000 == 0){System.out.println("-- " + n + " agents were processed out of " + N);}
+		}
+		myPopWriter.writeSimulationResults(outputPath, myPopulation);
+	}*/
+	
+	public void createCostMatrix() throws IOException{
+		int n = 0;
+		int N = myPopulation.size();
+		
+		for(BiogemeAgent person: myPopulation){
+			double zoneId = Double.parseDouble(person.myAttributes.get(UtilsSM.zoneId));
+			if(zonalChoiceSets.containsKey(zoneId)){
+				ArrayList<BiogemeChoice> choiceSet = person.processChoiceSetFromSmartcard(UtilsSM.choiceSetSize);
+			}
+			
+		}
+	}
 	
 }

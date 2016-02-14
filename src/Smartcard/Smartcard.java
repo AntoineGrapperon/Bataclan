@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 
+import ActivityChoiceModel.BiogemeChoice;
 import ActivityChoiceModel.BiogemeControlFileGenerator;
 import ActivityChoiceModel.UtilsTS;
 import Utils.Utils;
@@ -16,11 +17,11 @@ import Utils.Utils;
  * @author Antoine
  *
  */
-public class Smartcard {
+public class Smartcard extends BiogemeChoice{
 
 	double cardId;
 	String stationId;
-	int choiceId;
+	//public int choiceId;
 	protected HashMap<String, ArrayList<String>> myData = new HashMap<String, ArrayList<String>>();
 	
 	public void setId(double id) {
@@ -38,7 +39,8 @@ public class Smartcard {
 		myCombination.put(UtilsTS.lastDep+"Short", lastDep);
 		myCombination.put(UtilsTS.nAct, nAct);
 		myCombination.put(UtilsTS.fidelPtRange, ptFidelity);
-		choiceId = BiogemeControlFileGenerator.returnChoiceId(myCombination);
+		biogeme_group_id = BiogemeControlFileGenerator.returnChoiceId(myCombination);
+		choiceCombination = myCombination;
 	}
 	
 	/**

@@ -13,9 +13,9 @@ import Utils.Utils;
  */
 public class BiogemeChoice {
 	
-	int biogeme_id;
-	int biogeme_group_id;
-	HashMap<String,Integer> choiceCombination = new HashMap<String,Integer> ();
+	public int biogeme_id;
+	protected int biogeme_group_id;
+	protected HashMap<String,Integer> choiceCombination = new HashMap<String,Integer> ();
 	
 	public BiogemeChoice(){
 		

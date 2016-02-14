@@ -41,6 +41,7 @@ public class UtilsSM {
 			};
 	public static double timeThreshold = 30;
 	public static double distanceThreshold = 1000;
+	public static int choiceSetSize = 8;
 	
 	
 }

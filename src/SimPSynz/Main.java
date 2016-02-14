@@ -196,6 +196,8 @@ public class Main {
 					Utils.DATA_DIR + "ptSystem\\stops.txt",
 					Utils.DATA_DIR + "ptSystem\\dictionnaryDaStation.csv"
 					);
+			myPublicTransitSystem.assignPotentialSmartcardsToZones();
+			
 			
 			
 			/*mySimulator = new BiogemeSimulator(myCtrlGenerator);

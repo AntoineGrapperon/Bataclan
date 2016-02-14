@@ -5,7 +5,13 @@ package ActivityChoiceModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Random;
 
+import Smartcard.PublicTransitSystem;
+import Smartcard.Smartcard;
+import Smartcard.Station;
+import Smartcard.UtilsSM;
 import Utils.RandomNumberGen;
 import Utils.Utils;
 
@@ -15,7 +21,7 @@ import Utils.Utils;
  */
 public class BiogemeAgent {
 	
-	HashMap<String, String> myAttributes;
+	public HashMap<String, String> myAttributes;
 	protected static RandomNumberGen randGen = new RandomNumberGen();
 	
 	public BiogemeAgent(){
@@ -56,6 +62,39 @@ public class BiogemeAgent {
 		int choiceIndex = antitheticDraw(cumProbabilities);
 		myAttributes.put(UtilsTS.sim, Integer.toString(choiceSet.get(choiceIndex)));
 	}
+	
+	/*public void applyModelSmartcard(ArrayList<BiogemeChoice> choiceSet) {
+		// TODO Auto-generated method stub
+		//rigth I am just able to apply dummies
+		ArrayList<Double> utilities = new ArrayList<Double>();
+		for(int i = 0; i < choiceSet.size(); i++){
+			
+			double utility = 0;
+			int choiceIndex = choiceSet.get(i).biogeme_group_id;
+			BiogemeChoice currChoice =BiogemeControlFileGenerator.choiceIndex.get(choiceIndex);
+			
+			for(BiogemeHypothesis currH: BiogemeSimulator.modelHypothesis){
+				if(currH.isCst()){
+					utility += currH.getCoefficientValue();
+				}
+				else if(currChoice.isAffected(currH) && currChoice.isAffecting(currH, this) && currH.isDummy){
+					utility += currH.getCoefficientValue();
+				}
+				else if(currChoice.isAffected(currH) && !currH.isDummy){
+					utility += currH.getCoefficientValue() * currChoice.getAffectingValue(currH, this);
+				}
+			}
+			utilities.add(utility);
+		}
+		
+		ArrayList<Double> cumProbabilities = processUtilities(utilities);
+		int choiceIndex = antitheticDraw(cumProbabilities);
+		myAttributes.put(UtilsTS.sim, Integer.toString(choiceSet.get(choiceIndex).biogeme_group_id));
+	}*/
+	
+	
+	
+	
 
 	/*private boolean isCst(BiogemeHypothesis currH) {
 		// TODO Auto-generated method stub
@@ -113,5 +152,50 @@ public class BiogemeAgent {
 		//System.out.println("choice : " + index + " rand value  " + randVal);
 		return index;
 	}
+
+	public ArrayList<BiogemeChoice> processChoiceSetFromSmartcard(int choiceSetSize) {
+		// TODO Auto-generated method stub
+		double myZone = Double.parseDouble(myAttributes.get(UtilsSM.zoneId));
+		//ArrayList<Integer> myStations = PublicTransitSystem.geoDico.get(myZone);
+		ArrayList<Smartcard> potentialSmartcard = PublicTransitSystem.zonalChoiceSets.get(myZone);
+		ArrayList<BiogemeChoice> agentChoiceSet = new ArrayList<BiogemeChoice>();
+		Random random = new Random();
+		
+		for(int i = 0; i < choiceSetSize; i++){
+			int nextChoice = random.nextInt(potentialSmartcard.size());
+			Smartcard currChoice = potentialSmartcard.get(nextChoice);
+			agentChoiceSet.add(currChoice);
+		}
+		
+		return agentChoiceSet;
+	}
+	
+	public ArrayList<Double> getUtilities(ArrayList<Smartcard> choiceSet) {
+		// TODO Auto-generated method stub
+		//rigth I am just able to apply dummies
+		ArrayList<Double> utilities = new ArrayList<Double>();
+		for(int i = 0; i < choiceSet.size(); i++){
+			
+			double utility = 0;
+			//int choiceId = choiceSet.get(i).biogeme_group_id;
+			BiogemeChoice currChoice = choiceSet.get(i);
+			
+			for(BiogemeHypothesis currH: BiogemeSimulator.modelHypothesis){
+				if(currH.isCst()){
+					utility += currH.getCoefficientValue();
+				}
+				else if(currChoice.isAffected(currH) && currChoice.isAffecting(currH, this) && currH.isDummy){
+					utility += currH.getCoefficientValue();
+				}
+				else if(currChoice.isAffected(currH) && !currH.isDummy){
+					utility += currH.getCoefficientValue() * currChoice.getAffectingValue(currH, this);
+				}
+			}
+			utilities.add(utility);
+		}
+		return utilities;
+	}
+
+	
 
 }

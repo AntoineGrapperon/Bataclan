@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Scanner;
 
+import Smartcard.Smartcard;
+import Smartcard.UtilsSM;
 import Utils.InputDataReader;
 import Utils.OutputFileWritter;
 import Utils.Utils;
@@ -19,7 +21,7 @@ import Utils.Utils;
  */
 public class BiogemeSimulator {
 
-	public BiogemeControlFileGenerator myCtrlGen;
+	public static BiogemeControlFileGenerator myCtrlGen;
 	
 	InputDataReader myReader = new InputDataReader();
 	OutputFileWritter myOutputFileWriter = new OutputFileWritter();
@@ -43,13 +45,14 @@ public class BiogemeSimulator {
 		myCtrlGen = ctrlGen;
 	}
 	
-	public void initialize(String path ) throws IOException{
+	public ArrayList<BiogemeAgent> initialize(String path ) throws IOException{
 		myReader.OpenFile(path);
 		createAgents();
 		System.out.println("--agents created");
 		addHypothesis(myCtrlGen.hypothesis);
 		ArrayList<BiogemeHypothesis> constants = generateConstantHypothesis();
 		addHypothesis(constants);
+		return myPopulationSample;
 	}
 	
 	private ArrayList<BiogemeHypothesis> generateConstantHypothesis() {
@@ -95,21 +98,18 @@ public class BiogemeSimulator {
 		myOutputFileWriter.CloseFile();
 	}
 	
-	public void applyModel(String outputPath) throws IOException{
+	/*public void applyModelOnSmartcard(String outputPath) throws IOException{
 		int n = 0;
 		int N = myPopulationSample.size();
 		
-		
-		
-		
 		for(BiogemeAgent person: myPopulationSample){
-			ArrayList<Integer> choiceSet = person.processChoiceSet();
-			person.applyModel(choiceSet);
+			ArrayList<Smartcard> choiceSet = person.processChoiceSetFromSmartcard(UtilsSM.choiceSetSize);
+			person.applyModelSmartcard(choiceSet);
 			n++;
 			if(n%1000 == 0){System.out.println("-- " + n + " agents were processed out of " + N);}
 		}
 		writeSimulationResults(outputPath);
-	}
+	}*/
 	
 
 	private String getChoice(String string) {
