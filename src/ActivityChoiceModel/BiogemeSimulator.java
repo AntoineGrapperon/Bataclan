@@ -150,7 +150,7 @@ public class BiogemeSimulator {
 	public void createAgents() throws IOException
     {
     	 ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
-    	 data = getData();
+    	 data = getData();// careful this is running with a "short" loading of agents
     	 
     	 ArrayList<String> decisionMakerAttributes = data.get(0);
 
@@ -184,6 +184,33 @@ public class BiogemeSimulator {
     					data.get(i).add(dat);
     				}
     				i++;
+    		}
+    	return data;
+    }
+	
+	public ArrayList<ArrayList<String>> getData(int nMax) throws IOException
+    {
+    	String line=null;
+    	Scanner scanner = null;
+    	ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
+
+    		int i=0;
+    		
+    		while((line=myReader.myFileReader.readLine())!= null)
+    		{
+    			data.add(new ArrayList<String>());
+    			scanner = new Scanner(line);
+    			scanner.useDelimiter(",");
+
+    				while (scanner.hasNext())
+    				{
+    					String dat = scanner.next();
+    					data.get(i).add(dat);
+    				}
+    				i++;
+    				if(i>nMax){
+    					break;
+    				}
     		}
     	return data;
     }

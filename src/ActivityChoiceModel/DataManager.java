@@ -22,14 +22,21 @@ public class DataManager {
 	InputDataReader myInputDataReader = new InputDataReader();
 	OutputFileWritter myOutputFileWriter = new OutputFileWritter();
 	protected HashMap<String, ArrayList<String>> myData = new HashMap<String, ArrayList<String>>();
+	String path = new String();
 	
 	public void initialize(String path) throws IOException{
+		this.path = path;
 		myInputDataReader.OpenFile(path);
 		String[] temp;
 		temp=path.split(".csv");
-		myOutputFileWriter.OpenFile(temp[0] + "_prepared.csv");
 		storeData();
 		myInputDataReader.CloseFile();
+	}
+	
+	public void createOuputFile(){
+		String[] temp;
+		temp=path.split(".csv");
+		myOutputFileWriter.OpenFile(temp[0] + "_prepared.csv");
 	}
 	
 	public void storeData() throws IOException
@@ -70,6 +77,32 @@ public class DataManager {
     					data.get(i).add(dat);
     				}
     				i++;
+    		}
+    	return data;
+    }
+	
+	public ArrayList<ArrayList<String>> getData(int n) throws IOException
+    {
+    	String line=null;
+    	Scanner scanner = null;
+    	ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
+
+    		int i=0;
+    		while((line=myInputDataReader.myFileReader.readLine())!= null)
+    		{
+    			data.add(new ArrayList<String>());
+    			scanner = new Scanner(line);
+    			scanner.useDelimiter(",");
+
+    				while (scanner.hasNext())
+    				{
+    					String dat = scanner.next();
+    					data.get(i).add(dat);
+    				}
+    				i++;
+    				if(i>n){
+    					break;
+    				}
     		}
     	return data;
     }

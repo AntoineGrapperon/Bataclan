@@ -47,8 +47,11 @@ public class PublicTransitSystem {
 		GeoDicoManager myGeoDico = new GeoDicoManager();
 		
 		myStations = myStationManager.prepareStations(pathStations);
+		myStationManager = null;
 		mySmartcards = mySmartcardManager.prepareSmartcards(pathSmartcard);
+		mySmartcardManager = null;
 		geoDico = myGeoDico.getDico(pathGeoDico);
+		myGeoDico= null;
 		myPopulation = mySimulator.initialize(pathPop);
 	}
 	
@@ -84,11 +87,11 @@ public class PublicTransitSystem {
 		public double[][] createCostMatrix() throws IOException{
 		int N = myPopulation.size();
 		int rowIndex = 0;
-		
+		costMatrix = new double[N][N];
 		
 		
 		for(BiogemeAgent person: myPopulation){
-			double zoneId = Double.parseDouble(person.myAttributes.get(UtilsSM.zoneId));
+			double zoneId = Double.parseDouble(person.myAttributes.get("zoneId"));
 			if(zonalChoiceSets.containsKey(zoneId)){
 				person.createAndWeighChoiceSet(UtilsSM.choiceSetSize);
 				costMatrix[rowIndex] = person.writeCosts(myPopulation.size(), mySmartcards.size());

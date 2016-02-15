@@ -2,6 +2,8 @@ package SimPSynz;
 
 
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Hashtable;
 
@@ -15,6 +17,8 @@ import ActivityChoiceModel.UtilsTS;
 import Associations.HungarianAlgorithm;
 import SimulationObjects.World;
 import Smartcard.PublicTransitSystem;
+import Smartcard.UtilsSM;
+import Smartcard.UtilsST;
 
 import java.util.*;
 
@@ -77,16 +81,16 @@ public class Main {
 	    	condGenerator.GenerateConditionalsStepByStep(data,descFile,zonalData,destPath);*/
 	    	
 	    	//###############################################################################
-	    	//create local conditional distributions
+	    	//create local conditional distributions : OBSOLETE
 	    	//###############################################################################
 	    	//census.prepareDataColumnStorage();
 	    	
 	    	//###############################################################################
 	    	//Create the zonal input file for population sinthesis (DAUID , Population)
 	    	//###############################################################################
-	    	//census.writeZonalInputFile();
-	    	/*
-	    	CensusPreparator census = new CensusPreparator(Utils.DATA_DIR + "CMA505CENSUSPROFIL2006.csv");
+	    	//census.writeZonalInputFile();//OBSOLETE
+	    	
+	    	/*CensusPreparator census = new CensusPreparator(Utils.DATA_DIR + "CMA505CENSUSPROFIL2006.csv");
 	    	System.out.println("--census file was found"); 
 	     	int nBatch = 150;
 	    	census.writeZonalInputFile(nBatch);	
@@ -103,7 +107,7 @@ public class Main {
 	    	//Initialize the statistical log
             OutputFileWritter localStatAnalysis = new OutputFileWritter();
             localStatAnalysis.OpenFile(Utils.DATA_DIR + "data\\505\\localStatAnalysis.csv");
-            String headers = "zoneId, population";
+            String headers =UtilsSM.zoneId + Utils.COLUMN_DELIMETER + Utils.population;
             for(int i = 0; i < ConfigFile.AttributeDefinitionsImportance.size(); i++){
     			headers = headers + Utils.COLUMN_DELIMETER + ConfigFile.AttributeDefinitionsImportance.get(i).category + "_MSE"
     					 + Utils.COLUMN_DELIMETER + ConfigFile.AttributeDefinitionsImportance.get(i).category + "_absErr"
@@ -114,7 +118,7 @@ public class Main {
             // Initialize the population pool log
             OutputFileWritter population =  new OutputFileWritter();
         	population.OpenFile(Utils.DATA_DIR + "data\\505\\createdPopulation.csv");
-        	headers = "agentId" + Utils.COLUMN_DELIMETER + UtilsST.stationId;
+        	headers = "agentId" + Utils.COLUMN_DELIMETER + UtilsSM.zoneId;
             for(int i = 0; i < ConfigFile.AttributeDefinitions.size(); i++){
     			headers = headers + Utils.COLUMN_DELIMETER + ConfigFile.AttributeDefinitions.get(i).category ;
             }
@@ -195,14 +199,25 @@ public class Main {
 					myCtrlGenerator, 
 					Utils.DATA_DIR + "ptSystem\\smartcardData.txt", 
 					Utils.DATA_DIR + "ptSystem\\stops.txt",
-					Utils.DATA_DIR + "ptSystem\\dictionnaryDaStation.csv",
+					Utils.DATA_DIR + "ptSystem\\geoDico.csv",
 					Utils.DATA_DIR + "ptSystem\\population.csv"
 					);
+			System.out.println("--pt system initialized");
 			myPublicTransitSystem.assignPotentialSmartcardsToZones();
+			System.out.println("--potential smartcard assigned");
 			double[][] costMatrix = myPublicTransitSystem.createCostMatrix();
+			System.out.println("--cost matrix");
 			int[] result;
 			HungarianAlgorithm hu =new HungarianAlgorithm(costMatrix);
 			result=hu.execute();
+			
+			BufferedWriter write = new BufferedWriter(new FileWriter(Utils.DATA_DIR + "ptSystem\\test.csv"));
+
+			for(int i=0;i<result.length;i++){
+				write.write(result[i]+"\n");
+				write.flush();
+			} //for
+			write.close();
 			
 			/*mySimulator = new BiogemeSimulator(myCtrlGenerator);
 			mySimulator.initialize(Utils.DATA_DIR + "data\\505\\createdPopulation.csv");

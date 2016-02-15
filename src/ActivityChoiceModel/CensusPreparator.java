@@ -14,11 +14,11 @@ import Utils.InputDataReader;
 import Utils.OutputFileWritter;
 import Utils.Utils;
 
-public class CensusPreparator {
-	InputDataReader myInputDataReader = new InputDataReader();
-	OutputFileWritter myOutputFileWritter = new OutputFileWritter();
+public class CensusPreparator extends DataManager {
+	//InputDataReader myInputDataReader = new InputDataReader();
+	//OutputFileWritter myOutputFileWritter = new OutputFileWritter();
 	//public HashMap<String, Object> myTravelSurvey;
-	HashMap<String, ArrayList<String>> myData = new HashMap<String, ArrayList<String>>();
+	//HashMap<String, ArrayList<String>> myData = new HashMap<String, ArrayList<String>>();
 	
 	
 	
@@ -44,9 +44,7 @@ public class CensusPreparator {
 	}
 	
 	public void writeZonalInputFile(int nBatch) throws IOException{
-		Utils.COLUMN_DELIMETER = ";";
-		storeData(false);
-		Utils.COLUMN_DELIMETER = ",";
+		storeData();
 		int subsetSize = myData.get(UtilsTS.dauid).size()/nBatch;
 		System.out.println(subsetSize);
 		System.out.println(myData.get(UtilsTS.dauid).size());
@@ -54,7 +52,7 @@ public class CensusPreparator {
 			FileWriter	writerZonalInputFile = createZonalWriter(currN);
 			for(int i = currN * subsetSize; i < Math.min(myData.get(UtilsTS.dauid).size(),(currN+1)* subsetSize); i++){
 				String dauid = myData.get(UtilsTS.dauid).get(i);
-				String pop = myData.get(" Population, 2006 ").get(i);
+				String pop = myData.get(Utils.population).get(i);
 				writerZonalInputFile.append(dauid + ", " + pop + "\n");
 			}
 			writerZonalInputFile.close();
@@ -418,6 +416,12 @@ public class CensusPreparator {
 		return daList;
 	}
 	
+	/**
+	 * This function is useful for census file whoch attributes are not stored in columns but in rows. This kind of storage creates very long file and they can be filtered by type..
+	 * @param filter is true if filter should be used. False otherwise.
+	 * @return
+	 * @throws IOException
+	 */
 	public void storeData(boolean filter) throws IOException
     {
 		if(filter){
@@ -460,29 +464,14 @@ public class CensusPreparator {
     	 
     }
 	
-	public ArrayList<ArrayList<String>> getData() throws IOException
-    {
-    	String line=null;
-    	Scanner scanner = null;
-    	ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
-
-    		int i=0;
-    		while((line=myInputDataReader.myFileReader.readLine())!= null)
-    		{
-    			data.add(new ArrayList());
-    			scanner = new Scanner(line);
-    			scanner.useDelimiter(Utils.COLUMN_DELIMETER);
-
-    				while (scanner.hasNext())
-    				{
-    					String dat = scanner.next();
-    					data.get(i).add(dat);
-    				}
-    				i++;
-    		}
-    	return data;
-    }
 	
+	/**
+	 * This function is useful for census file whoch attributes are not stored in columns but in rows. This kind of storage creates very long file and they can be filtered by type..
+	 * @param filter
+	 * @return
+	 * @throws IOException
+	 */
+	@Deprecated
 	public ArrayList<ArrayList<String>> getData(boolean filter) throws IOException
     {
     	String line=null;
