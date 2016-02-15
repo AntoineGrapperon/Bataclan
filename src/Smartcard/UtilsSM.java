@@ -14,13 +14,14 @@ import java.util.ArrayList;
  */
 
 public class UtilsSM {
+	public static final double INFINIT = 10000;
 	public static String cardId = "numCarte";
 	public static String date = "dateComp";
 	public static String firstTrans = "dailyFirstTransaction";
 	public static String time = "heureComp";
 	public static String isNotFirst = "F";
 	public static String isFirst = "T";
-	public static String zoneId = "zoneId";
+	public static String zoneId = "DAUID";
 	public static String lineId = "NM_LI";
 	public static String stationId = "NUM_ARRET";
 	public static String nextStationId = "DER_Num_Arret_Dest";

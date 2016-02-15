@@ -23,6 +23,7 @@ public class Smartcard extends BiogemeChoice{
 	String stationId;
 	//public int choiceId;
 	protected HashMap<String, ArrayList<String>> myData = new HashMap<String, ArrayList<String>>();
+	public int columnId;
 	
 	public void setId(double id) {
 		// TODO Auto-generated method stub

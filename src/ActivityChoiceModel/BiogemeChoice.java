@@ -16,6 +16,8 @@ public class BiogemeChoice {
 	public int biogeme_id;
 	protected int biogeme_group_id;
 	protected HashMap<String,Integer> choiceCombination = new HashMap<String,Integer> ();
+	public double probability;
+	public double utility;
 	
 	public BiogemeChoice(){
 		

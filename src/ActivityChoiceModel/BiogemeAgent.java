@@ -23,6 +23,7 @@ public class BiogemeAgent {
 	
 	public HashMap<String, String> myAttributes;
 	protected static RandomNumberGen randGen = new RandomNumberGen();
+	ArrayList<BiogemeChoice> myChoices = new ArrayList<BiogemeChoice>();
 	
 	public BiogemeAgent(){
 		myAttributes = new HashMap<String, String>();
@@ -122,7 +123,7 @@ public class BiogemeAgent {
 		return cumProbabilities;
 	}
 
-	public ArrayList<Integer> processChoiceSet() {
+	public ArrayList<Integer> processChoiceSetFromTravelSurvey() {
 		// TODO Auto-generated method stub
 		ArrayList<Integer> choiceSet = new ArrayList<Integer>();
 		for(String header: myAttributes.keySet()){
@@ -153,7 +154,7 @@ public class BiogemeAgent {
 		return index;
 	}
 
-	public ArrayList<BiogemeChoice> processChoiceSetFromSmartcard(int choiceSetSize) {
+	public ArrayList<BiogemeChoice> generateChoiceSet(int choiceSetSize) {
 		// TODO Auto-generated method stub
 		double myZone = Double.parseDouble(myAttributes.get(UtilsSM.zoneId));
 		//ArrayList<Integer> myStations = PublicTransitSystem.geoDico.get(myZone);
@@ -167,13 +168,17 @@ public class BiogemeAgent {
 			agentChoiceSet.add(currChoice);
 		}
 		
+		BiogemeChoice stayHome = PublicTransitSystem.mySimulator.myCtrlGen.getStayHomeChoice();
+		agentChoiceSet.add(stayHome);
+		
 		return agentChoiceSet;
 	}
 	
-	public ArrayList<Double> getUtilities(ArrayList<Smartcard> choiceSet) {
+	public void createAndWeighChoiceSet(int choiceSetSize) {
 		// TODO Auto-generated method stub
 		//rigth I am just able to apply dummies
-		ArrayList<Double> utilities = new ArrayList<Double>();
+		ArrayList<BiogemeChoice> choiceSet = generateChoiceSet(choiceSetSize);
+		ArrayList<Double> utilities	 = new ArrayList<Double>();
 		for(int i = 0; i < choiceSet.size(); i++){
 			
 			double utility = 0;
@@ -191,10 +196,46 @@ public class BiogemeAgent {
 					utility += currH.getCoefficientValue() * currChoice.getAffectingValue(currH, this);
 				}
 			}
+			currChoice.utility = utility;
 			utilities.add(utility);
 		}
-		return utilities;
+				// TODO Auto-generated method stub
+			
+		Double logsum = 0.0;
+		for(int i = 0; i < choiceSet.size(); i++){
+			logsum += Math.exp(choiceSet.get(i).utility);
+		}
+		double currProbability = 0;
+		for(BiogemeChoice currChoice: choiceSet){
+			currProbability = Math.exp(currChoice.utility) / logsum;
+			currChoice.probability = currProbability;
+		}
+		myChoices.addAll(choiceSet);
 	}
+
+	public double[] writeCosts(int size, int smartcardCount) {
+		// TODO Auto-generated method stub
+		double[] newRow = new double[size];
+		//intialization avec une valeur de cout tres elevee
+		for(int i = 0; i < size; i++){
+			newRow[i] = UtilsSM.INFINIT;
+		}
+		for(BiogemeChoice currChoice: myChoices){
+			if(currChoice.getConstantName().equals(UtilsTS.noPt)){
+				double stayHomeCost = currChoice.probability / (size - smartcardCount);
+				stayHomeCost = 1/stayHomeCost;
+				for(int i = smartcardCount; i < size; i++){
+					newRow[i] = stayHomeCost;
+				}
+			}
+			else{
+				newRow[((Smartcard)currChoice).columnId] = 1/currChoice.probability;//maybe not "probability, but something like it.
+			}
+		}
+		return newRow;
+	}
+	
+	
 
 	
 

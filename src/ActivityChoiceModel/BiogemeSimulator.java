@@ -77,7 +77,7 @@ public class BiogemeSimulator {
 		int n = 0;
 		int N = myPopulationSample.size();
 		for(BiogemeAgent person: myPopulationSample){
-			ArrayList<Integer> choiceSet = person.processChoiceSet();
+			ArrayList<Integer> choiceSet = person.processChoiceSetFromTravelSurvey();
 			//System.out.println(choiceSet);
 			person.applyModel(choiceSet);
 			n++;
@@ -243,4 +243,6 @@ public class BiogemeSimulator {
 		headers += headers + UtilsTS.alternative + "_DEF" + Utils.COLUMN_DELIMETER + UtilsTS.sim + "_DEF";
 		myOutputFileWriter.WriteToFile(headers);
 	}
+
+
 }

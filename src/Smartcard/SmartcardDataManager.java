@@ -35,7 +35,18 @@ public class SmartcardDataManager extends DataManager{
 		System.out.println("--assign bus station");
 		assignChoiceId();
 		System.out.println("--identify choice Id");
+		assignColumnIndex();
+		
 		return mySmartcards;
+	}
+	
+	private void assignColumnIndex() {
+		// TODO Auto-generated method stub
+		int column = 0;
+		for(Smartcard tempS : mySmartcards){
+			tempS.columnId = column;
+			column++;
+		}
 	}
 
 	private void assignChoiceId() {

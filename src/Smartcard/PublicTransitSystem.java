@@ -40,7 +40,7 @@ public class PublicTransitSystem {
 		
 	}
 	
-	public void initialize(BiogemeControlFileGenerator ctrlGenerator, String pathSmartcard, String pathStations, String pathGeoDico) throws IOException{
+	public void initialize(BiogemeControlFileGenerator ctrlGenerator, String pathSmartcard, String pathStations, String pathGeoDico, String pathPop) throws IOException{
 		myCtrlGenerator = ctrlGenerator;
 		SmartcardDataManager mySmartcardManager = new SmartcardDataManager(myCtrlGenerator);
 		StationDataManager myStationManager = new StationDataManager();
@@ -49,7 +49,7 @@ public class PublicTransitSystem {
 		myStations = myStationManager.prepareStations(pathStations);
 		mySmartcards = mySmartcardManager.prepareSmartcards(pathSmartcard);
 		geoDico = myGeoDico.getDico(pathGeoDico);
-		myPopulation = mySimulator.initialize(Utils.DATA_DIR + "populationSynthesis\\population.csv");
+		myPopulation = mySimulator.initialize(pathPop);
 	}
 	
 	public void assignPotentialSmartcardsToZones(){
@@ -80,17 +80,29 @@ public class PublicTransitSystem {
 		myPopWriter.writeSimulationResults(outputPath, myPopulation);
 	}*/
 	
-	public void createCostMatrix() throws IOException{
 		int n = 0;
+		public double[][] createCostMatrix() throws IOException{
 		int N = myPopulation.size();
+		int rowIndex = 0;
+		
+		
 		
 		for(BiogemeAgent person: myPopulation){
 			double zoneId = Double.parseDouble(person.myAttributes.get(UtilsSM.zoneId));
 			if(zonalChoiceSets.containsKey(zoneId)){
-				ArrayList<BiogemeChoice> choiceSet = person.processChoiceSetFromSmartcard(UtilsSM.choiceSetSize);
+				person.createAndWeighChoiceSet(UtilsSM.choiceSetSize);
+				costMatrix[rowIndex] = person.writeCosts(myPopulation.size(), mySmartcards.size());
+				rowIndex++;
 			}
-			
+			else{
+				double[] newRow = new double[myPopulation.size()];
+				for(int i = 0; i < myPopulation.size(); i++){newRow[i] = 999999.00;}
+				costMatrix[rowIndex] = newRow;
+				rowIndex++;
+			}
 		}
+		return costMatrix;
 	}
+
 	
 }

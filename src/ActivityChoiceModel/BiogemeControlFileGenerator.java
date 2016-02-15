@@ -448,4 +448,14 @@ public class BiogemeControlFileGenerator {
 		}
 		tempWriter.CloseFile();
 	}
+
+	public BiogemeChoice getStayHomeChoice() {
+		// TODO Auto-generated method stub
+		for(BiogemeChoice temp : choiceIndex){
+			if(temp.getConstantName().equals(UtilsTS.noPt)){
+				return temp;
+			}
+		}
+		return null;
+	}
 }

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import ActivityChoiceModel.DataManager;
+import ActivityChoiceModel.UtilsTS;
 
 /**
  * @author Antoine
@@ -20,7 +21,7 @@ public class GeoDicoManager extends DataManager{
 		initialize(pathGeoDico);
 		for(int i = 0; i < myData.get(UtilsSM.zoneId).size(); i++){
 			double nextRecordZone = Double.parseDouble(myData.get(UtilsSM.zoneId).get(i));
-			int newStation = (int) Double.parseDouble(myData.get(UtilsSM.stationId).get(i));
+			int newStation = (int) Double.parseDouble(myData.get(UtilsST.stationId).get(i));
 			if(myDico.containsKey(nextRecordZone)){
 				myDico.get(nextRecordZone).add(newStation);
 			}

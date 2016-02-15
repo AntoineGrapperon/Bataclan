@@ -12,6 +12,7 @@ import ActivityChoiceModel.BiogemeSimulator;
 import ActivityChoiceModel.CensusPreparator;
 import ActivityChoiceModel.TravelSurveyPreparator;
 import ActivityChoiceModel.UtilsTS;
+import Associations.HungarianAlgorithm;
 import SimulationObjects.World;
 import Smartcard.PublicTransitSystem;
 
@@ -194,11 +195,14 @@ public class Main {
 					myCtrlGenerator, 
 					Utils.DATA_DIR + "ptSystem\\smartcardData.txt", 
 					Utils.DATA_DIR + "ptSystem\\stops.txt",
-					Utils.DATA_DIR + "ptSystem\\dictionnaryDaStation.csv"
+					Utils.DATA_DIR + "ptSystem\\dictionnaryDaStation.csv",
+					Utils.DATA_DIR + "ptSystem\\population.csv"
 					);
 			myPublicTransitSystem.assignPotentialSmartcardsToZones();
-			
-			
+			double[][] costMatrix = myPublicTransitSystem.createCostMatrix();
+			int[] result;
+			HungarianAlgorithm hu =new HungarianAlgorithm(costMatrix);
+			result=hu.execute();
 			
 			/*mySimulator = new BiogemeSimulator(myCtrlGenerator);
 			mySimulator.initialize(Utils.DATA_DIR + "data\\505\\createdPopulation.csv");
