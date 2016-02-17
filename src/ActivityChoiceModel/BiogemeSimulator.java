@@ -45,6 +45,13 @@ public class BiogemeSimulator {
 		myCtrlGen = ctrlGen;
 	}
 	
+	public void setHypothesis(){
+		addHypothesis(myCtrlGen.hypothesis);
+		ArrayList<BiogemeHypothesis> constants = generateConstantHypothesis();
+		addHypothesis(constants);
+	}
+	
+	@Deprecated
 	public ArrayList<BiogemeAgent> initialize(String path ) throws IOException{
 		myReader.OpenFile(path);
 		createAgents();
@@ -146,7 +153,8 @@ public class BiogemeSimulator {
 	 		cur++;
 	 	}
 	}
-
+	
+	@Deprecated
 	public void createAgents() throws IOException
     {
     	 ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
@@ -165,6 +173,7 @@ public class BiogemeSimulator {
     	 }
     }
 	
+	@Deprecated
 	public ArrayList<ArrayList<String>> getData() throws IOException
     {
     	String line=null;
@@ -188,6 +197,7 @@ public class BiogemeSimulator {
     	return data;
     }
 	
+	@Deprecated
 	public ArrayList<ArrayList<String>> getData(int nMax) throws IOException
     {
     	String line=null;

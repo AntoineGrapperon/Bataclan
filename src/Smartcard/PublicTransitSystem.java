@@ -45,6 +45,7 @@ public class PublicTransitSystem {
 		SmartcardDataManager mySmartcardManager = new SmartcardDataManager(myCtrlGenerator);
 		StationDataManager myStationManager = new StationDataManager();
 		GeoDicoManager myGeoDico = new GeoDicoManager();
+		PopulationDataManager myPopGenerator = new PopulationDataManager();
 		
 		myStations = myStationManager.prepareStations(pathStations);
 		myStationManager = null;
@@ -52,7 +53,10 @@ public class PublicTransitSystem {
 		mySmartcardManager = null;
 		geoDico = myGeoDico.getDico(pathGeoDico);
 		myGeoDico= null;
-		myPopulation = mySimulator.initialize(pathPop);
+		System.out.println("--geodico assigned");
+		myPopulation = myPopGenerator.getAgents(pathPop);
+		
+		mySimulator.setHypothesis();
 	}
 	
 	public void assignPotentialSmartcardsToZones(){
