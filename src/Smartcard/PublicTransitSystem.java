@@ -90,9 +90,11 @@ public class PublicTransitSystem {
 		int n = 0;
 		public double[][] createCostMatrix() throws IOException{
 		int N = myPopulation.size();
+		int M = mySmartcards.size();
 		int rowIndex = 0;
-		costMatrix = new double[N][N];
-		
+		System.out.println("bouh" + N + "  " + M);
+		costMatrix = new double[N][M];
+		System.out.println("bouh");
 		
 		for(BiogemeAgent person: myPopulation){
 			double zoneId = Double.parseDouble(person.myAttributes.get("zoneId"));
@@ -110,6 +112,12 @@ public class PublicTransitSystem {
 		}
 		return costMatrix;
 	}
+
+		public void makeRoomForCostMatrix() {
+			// TODO Auto-generated method stub
+			myStations = null;
+			myDaZones = null;
+		}
 
 	
 }

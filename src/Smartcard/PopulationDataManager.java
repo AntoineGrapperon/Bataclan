@@ -22,7 +22,6 @@ public class PopulationDataManager extends DataManager {
 
 	public ArrayList<BiogemeAgent> getAgents(String path) throws IOException{
 		initialize(path);
-		System.out.println("initialized Population data mangager");
 		createAgents();
 		return myPopulation;
 	}
@@ -30,7 +29,7 @@ public class PopulationDataManager extends DataManager {
 	private void createAgents() {
 		// TODO Auto-generated method stub
 		for(int i = 0; i < myData.get(UtilsSM.zoneId).size(); i++){
-			if(i%1 == 0){
+			if(i%10000 == 0){
 				System.out.println("agents loaded : " +i);
 			}
 			BiogemeAgent newAgent = new BiogemeAgent();
