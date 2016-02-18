@@ -25,6 +25,18 @@ public class Smartcard extends BiogemeChoice{
 	protected HashMap<String, ArrayList<String>> myData = new HashMap<String, ArrayList<String>>();
 	public int columnId;
 	
+	public Smartcard(){
+	
+	}
+	
+	public Smartcard(BiogemeChoice toConvert){
+		biogeme_id = toConvert.biogeme_id;
+		biogeme_group_id = toConvert.biogeme_group_id;
+		choiceCombination = toConvert.choiceCombination;
+		probability = toConvert.probability;
+		utility = toConvert.utility;
+	}
+	
 	public void setId(double id) {
 		// TODO Auto-generated method stub
 		this.cardId = id;

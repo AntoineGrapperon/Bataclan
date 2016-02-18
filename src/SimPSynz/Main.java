@@ -14,6 +14,7 @@ import ActivityChoiceModel.BiogemeSimulator;
 import ActivityChoiceModel.CensusPreparator;
 import ActivityChoiceModel.TravelSurveyPreparator;
 import ActivityChoiceModel.UtilsTS;
+import Associations.HungarianAlgoRithmOptimized;
 import Associations.HungarianAlgorithm;
 import SimulationObjects.World;
 import Smartcard.PublicTransitSystem;
@@ -90,9 +91,9 @@ public class Main {
 	    	//###############################################################################
 	    	//census.writeZonalInputFile();//OBSOLETE
 	    	
-	    	/*CensusPreparator census = new CensusPreparator(Utils.DATA_DIR + "CMA505CENSUSPROFIL2006.csv");
+	    	/*CensusPreparator census = new CensusPreparator(Utils.DATA_DIR + "CMA505CENSUS2006PROFIL.csv");
 	    	System.out.println("--census file was found"); 
-	     	int nBatch = 150;
+	     	int nBatch = 40;
 	    	census.writeZonalInputFile(nBatch);	
 	    	census.writeCtrlFile(nBatch);
 	    	
@@ -113,6 +114,15 @@ public class Main {
     					 + Utils.COLUMN_DELIMETER + ConfigFile.AttributeDefinitionsImportance.get(i).category + "_absErr"
     							 + Utils.COLUMN_DELIMETER + ConfigFile.AttributeDefinitionsImportance.get(i).category + "_%Err" ;
             }
+            for(int i = 0; i < ConfigFile.AttributeDefinitionsImportance.size(); i++){
+            	for(int j = 0 ; j < ConfigFile.AttributeDefinitionsImportance.get(i).value; j++){
+            		headers = headers + Utils.COLUMN_DELIMETER  + ConfigFile.AttributeDefinitionsImportance.get(i).category + j + "TAE";
+            	}
+            }
+            for(int i = 0; i < ConfigFile.AttributeDefinitionsImportance.size(); i++){
+            		headers = headers + Utils.COLUMN_DELIMETER  + ConfigFile.AttributeDefinitionsImportance.get(i).category + "SAE";
+            }
+            
             localStatAnalysis.myFileWritter.write(headers);
             
             // Initialize the population pool log
@@ -127,6 +137,7 @@ public class Main {
             ConfigFile.resetConfigFile();
             myWorld = null;
 	    	
+            //Create batches
 	    	for(int i = 0; i < nBatch; i++){
 	    		
 	    		
@@ -195,7 +206,7 @@ public class Main {
 	    	//Load Smartcard data and process them to label with a choice id
 	    	//############################################################################################
 	    	
-			myPublicTransitSystem.initialize(
+			/*myPublicTransitSystem.initialize(
 					myCtrlGenerator, 
 					Utils.DATA_DIR + "ptSystem\\smartcardData.txt", 
 					Utils.DATA_DIR + "ptSystem\\stops.txt",
@@ -205,10 +216,12 @@ public class Main {
 			System.out.println("--pt system initialized");
 			myPublicTransitSystem.assignPotentialSmartcardsToZones();
 			System.out.println("--potential smartcard assigned");
-			double[][] costMatrix = myPublicTransitSystem.createCostMatrix();
+			//myPublicTransitSystem.makeRoomForCostMatrix();
+			ArrayList<HashMap<Integer, Double>> costMatrix = myPublicTransitSystem.createCostMatrixOptimized();
 			System.out.println("--cost matrix");
 			int[] result;
-			HungarianAlgorithm hu =new HungarianAlgorithm(costMatrix);
+			//HungarianAlgorithm hu =new HungarianAlgorithm(costMatrix);
+			HungarianAlgoRithmOptimized hu =new HungarianAlgoRithmOptimized(costMatrix);
 			result=hu.execute();
 			
 			BufferedWriter write = new BufferedWriter(new FileWriter(Utils.DATA_DIR + "ptSystem\\test.csv"));

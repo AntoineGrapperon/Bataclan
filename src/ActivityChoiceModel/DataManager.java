@@ -69,7 +69,7 @@ public class DataManager {
     		{
     			data.add(new ArrayList<String>());
     			scanner = new Scanner(line);
-    			scanner.useDelimiter(",");
+    			scanner.useDelimiter(Utils.COLUMN_DELIMETER);
 
     				while (scanner.hasNext())
     				{

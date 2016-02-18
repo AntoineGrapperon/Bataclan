@@ -1096,6 +1096,7 @@ public class World extends SimulationObject
             
         }
         
+        @Deprecated
         public void CreatePersonPopulationPoolLocalLevelMultiThreads(String fileName, String pathToSeeds, int numberOfCores) throws IOException
         {
         	
@@ -2818,16 +2819,27 @@ public void printLocalMarginalFittingAnalysis(String metro, long startTime){
         	ArrayList myPersonPool;
         	ArrayList attributesMainConditionals;
         	String statistics;
-        	public processZone(Object subSample, String path2seeds, ArrayList pool, ArrayList mainCdt){
+        	World thisWorld;
+        	public processZone(Object subSample, String path2seeds, ArrayList pool, ArrayList mainCdt, World curWorld){
         		zones = (HashMap)subSample;
         		pathToSeeds= path2seeds;
         		myPersonPool = pool;
         		attributesMainConditionals = mainCdt;
+        		thisWorld = curWorld;
         		
         	}
         	
 	        public ArrayList<String> call()  throws Exception {
-	        	String statistics = Utils.NEW_LINE_DELIMITER; //new String();
+	        	
+	        	myGibbsSampler.GenerateAgentsMetroLevel(thisWorld,
+	                    Utils.WARMUP_ITERATIONS,
+	                    new Person(pathToSeeds, true), true,
+	                    attributesMainConditionals, null);
+			    myPersonPool.clear();
+			    //myGibbsSampler.SetAgentCounter(agentsCreated + counter);
+			    
+			    
+	        	String statistics = new String();// Utils.NEW_LINE_DELIMITER; //new String();
 	        	String population = new String();
 	        	if(Utils.createLocal){
 	        		
@@ -2857,6 +2869,7 @@ public void printLocalMarginalFittingAnalysis(String metro, long startTime){
 			 				    outputFile.CloseFile();
 			 		            statistics = statistics+
 			 		            		currZone.printLocalMarginalFittingAnalysis((int)currZone.myAttributes.get(1).value);
+			 		            
 			 		            //+ Utils.NEW_LINE_DELIMITER;
 			 		           
 			 		            //return statistics;
@@ -2897,6 +2910,7 @@ public void printLocalMarginalFittingAnalysis(String metro, long startTime){
 			 				    //agentsCreated += myPersonPool.size();
 			 		            statistics = statistics+ Utils.NEW_LINE_DELIMITER+
 			 		            		currZone.printLocalMarginalFittingAnalysis((int)currZone.myAttributes.get(1).value);
+			 		           statistics += currZone.getTotalAbsoluteError() + currZone.getStandardizedAbsoluteError();
 			 		           
 			 		            //return statistics;
 		                 }
@@ -2935,12 +2949,12 @@ public void printLocalMarginalFittingAnalysis(String metro, long startTime){
             
             //
             // We warm the sampler once for all the spatial zones.
-            myGibbsSampler.GenerateAgentsMetroLevel(this,
+            /*myGibbsSampler.GenerateAgentsMetroLevel(this,
                     Utils.WARMUP_ITERATIONS,
                     new Person(pathToSeeds, true), true,
                     attributesMainConditionals, null);
 		    myPersonPool.clear();
-		    myGibbsSampler.SetAgentCounter(agentsCreated + counter);
+		    myGibbsSampler.SetAgentCounter(agentsCreated + counter);*/
 		    
 		    //creates sub group of zone that can be processed using multithreading to accelerate computation
 		    int subSampleSize = myZonalCollection.size()/(numberOfCores);
@@ -2985,7 +2999,7 @@ public void printLocalMarginalFittingAnalysis(String metro, long startTime){
         	for(int i = 0; i< numberOfCores; i++){
         		/*Callable<Integer> callable = new processZone(subSamples.get(i), pathToSeeds, myPersonPool, attributesMainConditionals);
             	Future<Integer> future = cores.submit(callable);*/
-        		Callable<ArrayList> callable = new processZone(subSamples.get(i), pathToSeeds, myPersonPool, attributesMainConditionals);
+        		Callable<ArrayList> callable = new processZone(subSamples.get(i), pathToSeeds, myPersonPool, attributesMainConditionals, this);
             	Future<ArrayList> future = cores.submit(callable);
                 set.add(future);
         	}

@@ -27,6 +27,7 @@ public class PublicTransitSystem {
 	public static ArrayList<BiogemeAgent> myPopulation = new ArrayList<BiogemeAgent>();
 	PopulationWriter myPopWriter = new PopulationWriter();
 	double[][] costMatrix;
+	//ArrayList<HashMap<Integer,Double>> costMatrixOptimized;
 	
 	/**
 	 * The geoDico has zonal identifier has keys and an ArrayList of close station identifiers.
@@ -34,15 +35,15 @@ public class PublicTransitSystem {
 	public static HashMap<Double,ArrayList<Integer>> geoDico = new HashMap<Double,ArrayList<Integer>>();
 	public static BiogemeSimulator mySimulator = new BiogemeSimulator();
 
-	BiogemeControlFileGenerator myCtrlGenerator;
+	public static BiogemeControlFileGenerator myCtrlGen;
 	
 	public PublicTransitSystem(){
 		
 	}
 	
 	public void initialize(BiogemeControlFileGenerator ctrlGenerator, String pathSmartcard, String pathStations, String pathGeoDico, String pathPop) throws IOException{
-		myCtrlGenerator = ctrlGenerator;
-		SmartcardDataManager mySmartcardManager = new SmartcardDataManager(myCtrlGenerator);
+		myCtrlGen = ctrlGenerator;
+		SmartcardDataManager mySmartcardManager = new SmartcardDataManager(myCtrlGen);
 		StationDataManager myStationManager = new StationDataManager();
 		GeoDicoManager myGeoDico = new GeoDicoManager();
 		PopulationDataManager myPopGenerator = new PopulationDataManager();
@@ -66,10 +67,11 @@ public class PublicTransitSystem {
 			Iterator<Smartcard> universalChoiceSet = mySmartcards.iterator();
 			while(universalChoiceSet.hasNext()){
 				Smartcard currCard = universalChoiceSet.next();
-				if(closeStations.contains(currCard.stationId)){
+				if(closeStations.contains(Integer.parseInt(currCard.stationId))){
 					zonalChoiceSet.add(currCard);
 				}
 			}
+			//System.out.println(zonalChoiceSet.size());
 			zonalChoiceSets.put(currZone,zonalChoiceSet);
 		}
 	}
@@ -87,8 +89,10 @@ public class PublicTransitSystem {
 		myPopWriter.writeSimulationResults(outputPath, myPopulation);
 	}*/
 	
+		
+		
+	public double[][] createCostMatrix() throws IOException{
 		int n = 0;
-		public double[][] createCostMatrix() throws IOException{
 		int N = myPopulation.size();
 		int M = mySmartcards.size();
 		int rowIndex = 0;
@@ -112,12 +116,41 @@ public class PublicTransitSystem {
 		}
 		return costMatrix;
 	}
-
-		public void makeRoomForCostMatrix() {
-			// TODO Auto-generated method stub
-			myStations = null;
-			myDaZones = null;
+	
+	public ArrayList<HashMap<Integer,Double>> createCostMatrixOptimized() throws IOException{
+		int n = 0;
+		int N = myPopulation.size();
+		int M = mySmartcards.size();
+		int rowIndex = 0;
+		/**
+		 * Assumption: there is a bigger population than the number of smartcards.
+		 */
+		ArrayList<HashMap<Integer,Double>> costMatrixOptimized = new ArrayList<HashMap<Integer,Double>>();
+		
+		for(BiogemeAgent person: myPopulation){
+			double zoneId = Double.parseDouble(person.myAttributes.get(UtilsSM.zoneId));
+			if(zonalChoiceSets.containsKey(zoneId)){
+				person.createAndWeighChoiceSet(UtilsSM.choiceSetSize);
+				costMatrixOptimized.add(person.getChoiceSet(myPopulation.size(), mySmartcards.size()));	
+				//costMatrix[rowIndex] = person.writeCosts(myPopulation.size(), mySmartcards.size());
+				rowIndex++;
+			}
+			else{
+				//double[] newRow = new double[myPopulation.size()];
+				//for(int i = 0; i < myPopulation.size(); i++){newRow[i] = 999999.00;}
+				//costMatrix[rowIndex] = newRow;
+				costMatrixOptimized.add(new HashMap<Integer,Double>	());
+				rowIndex++;
+			}
 		}
+		return costMatrixOptimized;
+	}
+
+	public void makeRoomForCostMatrix() {
+		// TODO Auto-generated method stub
+		myStations = null;
+		myDaZones = null;
+	}
 
 	
 }

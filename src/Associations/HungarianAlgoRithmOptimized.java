@@ -108,8 +108,10 @@ public class HungarianAlgoRithmOptimized {
 		}
 		for (int w = 0; w < dim; w++) {
 			for (int j = 0; j < dim; j++) {
-				if (costMatrix.get(w).get(j) < labelByJob[j]) {
-					labelByJob[j] = costMatrix.get(w).get(j);
+				if(costMatrix.get(w).containsKey(j)){
+					if (costMatrix.get(w).get(j) < labelByJob[j]) {
+						labelByJob[j] = costMatrix.get(w).get(j);
+					}
 				}
 			}
 		}
@@ -168,6 +170,7 @@ public class HungarianAlgoRithmOptimized {
 	 * When a phase completes, the matching will have increased in size.
 	 */
 	protected void executePhase() {
+		System.out.println("phase");
 		while (true) {
 			int minSlackWorker = -1, minSlackJob = -1;
 			double minSlackValue = Double.POSITIVE_INFINITY;
@@ -209,11 +212,13 @@ public class HungarianAlgoRithmOptimized {
 				committedWorkers[worker] = true;
 				for (int j = 0; j < dim; j++) {
 					if (parentWorkerByCommittedJob[j] == -1) {
-						double slack = costMatrix.get(worker).get(j)
-								- labelByWorker[worker] - labelByJob[j];
-						if (minSlackValueByJob[j] > slack) {
-							minSlackValueByJob[j] = slack;
-							minSlackWorkerByJob[j] = worker;
+						if(costMatrix.get(worker).containsKey(j)){
+							double slack = costMatrix.get(worker).get(j)
+									- labelByWorker[worker] - labelByJob[j];
+							if (minSlackValueByJob[j] > slack) {
+								minSlackValueByJob[j] = slack;
+								minSlackWorkerByJob[j] = worker;
+							}
 						}
 					}
 				}
@@ -242,10 +247,12 @@ public class HungarianAlgoRithmOptimized {
 	protected void greedyMatch() {
 		for (int w = 0; w < dim; w++) {
 			for (int j = 0; j < dim; j++) {
-				if (matchJobByWorker[w] == -1
-						&& matchWorkerByJob[j] == -1
-						&& costMatrix.get(w).get(j) - labelByWorker[w] - labelByJob[j] == 0) {
-					match(w, j);
+				if(costMatrix.get(w).containsKey(j)){
+					if (matchJobByWorker[w] == -1
+							&& matchWorkerByJob[j] == -1
+							&& costMatrix.get(w).get(j) - labelByWorker[w] - labelByJob[j] == 0) {
+						match(w, j);
+					}
 				}
 			}
 		}
@@ -264,9 +271,16 @@ public class HungarianAlgoRithmOptimized {
 		Arrays.fill(parentWorkerByCommittedJob, -1);
 		committedWorkers[w] = true;
 		for (int j = 0; j < dim; j++) {
-			minSlackValueByJob[j] = costMatrix.get(w).get(j) - labelByWorker[w]
-					- labelByJob[j];
-			minSlackWorkerByJob[j] = w;
+			if(costMatrix.get(w).containsKey(j)){
+				minSlackValueByJob[j] = costMatrix.get(w).get(j) - labelByWorker[w]
+						- labelByJob[j];
+				minSlackWorkerByJob[j] = w;
+			}
+			else{
+				minSlackValueByJob[j] = Double.POSITIVE_INFINITY;
+				minSlackWorkerByJob[j] = w;
+			}
+			
 		}
 	}
 
@@ -288,29 +302,41 @@ public class HungarianAlgoRithmOptimized {
 		for (int w = 0; w < dim; w++) {
 			double min = Double.POSITIVE_INFINITY;
 			for (int j = 0; j < dim; j++) {
-				if (costMatrix.get(w).get(j) < min) {
-					min = costMatrix.get(w).get(j);
+				if(costMatrix.get(w).containsKey(j)){
+					if (costMatrix.get(w).get(j) < min) {
+						min = costMatrix.get(w).get(j);
+					}
 				}
+				
 			}
 			for (int j = 0; j < dim; j++) {
-				costMatrix.get(w).put(j, costMatrix.get(w).get(j) - min);
+				if(costMatrix.get(w).containsKey(j)){
+					costMatrix.get(w).put(j, costMatrix.get(w).get(j) - min);
+				}
+				//costMatrix.get(w).put(j, costMatrix.get(w).get(j) - min);
 				//costMatrix[w][j] -= min;
 			}
 		}
 		double[] min = new double[dim];
 		for (int j = 0; j < dim; j++) {
-			min[j] = Double.POSITIVE_INFINITY;
+				min[j] = Double.POSITIVE_INFINITY;
 		}
 		for (int w = 0; w < dim; w++) {
 			for (int j = 0; j < dim; j++) {
-				if (costMatrix.get(w).get(j) < min[j]) {
-					min[j] = costMatrix.get(w).get(j);
+				if(costMatrix.get(w).containsKey(j)){
+					if (costMatrix.get(w).get(j) < min[j]) {
+						min[j] = costMatrix.get(w).get(j);
+					}
 				}
+				
 			}
 		}
 		for (int w = 0; w < dim; w++) {
 			for (int j = 0; j < dim; j++) {
-				costMatrix.get(w).put(j, costMatrix.get(w).get(j) - min[j]);
+				if(costMatrix.get(w).containsKey(j)){
+					costMatrix.get(w).put(j, costMatrix.get(w).get(j) - min[j]);
+					
+				}
 				//costMatrix[w][j] -= min[j];
 			}
 		}

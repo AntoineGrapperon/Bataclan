@@ -11,6 +11,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import Smartcard.PublicTransitSystem;
+import Smartcard.Smartcard;
 import Utils.InputDataReader;
 import Utils.OutputFileWritter;
 import Utils.Utils;
@@ -449,11 +451,13 @@ public class BiogemeControlFileGenerator {
 		tempWriter.CloseFile();
 	}
 
-	public BiogemeChoice getStayHomeChoice() {
+	public Smartcard getStayHomeChoice() {
 		// TODO Auto-generated method stub
 		for(BiogemeChoice temp : choiceIndex){
 			if(temp.getConstantName().equals(UtilsTS.noPt)){
-				return temp;
+				Smartcard answer = new Smartcard(temp);
+				answer.columnId = PublicTransitSystem.mySmartcards.size();
+				return answer;
 			}
 		}
 		return null;

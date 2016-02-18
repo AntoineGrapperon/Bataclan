@@ -154,21 +154,23 @@ public class BiogemeAgent {
 		return index;
 	}
 
-	public ArrayList<BiogemeChoice> generateChoiceSet(int choiceSetSize) {
+	public ArrayList<Smartcard> generateChoiceSet(int choiceSetSize) {
 		// TODO Auto-generated method stub
 		double myZone = Double.parseDouble(myAttributes.get(UtilsSM.zoneId));
 		//ArrayList<Integer> myStations = PublicTransitSystem.geoDico.get(myZone);
+		HashMap<Double,ArrayList<Smartcard>> temp = PublicTransitSystem.zonalChoiceSets;
 		ArrayList<Smartcard> potentialSmartcard = PublicTransitSystem.zonalChoiceSets.get(myZone);
-		ArrayList<BiogemeChoice> agentChoiceSet = new ArrayList<BiogemeChoice>();
+		ArrayList<Smartcard> agentChoiceSet = new ArrayList<Smartcard>();
 		Random random = new Random();
-		
 		for(int i = 0; i < choiceSetSize; i++){
-			int nextChoice = random.nextInt(potentialSmartcard.size());
-			Smartcard currChoice = potentialSmartcard.get(nextChoice);
-			agentChoiceSet.add(currChoice);
+			if(potentialSmartcard.size()!=0){
+				int nextChoice = random.nextInt(potentialSmartcard.size());
+				Smartcard currChoice = potentialSmartcard.get(nextChoice);
+				agentChoiceSet.add(currChoice);
+			}
 		}
 		
-		BiogemeChoice stayHome = PublicTransitSystem.mySimulator.myCtrlGen.getStayHomeChoice();
+		Smartcard stayHome = PublicTransitSystem.myCtrlGen.getStayHomeChoice();
 		agentChoiceSet.add(stayHome);
 		
 		return agentChoiceSet;
@@ -177,7 +179,7 @@ public class BiogemeAgent {
 	public void createAndWeighChoiceSet(int choiceSetSize) {
 		// TODO Auto-generated method stub
 		//rigth I am just able to apply dummies
-		ArrayList<BiogemeChoice> choiceSet = generateChoiceSet(choiceSetSize);
+		ArrayList<Smartcard> choiceSet = generateChoiceSet(choiceSetSize);
 		ArrayList<Double> utilities	 = new ArrayList<Double>();
 		for(int i = 0; i < choiceSet.size(); i++){
 			
@@ -231,6 +233,27 @@ public class BiogemeAgent {
 			else{
 				newRow[((Smartcard)currChoice).columnId] = 1/currChoice.probability;//maybe not "probability, but something like it.
 			}
+		}
+		return newRow;
+	}
+	
+	public HashMap<Integer,Double> getChoiceSet(int size, int smartcardCount) {
+		// TODO Auto-generated method stub
+		HashMap<Integer,Double> newRow = new HashMap<Integer,Double>();
+		//intialization avec une valeur de cout tres elevee
+		for(BiogemeChoice currChoice: myChoices){
+			/*if(currChoice.getConstantName().equals(UtilsTS.noPt)){
+				double stayHomeCost = currChoice.probability / (size - smartcardCount);
+				stayHomeCost = 1/stayHomeCost;
+				for(int i = smartcardCount; i < size; i++){
+					newRow.put(i, stayHomeCost)
+					newRow[i] = stayHomeCost;
+				}
+			}
+			else{*/
+				newRow.put(((Smartcard)currChoice).columnId , 1/currChoice.probability);
+				//newRow[((Smartcard)currChoice).columnId] = 1/currChoice.probability;//maybe not "probability, but something like it.
+			//}
 		}
 		return newRow;
 	}

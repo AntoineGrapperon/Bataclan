@@ -44,19 +44,28 @@ public class CensusPreparator extends DataManager {
 	}
 	
 	public void writeZonalInputFile(int nBatch) throws IOException{
-		storeData();
+		int count = 0;
+		Utils.COLUMN_DELIMETER = ";";
+		storeData(false);
+		Utils.COLUMN_DELIMETER = ",";
 		int subsetSize = myData.get(UtilsTS.dauid).size()/nBatch;
-		System.out.println(subsetSize);
-		System.out.println(myData.get(UtilsTS.dauid).size());
 		for(int currN = 0; currN < nBatch; currN++){
 			FileWriter	writerZonalInputFile = createZonalWriter(currN);
-			for(int i = currN * subsetSize; i < Math.min(myData.get(UtilsTS.dauid).size(),(currN+1)* subsetSize); i++){
-				String dauid = myData.get(UtilsTS.dauid).get(i);
-				String pop = myData.get(Utils.population).get(i);
-				writerZonalInputFile.append(dauid + ", " + pop + "\n");
+			for(int i = 0;i < myData.get(UtilsTS.dauid).size();i++){
+				if((i>= currN * subsetSize && i < (currN+1)*subsetSize) || (i >= currN * subsetSize && currN == nBatch-1)){
+					String dauid = myData.get(UtilsTS.dauid).get(i);
+					String pop = myData.get(Utils.population).get(i);
+					writerZonalInputFile.append(dauid + ", " + pop + "\n");
+					count++;
+				}
 			}
+			/*for(int i = currN * subsetSize; i < Math.min(myData.get(UtilsTS.dauid).size(),(currN+1)* subsetSize); i++){
+				
+			}*/
 			writerZonalInputFile.close();
+			
 		}	
+		System.out.println("-- " + count + " zones where created out of " + myData.get(UtilsTS.dauid).size());
 	}
 	
 	public void writeCtrlFile(int nBatch) throws IOException{
@@ -375,7 +384,8 @@ public class CensusPreparator extends DataManager {
 			//File file = new File("..\\data\\" + daId);
 			File file = new File(Utils.DATA_DIR );
 			if(!file.exists()){b=file.mkdirs();}
-			if(!b){System.out.println("--directories were created");}
+			//if(!b){System.out.println("--directories were created");}
+			if(!b){}
 			
 			FileWriter writer = new FileWriter( Utils.DATA_DIR + "zonalFile_" + UtilsTS.city +"_auto"+n+".txt");
 			//FileWriter writer = new FileWriter("..\\data\\" + daId + "\\Census" + attributeName + ".csv");
@@ -394,7 +404,8 @@ public class CensusPreparator extends DataManager {
 			//File file = new File("..\\data\\" + daId);
 			File file = new File(Utils.DATA_DIR + "ctrl\\" );
 			if(!file.exists()){b=file.mkdirs();}
-			if(!b){System.out.println("--directories were created");}
+			//if(!b){System.out.println("--directories were created");}
+			if(!b){}
 			
 			FileWriter writer = new FileWriter( Utils.DATA_DIR + "ctrl\\config" + n +".txt");
 			//FileWriter writer = new FileWriter("..\\data\\" + daId + "\\Census" + attributeName + ".csv");

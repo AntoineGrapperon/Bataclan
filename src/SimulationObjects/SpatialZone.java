@@ -472,7 +472,73 @@ public class SpatialZone extends SimulationObject
 		}
     	return statAnalysis;
     }
-
+    
+    public String getSRMSEstatistic(){
+    	String stat = new String();
+    	for(int i = 0; i < ConfigFile.AttributeDefinitionsImportance.size(); i++){
+    		String tempCat = myAttributesDiscConditional.get(i).GetDimensionName();
+    		double num = 0;
+        	double den = 0;
+    		for(int j = 0; j < ConfigFile.AttributeDefinitionsImportance.get(i).value; j++){
+    			double catTarget = marginalTargets.get(tempCat).GetValue(ConfigFile.fmt(j));
+				double catResult = marginalCounters.get(tempCat).GetValue(ConfigFile.fmt(j));
+    			num += (catResult - catTarget) * (catResult - catTarget);
+    			den += catTarget;
+    		}
+    		num = Math.sqrt(num/den);
+    		den = den/den;
+    		num = num/den;
+    		stat = stat + Utils.COLUMN_DELIMETER + num;
+    	}
+    	return stat;
+    }
+    
+    /**
+     * The Total Absolute Error is defined as the absolute difference between estimated probability rates for observed and created population.
+     * Source: Ballas, D., Clarke, G., & Turton, I. (1999, July). Exploring microsimulation methodologies for the estimation of household attributes. In 4th International Conference on GeoComputation, Mary Washington College, Virginia, USA.
+     * @return
+     */
+    public String getTotalAbsoluteError(){
+    	String  stat = new String();
+    	for(int i = 0; i < ConfigFile.AttributeDefinitionsImportance.size(); i++){
+    		String tempCat = myAttributesDiscConditional.get(i).GetDimensionName();
+    		for(int j = 0; j < ConfigFile.AttributeDefinitionsImportance.get(i).value; j++){
+    			double target = marginalTargets.get(tempCat).GetValue(ConfigFile.fmt(j));
+            	double result = marginalCounters.get(tempCat).GetValue(ConfigFile.fmt(j));
+            	if(result!=0){
+        			stat += Utils.COLUMN_DELIMETER + Math.abs(target-result)/result;
+            	}
+            	else{
+            		stat += Utils.COLUMN_DELIMETER + "#N/A";
+;
+            	}
+    		}
+    	}
+    	return stat;
+    }
+    
+    /**
+     * The Santardised Absolute Error is the sum of the absolute differences between estimated and observed counts divided by total population.
+     * Source : Huang, Z., & Williamson, P. (2001). A comparison of synthetic reconstruction and combinatorial optimisation approaches to the creation of small-area microdata. Department of Geography, University of Liverpool.
+     * @return
+     */
+    public String getStandardizedAbsoluteError(){
+    	String  stat = new String();
+    	for(int i = 0; i < ConfigFile.AttributeDefinitionsImportance.size(); i++){
+    		String tempCat = myAttributesDiscConditional.get(i).GetDimensionName();
+    		double pop = 0;
+    		double absDiff = 0;
+    		for(int j = 0; j < ConfigFile.AttributeDefinitionsImportance.get(i).value; j++){
+    			double target = marginalTargets.get(tempCat).GetValue(ConfigFile.fmt(j));
+            	double result = marginalCounters.get(tempCat).GetValue(ConfigFile.fmt(j));
+    			absDiff = Math.abs(target-result);
+    			pop += result;
+    		}
+    		stat += Utils.COLUMN_DELIMETER + absDiff/pop;
+    	}
+    	return stat;
+    }
+    
     
     public String printLocalMarginalFittingAnalysis(int localPool){
     	

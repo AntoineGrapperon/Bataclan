@@ -25,8 +25,8 @@ public class Utils
     public static String NEW_LINE_DELIMITER = "\n";
     public static String NULL = "NULL";
 
-    public static int WARMUP_ITERATIONS = 200000;
-    public static int SKIP_ITERATIONS = 30;
+    public static int WARMUP_ITERATIONS = 1;
+    public static int SKIP_ITERATIONS = 1;
     public static int POOL_COUNT = 10000;
     public static int numberOfSeeds =1;
 
