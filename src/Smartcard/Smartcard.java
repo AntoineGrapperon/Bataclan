@@ -20,7 +20,7 @@ import Utils.Utils;
 public class Smartcard extends BiogemeChoice{
 
 	double cardId;
-	String stationId;
+	int stationId;
 	//public int choiceId;
 	protected HashMap<String, ArrayList<String>> myData = new HashMap<String, ArrayList<String>>();
 	public int columnId;
@@ -176,7 +176,7 @@ public class Smartcard extends BiogemeChoice{
 	public int getWeekDayAveragePtFidelity(double distanceThreshold){
 		int counterTripLegs = 0;
 		int counterNonPt = 0;
-		for(int i = 0; i < myData.get(UtilsSM.cardId).size()-1;i++){
+		for(int i = 0; i < myData.get(UtilsSM.cardId).size();i++){
 			String currDate = myData.get(UtilsSM.date).get(i);
 			if(isWeekDay(currDate)){
 				int stationId = Integer.parseInt(myData.get(UtilsSM.stationId).get(i));
@@ -227,7 +227,7 @@ public class Smartcard extends BiogemeChoice{
 				freq = stationFrequencies.get(key);
 			}
 		}
-		stationId = myStationId;
+		stationId = Integer.parseInt(myStationId);
 	}
 
 	/**

@@ -206,7 +206,7 @@ public class Main {
 	    	//Load Smartcard data and process them to label with a choice id
 	    	//############################################################################################
 	    	
-			/*myPublicTransitSystem.initialize(
+			myPublicTransitSystem.initialize(
 					myCtrlGenerator, 
 					Utils.DATA_DIR + "ptSystem\\smartcardData.txt", 
 					Utils.DATA_DIR + "ptSystem\\stops.txt",
@@ -217,11 +217,14 @@ public class Main {
 			myPublicTransitSystem.assignPotentialSmartcardsToZones();
 			System.out.println("--potential smartcard assigned");
 			//myPublicTransitSystem.makeRoomForCostMatrix();
-			ArrayList<HashMap<Integer, Double>> costMatrix = myPublicTransitSystem.createCostMatrixOptimized();
-			System.out.println("--cost matrix");
+			
+			//ArrayList<HashMap<Integer, Double>> costMatrix = myPublicTransitSystem.createCostMatrixOptimized();
+			//myPublicTransitSystem.createCostMatrixHardCopy("F:\\test.csv");
+			/*System.out.println("--cost matrix");
+			
 			int[] result;
-			//HungarianAlgorithm hu =new HungarianAlgorithm(costMatrix);
-			HungarianAlgoRithmOptimized hu =new HungarianAlgoRithmOptimized(costMatrix);
+			HungarianAlgorithm hu =new HungarianAlgorithm(costMatrix);
+			//HungarianAlgoRithmOptimized hu =new HungarianAlgoRithmOptimized(costMatrix);
 			result=hu.execute();
 			
 			BufferedWriter write = new BufferedWriter(new FileWriter(Utils.DATA_DIR + "ptSystem\\test.csv"));
@@ -230,7 +233,28 @@ public class Main {
 				write.write(result[i]+"\n");
 				write.flush();
 			} //for
-			write.close();
+			write.close();*/
+			
+			/*ArrayList<double[][]> costMatrix = myPublicTransitSystem.createCostMatrixByBatch(500);
+			
+			System.out.println("--cost matrix");
+			for(int i = 0; i < costMatrix.size(); i++){
+				
+				int[] result;
+				HungarianAlgorithm hu =new HungarianAlgorithm(costMatrix.get(i));
+				//HungarianAlgoRithmOptimized hu =new HungarianAlgoRithmOptimized(costMatrix);
+				result=hu.execute();
+				
+				BufferedWriter write = new BufferedWriter(new FileWriter(Utils.DATA_DIR + "ptSystem\\test" + i + ".csv"));
+
+				for(int j=0;j<result.length;j++){
+					write.write(result[j]+"\n");
+					write.flush();
+				} //for
+				write.close();
+			}*/
+			
+			myPublicTransitSystem.createCostMatrixStationByStation();
 			
 			/*mySimulator = new BiogemeSimulator(myCtrlGenerator);
 			mySimulator.initialize(Utils.DATA_DIR + "data\\505\\createdPopulation.csv");

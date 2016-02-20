@@ -176,6 +176,27 @@ public class BiogemeAgent {
 		return agentChoiceSet;
 	}
 	
+	public ArrayList<Smartcard> generateChoiceSet(int choiceSetSize, HashMap<Double,ArrayList<Smartcard>> closeSmartcards){
+		// TODO Auto-generated method stub
+		double myZone = Double.parseDouble(myAttributes.get(UtilsSM.zoneId));
+		//ArrayList<Integer> myStations = PublicTransitSystem.geoDico.get(myZone);
+		ArrayList<Smartcard> potentialSmartcard = closeSmartcards.get(myZone);
+		ArrayList<Smartcard> agentChoiceSet = new ArrayList<Smartcard>();
+		Random random = new Random();
+		for(int i = 0; i < choiceSetSize; i++){
+			if(potentialSmartcard.size()!=0){
+				int nextChoice = random.nextInt(potentialSmartcard.size());
+				Smartcard currChoice = potentialSmartcard.get(nextChoice);
+				agentChoiceSet.add(currChoice);
+			}
+		}
+		
+		Smartcard stayHome = PublicTransitSystem.myCtrlGen.getStayHomeChoice();
+		agentChoiceSet.add(stayHome);
+		
+		return agentChoiceSet;
+	}
+	
 	public void createAndWeighChoiceSet(int choiceSetSize) {
 		// TODO Auto-generated method stub
 		//rigth I am just able to apply dummies
@@ -217,6 +238,7 @@ public class BiogemeAgent {
 
 	public double[] writeCosts(int size, int smartcardCount) {
 		// TODO Auto-generated method stub
+		
 		double[] newRow = new double[size];
 		//intialization avec une valeur de cout tres elevee
 		for(int i = 0; i < size; i++){
@@ -235,6 +257,45 @@ public class BiogemeAgent {
 			}
 		}
 		return newRow;
+	}
+	
+	public void createAndWeighChoiceSet(int choiceSetSize,HashMap<Double,ArrayList<Smartcard>> closeSmartcards ) {
+		// TODO Auto-generated method stub
+		//rigth I am just able to apply dummies
+		ArrayList<Smartcard> choiceSet = generateChoiceSet(choiceSetSize, closeSmartcards);
+		ArrayList<Double> utilities	 = new ArrayList<Double>();
+		for(int i = 0; i < choiceSet.size(); i++){
+			
+			double utility = 0;
+			//int choiceId = choiceSet.get(i).biogeme_group_id;
+			BiogemeChoice currChoice = choiceSet.get(i);
+			
+			for(BiogemeHypothesis currH: BiogemeSimulator.modelHypothesis){
+				if(currH.isCst()){
+					utility += currH.getCoefficientValue();
+				}
+				else if(currChoice.isAffected(currH) && currChoice.isAffecting(currH, this) && currH.isDummy){
+					utility += currH.getCoefficientValue();
+				}
+				else if(currChoice.isAffected(currH) && !currH.isDummy){
+					utility += currH.getCoefficientValue() * currChoice.getAffectingValue(currH, this);
+				}
+			}
+			currChoice.utility = utility;
+			utilities.add(utility);
+		}
+				// TODO Auto-generated method stub
+			
+		Double logsum = 0.0;
+		for(int i = 0; i < choiceSet.size(); i++){
+			logsum += Math.exp(choiceSet.get(i).utility);
+		}
+		double currProbability = 0;
+		for(BiogemeChoice currChoice: choiceSet){
+			currProbability = Math.exp(currChoice.utility) / logsum;
+			currChoice.probability = currProbability;
+		}
+		myChoices.addAll(choiceSet);
 	}
 	
 	public HashMap<Integer,Double> getChoiceSet(int size, int smartcardCount) {

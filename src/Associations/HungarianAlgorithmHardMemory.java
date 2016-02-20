@@ -1,8 +1,6 @@
 package Associations;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 
 /* Copyright (c) 2012 Kevin L. Stern
  * 
@@ -49,10 +47,9 @@ import java.util.HashMap;
  * 
  * @author Kevin L. Stern
  */
-public class HungarianAlgoRithmOptimized {
-	private final ArrayList<HashMap<Integer, Double>> costMatrix;
-	//private final int rows, cols, dim;
-	private final int dim;
+public class HungarianAlgorithmHardMemory {
+	private final double[][] costMatrix;
+	private final int rows, cols, dim;
 	private final double[] labelByWorker, labelByJob;
 	private final int[] minSlackWorkerByJob;
 	private final double[] minSlackValueByJob;
@@ -69,13 +66,12 @@ public class HungarianAlgoRithmOptimized {
 	 *            must not be irregular in the sense that all rows must be the
 	 *            same length.
 	 */
-	public HungarianAlgoRithmOptimized(ArrayList<HashMap<Integer, Double>> costMatrix) {
-		//this.dim = Math.max(costMatrix.length, costMatrix[0].length);
-		this.dim = costMatrix.size();
-		//this.rows = costMatrix.length;
-		//this.cols = costMatrix[0].length;
-		this.costMatrix = costMatrix;
-		/*for (int w = 0; w < this.dim; w++) {
+	public HungarianAlgorithmHardMemory(double[][] costMatrix) {
+		this.dim = Math.max(costMatrix.length, costMatrix[0].length);
+		this.rows = costMatrix.length;
+		this.cols = costMatrix[0].length;
+		this.costMatrix = new double[this.dim][this.dim];
+		for (int w = 0; w < this.dim; w++) {
 			if (w < costMatrix.length) {
 				if (costMatrix[w].length != this.cols) {
 					throw new IllegalArgumentException("Irregular cost matrix");
@@ -84,7 +80,7 @@ public class HungarianAlgoRithmOptimized {
 			} else {
 				this.costMatrix[w] = new double[this.dim];
 			}
-		}*/
+		}
 		labelByWorker = new double[this.dim];
 		labelByJob = new double[this.dim];
 		minSlackWorkerByJob = new int[this.dim];
@@ -108,10 +104,8 @@ public class HungarianAlgoRithmOptimized {
 		}
 		for (int w = 0; w < dim; w++) {
 			for (int j = 0; j < dim; j++) {
-				if(costMatrix.get(w).containsKey(j)){
-					if (costMatrix.get(w).get(j) < labelByJob[j]) {
-						labelByJob[j] = costMatrix.get(w).get(j);
-					}
+				if (costMatrix[w][j] < labelByJob[j]) {
+					labelByJob[j] = costMatrix[w][j];
 				}
 			}
 		}
@@ -140,13 +134,12 @@ public class HungarianAlgoRithmOptimized {
 			executePhase();
 			w = fetchUnmatchedWorker();
 		}
-		int[] result = Arrays.copyOf(matchJobByWorker, dim);
-		/*
+		int[] result = Arrays.copyOf(matchJobByWorker, rows);
 		for (w = 0; w < result.length; w++) {
 			if (result[w] >= cols) {
 				result[w] = -1;
 			}
-		}*/
+		}
 		return result;
 	}
 
@@ -170,7 +163,6 @@ public class HungarianAlgoRithmOptimized {
 	 * When a phase completes, the matching will have increased in size.
 	 */
 	protected void executePhase() {
-		System.out.println("phase");
 		while (true) {
 			int minSlackWorker = -1, minSlackJob = -1;
 			double minSlackValue = Double.POSITIVE_INFINITY;
@@ -212,13 +204,11 @@ public class HungarianAlgoRithmOptimized {
 				committedWorkers[worker] = true;
 				for (int j = 0; j < dim; j++) {
 					if (parentWorkerByCommittedJob[j] == -1) {
-						if(costMatrix.get(worker).containsKey(j)){
-							double slack = costMatrix.get(worker).get(j)
-									- labelByWorker[worker] - labelByJob[j];
-							if (minSlackValueByJob[j] > slack) {
-								minSlackValueByJob[j] = slack;
-								minSlackWorkerByJob[j] = worker;
-							}
+						double slack = costMatrix[worker][j]
+								- labelByWorker[worker] - labelByJob[j];
+						if (minSlackValueByJob[j] > slack) {
+							minSlackValueByJob[j] = slack;
+							minSlackWorkerByJob[j] = worker;
 						}
 					}
 				}
@@ -247,12 +237,10 @@ public class HungarianAlgoRithmOptimized {
 	protected void greedyMatch() {
 		for (int w = 0; w < dim; w++) {
 			for (int j = 0; j < dim; j++) {
-				if(costMatrix.get(w).containsKey(j)){
-					if (matchJobByWorker[w] == -1
-							&& matchWorkerByJob[j] == -1
-							&& costMatrix.get(w).get(j) - labelByWorker[w] - labelByJob[j] == 0) {
-						match(w, j);
-					}
+				if (matchJobByWorker[w] == -1
+						&& matchWorkerByJob[j] == -1
+						&& costMatrix[w][j] - labelByWorker[w] - labelByJob[j] == 0) {
+					match(w, j);
 				}
 			}
 		}
@@ -271,17 +259,9 @@ public class HungarianAlgoRithmOptimized {
 		Arrays.fill(parentWorkerByCommittedJob, -1);
 		committedWorkers[w] = true;
 		for (int j = 0; j < dim; j++) {
-			if(costMatrix.get(w).containsKey(j)){
-				minSlackValueByJob[j] = costMatrix.get(w).get(j) - labelByWorker[w]
-						- labelByJob[j];
-				minSlackWorkerByJob[j] = w;
-			}
-			else{
-				minSlackValueByJob[j] = Double.POSITIVE_INFINITY - labelByWorker[w]
-						- labelByJob[j];
-				minSlackWorkerByJob[j] = w;
-			}
-			
+			minSlackValueByJob[j] = costMatrix[w][j] - labelByWorker[w]
+					- labelByJob[j];
+			minSlackWorkerByJob[j] = w;
 		}
 	}
 
@@ -303,41 +283,28 @@ public class HungarianAlgoRithmOptimized {
 		for (int w = 0; w < dim; w++) {
 			double min = Double.POSITIVE_INFINITY;
 			for (int j = 0; j < dim; j++) {
-				if(costMatrix.get(w).containsKey(j)){
-					if (costMatrix.get(w).get(j) < min) {
-						min = costMatrix.get(w).get(j);
-					}
+				if (costMatrix[w][j] < min) {
+					min = costMatrix[w][j];
 				}
-				
 			}
 			for (int j = 0; j < dim; j++) {
-				if(costMatrix.get(w).containsKey(j)){
-					costMatrix.get(w).put(j, costMatrix.get(w).get(j) - min);
-				}
-				//costMatrix.get(w).put(j, costMatrix.get(w).get(j) - min);
-				//costMatrix[w][j] -= min;
+				costMatrix[w][j] -= min;
 			}
 		}
 		double[] min = new double[dim];
 		for (int j = 0; j < dim; j++) {
-				min[j] = Double.POSITIVE_INFINITY;
+			min[j] = Double.POSITIVE_INFINITY;
 		}
 		for (int w = 0; w < dim; w++) {
 			for (int j = 0; j < dim; j++) {
-				if(costMatrix.get(w).containsKey(j)){
-					if (costMatrix.get(w).get(j) < min[j]) {
-						min[j] = costMatrix.get(w).get(j);
-					}
+				if (costMatrix[w][j] < min[j]) {
+					min[j] = costMatrix[w][j];
 				}
 			}
 		}
 		for (int w = 0; w < dim; w++) {
 			for (int j = 0; j < dim; j++) {
-				if(costMatrix.get(w).containsKey(j)){
-					costMatrix.get(w).put(j, costMatrix.get(w).get(j) - min[j]);
-					
-				}
-				//costMatrix[w][j] -= min[j];
+				costMatrix[w][j] -= min[j];
 			}
 		}
 	}
