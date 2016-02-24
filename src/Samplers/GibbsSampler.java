@@ -446,8 +446,9 @@ public class GibbsSampler extends Sampler
 			        (ConditionalDistribution)mainAttributesCollection.get(seltdDim);
 			    
 			    //System.out.println(currDist.GetDimensionName());
-			    			
-			    if (currDist.GetDimensionName().equals("age"))
+			    
+			    //Importance sampling
+			    /*if (currDist.GetDimensionName().equals("age"))
 			    {
 			    	index = ConfigFile.AttributesImportanceNames.indexOf("age");			    
 			        newAgent = (Person) currImpSampler.GetNextAgent(
@@ -462,7 +463,38 @@ public class GibbsSampler extends Sampler
 			                    currZone.myAttributesDiscConditional.get(index),
 			                    currDist, currDist.GetDimensionName(),
 			                    prevAgent, currZone);
+			    }*/
+			    
+			    //Gibbs sampling with local distributions
+			    if (currDist.GetDimensionName().equals("age"))
+			    {
+			    	
+			    	index = ConfigFile.AttributesImportanceNames.indexOf("age");			    
+			        currDist= currZone.myAttributesDiscConditional.get(index);
+			        
+			        ArrayList currComm = currDist.GetCommulativeValue(   // it seems that Conditional distribution does not contains any defined "GetComulativeValue" : return null
+				             prevAgent.GetNewJointKey(currDist.GetDimensionName())
+				                ,currZone);
+				        newAgent = (Person)GenerateNextAgent(currComm,
+				                (SimulationObject)prevAgent,
+				                currDist.GetDimensionName()); 
+				        
+				        
 			    }
+			    else if (currDist.GetDimensionName() == "sex")
+			    {
+			    	index = ConfigFile.AttributesImportanceNames.indexOf("sex");			    
+			        currDist= currZone.myAttributesDiscConditional.get(index);
+			        
+			        ArrayList currComm = currDist.GetCommulativeValue(   // it seems that Conditional distribution does not contains any defined "GetComulativeValue" : return null
+				             prevAgent.GetNewJointKey(currDist.GetDimensionName())
+				                ,currZone);
+				        newAgent = (Person)GenerateNextAgent(currComm,
+				                (SimulationObject)prevAgent,
+				                currDist.GetDimensionName());
+			    }
+			    
+			    
 			    /*else if (currDist.GetDimensionName().equals("mStat"))
 			    {
 			    	index = ConfigFile.AttributesImportanceNames.indexOf("mStat");			    
@@ -632,7 +664,7 @@ public class GibbsSampler extends Sampler
                 {
                     if (randVal <= ((KeyValPair)curCom.get(i)).value)
                     {
-                    	
+                    	//System.out.println("not fake");
                         return prvAgnt.CreateNewCopy(genDim, i); // it returns a lot of new agent ???
                     }
                 }

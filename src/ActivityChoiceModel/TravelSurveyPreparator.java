@@ -50,6 +50,7 @@ public class TravelSurveyPreparator {
 	
 	public void processData(int choiceSetSize) throws IOException{
 		storeData();
+		processSocioDemographics();
 		processMobility();
 		System.out.println("--mobility processed");
 		processTourTypes();
@@ -78,6 +79,13 @@ public class TravelSurveyPreparator {
 		myData.put("MODAL_CLASS", new ArrayList());
 	}
 	
+	private void processSocioDemographics() {
+		// TODO Auto-generated method stub
+		for(int i = 0; i < myData.size(); i++){
+			
+		}
+	}
+
 	public void processActivityDuration(){
 		myData.put("MAX_ACT_TIME", new ArrayList<Object>());
 		for(int i = 0; i < myData.get(UtilsTS.id).size();i++){
@@ -976,7 +984,7 @@ public class TravelSurveyPreparator {
 	    }
 	    
 	    System.out.println(myData.get(UtilsTS.id).size());
-	    for(int k = 0; k < myData.get(UtilsTS.id).size()-1; k++){
+	    for(int k = 0; k < myData.get(UtilsTS.id).size(); k++){
 	    	if((k>=idxCore*subSampleSize && k < (idxCore+1)*subSampleSize)|| (k>=idxCore*subSampleSize && idxCore == numberOfCores-1)){// || (k>=i*subSampleSize && i == numberOfCores-1)
 	    		for (String key: myData.keySet()){
 	    			//System.out.println(key + "  "+ idxCore + "  " + k);
@@ -1013,6 +1021,7 @@ public class TravelSurveyPreparator {
     	
     	
 		storeData();
+		
 		System.out.println("--data stored");
 		processMobility();
 		System.out.println("--mobility processed");
@@ -1033,6 +1042,10 @@ public class TravelSurveyPreparator {
 		processMotorRate();
 		System.out.println("--motorazation rate computed");
 
+		
+		processSocioDemographic();
+		System.out.println("--socio demographic category were processed");
+		
 		ArrayList temp = myData.remove(UtilsTS.groupHour);
 		myData.put(UtilsTS.firstDep, temp);
 		
@@ -1098,6 +1111,71 @@ public class TravelSurveyPreparator {
 		cores.shutdown();
     }
 	
+	private void processSocioDemographic() {
+		// TODO Auto-generated method stub
+		ArrayList<Object> myAges = new ArrayList<Object>();
+		ArrayList<Object> myOccs = new ArrayList<Object>();
+		ArrayList<Object> mySexs = new ArrayList<Object>();
+		ArrayList<Object> myNpers = new ArrayList<Object>();
+		ArrayList<Object> myCars = new ArrayList<Object>();
+		
+		for(int i = 0; i < myData.get(UtilsTS.id).size(); i++){
+			int ageCat = Integer.parseInt((String) myData.get(UtilsTS.ageGroup).get(i));
+			int myAgeCat = -1;
+			if(ageCat <=2){myAgeCat = -1;}
+			else if(ageCat <= 4){myAgeCat = 0;}
+			else if(ageCat ==5){myAgeCat = 1;}
+			else if(ageCat ==6){myAgeCat = 2;}
+			else if(ageCat ==7){myAgeCat = 3;}
+			else if(ageCat ==8){myAgeCat = 4;}
+			else if(ageCat ==9){myAgeCat = 4;}
+			else if(ageCat ==10){myAgeCat = 5;}
+			else if(ageCat ==11){myAgeCat = 6;}
+			else if(ageCat >=12){myAgeCat = 6;}
+			myAges.add(myAgeCat);
+			
+			int occ = Integer.parseInt((String) myData.get(UtilsTS.occupation).get(i));
+			int myOcc = -1;
+			if(occ == 1){myOcc = 0;}
+			else if(occ == 2){myOcc = 0;}
+			else if(occ == 3){myOcc = 1;}
+			else if(occ == 4){myOcc = 2;}
+			else if(occ == 5){myOcc = 3;}
+			else if(occ == 6){myOcc = -1;}
+			else if(occ == 7){myOcc = -1;}
+			else if(occ == 8){myOcc = -1;}
+			myOccs.add(Integer.toString(myOcc));
+			
+			int sex = Integer.parseInt((String) myData.get(UtilsTS.sex).get(i));
+			int mySex = -1;
+			if(sex == 1){mySex = 0;}
+			else if(sex == 2){mySex = 1;}
+			mySexs.add(mySex);
+			
+			int nPer = Integer.parseInt((String) myData.get(UtilsTS.pers).get(i));
+			int myNPer = -1;
+			if(nPer == 1){myNPer = 0;}
+			else if(nPer== 2){myNPer = 1;}
+			else if(nPer == 3){myNPer= 2;}
+			else if(nPer == 4){myNPer = 3;}
+			else if(nPer >= 5){myNPer = 4;}
+			myNpers.add(myNPer);
+			
+			int ncar = Integer.parseInt((String) myData.get(UtilsTS.cars).get(i));
+			int myNcar = -1;
+			if(ncar == 0){myNcar = 0;}
+			else if(ncar == 1){myNcar= 1;}
+			else if(ncar== 2){myNcar = 2;}
+			else if(ncar >= 3){myNcar= 3;}
+			myCars.add(myNcar);
+		}
+		myData.put(UtilsTS.ageGroup,myAges);
+		myData.put(UtilsTS.sex, mySexs);
+		myData.put(UtilsTS.occupation,myOccs);
+		myData.put(UtilsTS.pers, myNpers);
+		myData.put(UtilsTS.cars, myCars);
+	}
+
 	private void processChoiceIndex() {
 		// TODO Auto-generated method stub
 		myData.put(UtilsTS.alternative, new ArrayList<Object>());

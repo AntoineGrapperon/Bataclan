@@ -82,12 +82,15 @@ public class BiogemeChoice {
 	public String getConstantName(){
 		String constantName = new String();
 		
-		if(choiceCombination.get(UtilsTS.nAct) == 0){
+		if(choiceCombination.get(UtilsTS.nAct) == 0 || choiceCombination.get(UtilsTS.fidelPtRange)==0){
+			constantName = "C_NOPT";
+		}
+		/*if(choiceCombination.get(UtilsTS.nAct) == 0){
 			constantName = "C_HOME";
 		}
 		else if(choiceCombination.get(UtilsTS.nAct)!= 0 && choiceCombination.get(UtilsTS.fidelPtRange)==0){
 			constantName = "C_NOT_PT_RIDER";
-		}
+		}*/
 		else if(choiceCombination.get(UtilsTS.nAct)!=0 && choiceCombination.get(UtilsTS.fidelPtRange)!=0){
 			constantName = "C";
 			for(String key: choiceCombination.keySet()){

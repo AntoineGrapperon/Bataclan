@@ -82,7 +82,7 @@ public class PublicTransitSystem {
 		}
 	}
 	
-	public HashMap<Double, ArrayList<Smartcard>> assignPotentialSmartcardsToZones(ArrayList<Smartcard> mySmartcards){
+	public HashMap<Double, ArrayList<Smartcard>> assignSmartcardToZone(ArrayList<Smartcard> mySmartcards){
 		HashMap<Double, ArrayList<Smartcard>> localZonalChoiceSets = new HashMap<Double, ArrayList<Smartcard>>();
 		for(double currZone : geoDico.keySet()){
 			ArrayList<Integer> closeStations = geoDico.get(currZone);
@@ -242,7 +242,7 @@ public class PublicTransitSystem {
 				i++;
 			}
 			assignColumnIndex(currLocalSmartcards);
-			HashMap<Double, ArrayList<Smartcard>> currZonalChoiceSets = assignPotentialSmartcardsToZones(currLocalSmartcards);
+			HashMap<Double, ArrayList<Smartcard>> currZonalChoiceSets = assignSmartcardToZone(currLocalSmartcards);
 			//myCostMatrices.add(createLocalCostMatrix(currLocalPopulation, currLocalSmartcards));
 			myCostMatrices.add(createLocalCostMatrix(currLocalPopulation, currLocalSmartcards, currZonalChoiceSets));
 		}
@@ -252,7 +252,7 @@ public class PublicTransitSystem {
 	public void createCostMatrixStationByStation() throws IOException {
 		// TODO Auto-generated method stub
 		
-		ArrayList<double[][]> myCostMatrices = new ArrayList<double[][]>();
+		//ArrayList<double[][]> myCostMatrices = new ArrayList<double[][]>();
 		
 		for(int key : myStations.keySet()){
 			ArrayList<Smartcard> currLocalSmartcards = new ArrayList<Smartcard>();
@@ -264,23 +264,24 @@ public class PublicTransitSystem {
 			else{
 				currLocalSmartcards.addAll(currStation.getSmartcards());
 				currLocalPopulation.addAll(currStation.getLocalPopulation());
-			}
-			assignColumnIndex(currLocalSmartcards);
-			HashMap<Double, ArrayList<Smartcard>> currZonalChoiceSets = assignPotentialSmartcardsToZones(currLocalSmartcards);
-			myCostMatrices.add(createLocalCostMatrix(currLocalPopulation, currLocalSmartcards, currZonalChoiceSets));
-			
-			int[] result;
-			HungarianAlgorithm hu =new HungarianAlgorithm(myCostMatrices.get(0));
-			//HungarianAlgoRithmOptimized hu =new HungarianAlgoRithmOptimized(costMatrix);
-			result=hu.execute();
-			
-			BufferedWriter write = new BufferedWriter(new FileWriter(Utils.DATA_DIR + "ptSystem\\AAAtest" + key + ".csv"));
+				assignColumnIndex(currLocalSmartcards);
+				HashMap<Double, ArrayList<Smartcard>> currZonalChoiceSets = assignSmartcardToZone(currLocalSmartcards);
+				//myCostMatrices.add(createLocalCostMatrix(currLocalPopulation, currLocalSmartcards, currZonalChoiceSets));
+				
+				int[] result;
+				HungarianAlgorithm hu =new HungarianAlgorithm(createLocalCostMatrix(currLocalPopulation, currLocalSmartcards, currZonalChoiceSets));
+				//HungarianAlgoRithmOptimized hu =new HungarianAlgoRithmOptimized(costMatrix);
+				result=hu.execute();
+				
+				BufferedWriter write = new BufferedWriter(new FileWriter(Utils.DATA_DIR + "ptSystem\\AAAtest" + key + ".csv"));
 
-			for(int j=0;j<result.length;j++){
-				write.write(result[j]+"\n");
-				write.flush();
-			} //for
-			write.close();
+				for(int j=0;j<result.length;j++){
+					write.write(result[j]+"\n");
+					write.flush();
+				} //for
+				write.close();
+			}
+			
 			
 		}
 		//return myCostMatrices;

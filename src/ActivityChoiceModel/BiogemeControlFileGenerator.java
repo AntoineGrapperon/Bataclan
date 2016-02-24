@@ -84,7 +84,6 @@ public class BiogemeControlFileGenerator {
 			  categories.add(Integer.parseInt(e.trim()));
 		  }
 		  currHypothesis.setAffectedDimension(dimName, categories);
-		  
 		  answer.add(currHypothesis);
 	  }
 	  
@@ -137,7 +136,12 @@ public class BiogemeControlFileGenerator {
     		String choiceName = currChoice.getConstantName();
     		if(!alreadyWritten.contains(choiceName)){
     			alreadyWritten.add(choiceName);
-    			myDataWriter.WriteToFile(choiceName + " 	    0.0          -100.0     100.0         0");	
+    			if(choiceName.equals("C_NOPT")){
+    				myDataWriter.WriteToFile(choiceName + " 	    0.0          -100.0     100.0         1");	
+    			}
+    			else{
+    				myDataWriter.WriteToFile(choiceName + " 	    0.0          -100.0     100.0         0");	
+    			}
     		}
     	}
     	
@@ -295,7 +299,7 @@ public class BiogemeControlFileGenerator {
 			String ref = new String();
 			BiogemeChoice currChoice = new BiogemeChoice();
 			
-			if(currCombination.get(UtilsTS.nAct) == 0){
+			if(currCombination.get(UtilsTS.nAct) == 0 || currCombination.get(UtilsTS.fidelPtRange)==0){
 				currChoice.biogeme_id = combinationId;
 				currChoice.choiceCombination = currCombination;
 				if(!home){
@@ -308,7 +312,7 @@ public class BiogemeControlFileGenerator {
 				}
 				combinationId++;
 			}
-			else if(currCombination.get(UtilsTS.nAct)!= 0 && currCombination.get(UtilsTS.fidelPtRange)==0){
+			/*else if(currCombination.get(UtilsTS.nAct)!= 0 && currCombination.get(UtilsTS.fidelPtRange)==0){
 				currChoice.biogeme_id = combinationId;
 				currChoice.choiceCombination = currCombination;
 				if(!pt){
@@ -320,7 +324,7 @@ public class BiogemeControlFileGenerator {
 					currChoice.biogeme_group_id = combinationGroupPt;
 				}
 				combinationId++;
-			}
+			}*/
 			else if(currCombination.get(UtilsTS.nAct)!=0 && currCombination.get(UtilsTS.fidelPtRange)!=0){
 				currChoice.biogeme_id = combinationId;
 				currChoice.choiceCombination = currCombination;
@@ -418,9 +422,10 @@ public class BiogemeControlFileGenerator {
     	writeDummies();
     	myDataWriter.WriteToFile("EARLY_WORKER_var = (OCCUP == 0 ) * (FIRST_DEPShort * 0 )");
     	myDataWriter.WriteToFile("RETIRE_FIRST_DEP_var = (OCCUP == 2 ) * (FIRST_DEPShort * 2 )");
-    	myDataWriter.WriteToFile("NO_MOTOR_var = (MOTOR == 0 )");
+    	myDataWriter.WriteToFile("MOTOR_var = MOTOR )");
     	myDataWriter.WriteToFile("[Exclude]");
-    	myDataWriter.WriteToFile("(GRPAGE == 0) >= 1");
+    	//myDataWriter.WriteToFile("(GRPAGE == 0) >= 1");
+    	myDataWriter.WriteToFile("(OCCUP == -1) >= 1");
     			
     	//myDataWriter.WriteToFile("((P_GRAGE == 1) + (P_STATUT == 6) + (P_STATUT == 8) + (P_STATUT == 5) + (N_ACT == 0))  >= 1  //+ ((P_STATUT != 1) + (P_STATUT != 2)) / 2)");
     	myDataWriter.WriteToFile("[Model]");

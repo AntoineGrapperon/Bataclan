@@ -2849,7 +2849,7 @@ public void printLocalMarginalFittingAnalysis(String metro, long startTime){
 		        			    SpatialZone currZone = (SpatialZone)entry.getValue();
 		        			    
 		        			    OutputFileWritter outputFile = new OutputFileWritter();
-			 		            System.out.println(Utils.DATA_DIR + "data\\" + fmt(currZone.myAttributes.get(0).value) + "\\personPool.txt");
+			 		            //System.out.println(Utils.DATA_DIR + "data\\" + fmt(currZone.myAttributes.get(0).value) + "\\personPool.txt");
 			 		            outputFile.OpenFile(Utils.DATA_DIR + "data\\" + fmt(currZone.myAttributes.get(0).value) + "\\personPool.txt");
 			 		            //System.out.println(currZone.myAttributes.get(1).value);
 			 		        
@@ -2910,7 +2910,10 @@ public void printLocalMarginalFittingAnalysis(String metro, long startTime){
 			 				    //agentsCreated += myPersonPool.size();
 			 		            statistics = statistics+ Utils.NEW_LINE_DELIMITER+
 			 		            		currZone.printLocalMarginalFittingAnalysis((int)currZone.myAttributes.get(1).value);
-			 		           statistics += currZone.getTotalAbsoluteError() + currZone.getStandardizedAbsoluteError();
+			 		           statistics += currZone.getTotalAbsoluteError() 
+			 		        		   + currZone.getStandardizedAbsoluteError()
+			 		        		   + currZone.getTargets()
+			 		        		   +currZone.getResultStats();
 			 		           
 			 		            //return statistics;
 		                 }

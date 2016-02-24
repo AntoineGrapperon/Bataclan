@@ -62,38 +62,40 @@ public class Main {
 	    
 	    
 	    try {
+	    	
+	    	
 	    	//###############################################################################
 	    	//Create conditional distributions at the metro level from PUMF
 	    	//###############################################################################
-	    	/*String data = Utils.DATA_DIR + "data\\CMA505PUMF2006.csv";
+	    	/*String data = Utils.DATA_DIR + "data\\CMA505PUMF2006NEW.csv";
 	    	String descFile = Utils.DATA_DIR + "ctrl\\descFile.txt";
 	    	String zonalData = "D:\\Recherche\\modelGatineau\\gatineau_zonalFile.csv";// should be removed from the function
-	    	String destPath = Utils.DATA_DIR + "data\\505";
+	    	String destPath = Utils.DATA_DIR + "data\\505\\PUMF";
 	    	condGenerator.GenerateConditionalsStepByStep(data,descFile,zonalData,destPath);*/
 	    	
 	    	//###############################################################################
 	    	//Create conditional distributions at the metro level from OD survey (for 
 	    	//occupation and car ownership distribution
 	    	//###############################################################################
-	    	/*String data = Utils.DATA_DIR + "data\\gatineau505_od_prepared.txt";
+	    	/*String data = Utils.DATA_DIR + "data\\GATINEAU505OD2005NEW.csv";
 	    	String descFile =Utils.DATA_DIR + "ctrl\\descFile.txt";
 	    	String zonalData = "D:\\Recherche\\modelGatineau\\gatineau_zonalFile.csv";// should be removed
-	    	String destPath = Utils.DATA_DIR + "data\\505";
+	    	String destPath = Utils.DATA_DIR + "data\\505\\OD";
 	    	condGenerator.GenerateConditionalsStepByStep(data,descFile,zonalData,destPath);*/
 	    	
 	    	//###############################################################################
-	    	//create local conditional distributions : OBSOLETE
+	    	//create local conditional distributions
 	    	//###############################################################################
-	    	//census.prepareDataColumnStorage();
+	    	/*CensusPreparator census = new CensusPreparator(Utils.DATA_DIR + "CENSUS2006DAAROUNDSTOP.csv");
+	    	census.prepareDataColumnStorage();*/
 	    	
 	    	//###############################################################################
 	    	//Create the zonal input file for population sinthesis (DAUID , Population)
 	    	//###############################################################################
-	    	//census.writeZonalInputFile();//OBSOLETE
 	    	
-	    	/*CensusPreparator census = new CensusPreparator(Utils.DATA_DIR + "CMA505CENSUS2006PROFIL.csv");
+	    	CensusPreparator census = new CensusPreparator(Utils.DATA_DIR + "CENSUS2006DAAROUNDSTOP.csv");
 	    	System.out.println("--census file was found"); 
-	     	int nBatch = 40;
+	     	int nBatch = 15;
 	    	census.writeZonalInputFile(nBatch);	
 	    	census.writeCtrlFile(nBatch);
 	    	
@@ -110,9 +112,9 @@ public class Main {
             localStatAnalysis.OpenFile(Utils.DATA_DIR + "data\\505\\localStatAnalysis.csv");
             String headers =UtilsSM.zoneId + Utils.COLUMN_DELIMETER + Utils.population;
             for(int i = 0; i < ConfigFile.AttributeDefinitionsImportance.size(); i++){
-    			headers = headers + Utils.COLUMN_DELIMETER + ConfigFile.AttributeDefinitionsImportance.get(i).category + "_MSE"
-    					 + Utils.COLUMN_DELIMETER + ConfigFile.AttributeDefinitionsImportance.get(i).category + "_absErr"
-    							 + Utils.COLUMN_DELIMETER + ConfigFile.AttributeDefinitionsImportance.get(i).category + "_%Err" ;
+    			headers = headers + Utils.COLUMN_DELIMETER + ConfigFile.AttributeDefinitionsImportance.get(i).category + "MSE"
+    					 + Utils.COLUMN_DELIMETER + ConfigFile.AttributeDefinitionsImportance.get(i).category + "absErr"
+    							 + Utils.COLUMN_DELIMETER + ConfigFile.AttributeDefinitionsImportance.get(i).category + "%Err" ;
             }
             for(int i = 0; i < ConfigFile.AttributeDefinitionsImportance.size(); i++){
             	for(int j = 0 ; j < ConfigFile.AttributeDefinitionsImportance.get(i).value; j++){
@@ -121,6 +123,16 @@ public class Main {
             }
             for(int i = 0; i < ConfigFile.AttributeDefinitionsImportance.size(); i++){
             		headers = headers + Utils.COLUMN_DELIMETER  + ConfigFile.AttributeDefinitionsImportance.get(i).category + "SAE";
+            }
+            for(int i = 0; i < ConfigFile.AttributeDefinitionsImportance.size(); i++){
+            	for(int j = 0 ; j < ConfigFile.AttributeDefinitionsImportance.get(i).value; j++){
+            		headers = headers + Utils.COLUMN_DELIMETER  + ConfigFile.AttributeDefinitionsImportance.get(i).category + j + "Target";
+            	}
+            }
+            for(int i = 0; i < ConfigFile.AttributeDefinitionsImportance.size(); i++){
+            	for(int j = 0 ; j < ConfigFile.AttributeDefinitionsImportance.get(i).value; j++){
+            		headers = headers + Utils.COLUMN_DELIMETER  + ConfigFile.AttributeDefinitionsImportance.get(i).category + j + "Result";
+            	}
             }
             
             localStatAnalysis.myFileWritter.write(headers);
@@ -145,7 +157,7 @@ public class Main {
 	    		currWorld.Initialize(true, 1, i);
 	    		int numberOfLogicalProcessors = Runtime.getRuntime().availableProcessors() -1;
 		    	System.out.println("--computation with: " + numberOfLogicalProcessors + " logical processors");
-		    	String[] answer = currWorld.CreatePersonPopulationPoolLocalLevelMultiThreadsBatch(Utils.DATA_DIR + "myPersonPool.csv", pathToSeeds,5);
+		    	String[] answer = currWorld.CreatePersonPopulationPoolLocalLevelMultiThreadsBatch(Utils.DATA_DIR + "myPersonPool.csv", pathToSeeds,numberOfLogicalProcessors);
 				currWorld = null;
 				//System.out.println(answer[1]);
 		    	localStatAnalysis.myFileWritter.write(answer[0]);
@@ -154,7 +166,9 @@ public class Main {
 	    	}
 
             localStatAnalysis.CloseFile();
-	    	population.CloseFile();*/
+	    	population.CloseFile();
+	    	
+	    	
 	    	
 	    	//############################################################################################
 	    	//prepare OD data for modeling no multithreading, input: travel survey as CSV file
@@ -166,16 +180,17 @@ public class Main {
 	    	//Load hypothesis and dimension for the Joint model with Biogeme
 	    	//############################################################################################
 	    	
-	    	String pathControlFile =Utils.DATA_DIR + "\\ctrl\\biogeme_ctrl_file.txt";
-			String pathOutput = Utils.DATA_DIR + "\\biogeme\\biogeme_input_prepared.mod";
-			String pathHypothesis = Utils.DATA_DIR + "\\ctrl\\biogeme_hypothesis_desc.txt";
+	    	/*String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file.txt";
+			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrl4.mod";
+			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypothesis4.txt";
 	    	
 	    	myCtrlGenerator.initialize(pathControlFile, pathOutput, pathHypothesis);
 			myCtrlGenerator.generateBiogemeControlFile();
-			myCtrlGenerator.printChoiceIndex(Utils.DATA_DIR + "biogeme\\choiceIndex.csv");
+			//myCtrlGenerator.printChoiceIndex(Utils.DATA_DIR + "biogeme\\choiceIndex.csv");
 	    	
-	    	//############################################################################################
+			//############################################################################################
 	    	//prepare OD data for modeling using multithreading, input: travel survey as CSV file
+	    	// Also prepare OD data for creating conditional distribution using the conditionalGenerator.
 	    	//############################################################################################
 	    	
 	    	//BE CAREFUL !!! By doing multithreading I am assuming that my different sub sample does not interact with each other.
@@ -183,9 +198,9 @@ public class Main {
 	    	//Therefore, it is no honest to separate in subsample, because by doing so I am assuming that alternatives in the other samples are not reachable.
 	    	//Which is false. Therefore, the non multithreading function should be used. (it is 8 hours against 1/2 hours).
 			
-	    	/*odGatineau.initialize("D:\\Recherche\\modelGatineau\\odGatineau.csv");
+	    	/*odGatineau.initialize(Utils.DATA_DIR + "\\odGatineau.csv");
 	    	int numberOfLogicalProcessors = Runtime.getRuntime().availableProcessors() -1;
-	    	//numberOfLogicalProcessors = 1;
+	    	numberOfLogicalProcessors = 4;
 	    	System.out.println("--computation with: " + numberOfLogicalProcessors + " logical processors");
 	    	odGatineau.processDataMultiThreads(numberOfLogicalProcessors, 8, myCtrlGenerator);*/
 	    	
@@ -200,13 +215,13 @@ public class Main {
 			/*mySimulator = new BiogemeSimulator(myCtrlGenerator);
 			mySimulator.initialize(Utils.DATA_DIR + "biogeme\\data.csv");
 			mySimulator.importBiogemeModel(Utils.DATA_DIR + "biogeme\\ctrl.F12");
-			mySimulator.applyModelOnTravelSurveyPopulation(Utils.DATA_DIR + "biogeme\\simulationResults.csv");*/
+			mySimulator.applyModelOnTravelSurveyPopulation(Utils.DATA_DIR + "biogeme\\simulationResults.csv");
 			
 			//############################################################################################
 	    	//Load Smartcard data and process them to label with a choice id
 	    	//############################################################################################
 	    	
-			myPublicTransitSystem.initialize(
+			/*myPublicTransitSystem.initialize(
 					myCtrlGenerator, 
 					Utils.DATA_DIR + "ptSystem\\smartcardData.txt", 
 					Utils.DATA_DIR + "ptSystem\\stops.txt",
@@ -254,7 +269,8 @@ public class Main {
 				write.close();
 			}*/
 			
-			myPublicTransitSystem.createCostMatrixStationByStation();
+			//########
+			//myPublicTransitSystem.createCostMatrixStationByStation();
 			
 			/*mySimulator = new BiogemeSimulator(myCtrlGenerator);
 			mySimulator.initialize(Utils.DATA_DIR + "data\\505\\createdPopulation.csv");

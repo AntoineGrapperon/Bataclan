@@ -509,7 +509,7 @@ public class SpatialZone extends SimulationObject
         			stat += Utils.COLUMN_DELIMETER + Math.abs(target-result)/result;
             	}
             	else{
-            		stat += Utils.COLUMN_DELIMETER + "#N/A";
+            		stat += Utils.COLUMN_DELIMETER + " ";
 ;
             	}
     		}
@@ -588,7 +588,10 @@ public class SpatialZone extends SimulationObject
     			stdDev = stdDev/popTot;
     			relativeErr = absErr/popTot;
     			
-    			statAnalysis = statAnalysis	+ Utils.COLUMN_DELIMETER + stdDev + Utils.COLUMN_DELIMETER + absErr + Utils.COLUMN_DELIMETER + relativeErr;
+    			statAnalysis = statAnalysis	+ Utils.COLUMN_DELIMETER 
+    					+ stdDev + Utils.COLUMN_DELIMETER 
+    					+ absErr + Utils.COLUMN_DELIMETER 
+    					+ relativeErr;
 
     			outputFile.WriteToFile(target);
     			outputFile.WriteToFile(result);
@@ -623,6 +626,32 @@ public class SpatialZone extends SimulationObject
 	public String printLocalPopulation(int value) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public String getTargets() {
+		// TODO Auto-generated method stub
+		String  stat = new String();
+    	for(int i = 0; i < ConfigFile.AttributeDefinitionsImportance.size(); i++){
+    		String tempCat = myAttributesDiscConditional.get(i).GetDimensionName();
+    		for(int j = 0; j < ConfigFile.AttributeDefinitionsImportance.get(i).value; j++){
+    			double target = marginalTargets.get(tempCat).GetValue(ConfigFile.fmt(j));
+        		stat += Utils.COLUMN_DELIMETER + target;
+    		}
+    	}
+    	return stat;
+	}
+	
+	public String getResultStats() {
+		// TODO Auto-generated method stub
+		String  stat = new String();
+    	for(int i = 0; i < ConfigFile.AttributeDefinitionsImportance.size(); i++){
+    		String tempCat = myAttributesDiscConditional.get(i).GetDimensionName();
+    		for(int j = 0; j < ConfigFile.AttributeDefinitionsImportance.get(i).value; j++){
+    			double result = marginalCounters.get(tempCat).GetValue(ConfigFile.fmt(j));
+        		stat += Utils.COLUMN_DELIMETER + result;
+    		}
+    	}
+    	return stat;
 	}
 	
 	

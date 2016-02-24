@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 import SimulationObjects.Person;
+import Smartcard.UtilsSM;
+import Smartcard.UtilsST;
 import Utils.InputDataReader;
 import Utils.OutputFileWritter;
 import Utils.Utils;
@@ -54,7 +56,13 @@ public class CensusPreparator extends DataManager {
 			for(int i = 0;i < myData.get(UtilsTS.dauid).size();i++){
 				if((i>= currN * subsetSize && i < (currN+1)*subsetSize) || (i >= currN * subsetSize && currN == nBatch-1)){
 					String dauid = myData.get(UtilsTS.dauid).get(i);
-					String pop = myData.get(Utils.population).get(i);
+					int populationTarget = Integer.parseInt(myData.get(Utils.population + ", 2006").get(i)) - 
+							Integer.parseInt(myData.get("Male, total / 0 to 4 years").get(i)) -
+							Integer.parseInt(myData.get("Female, total / 0 to 4 years").get(i)) -
+							Integer.parseInt(myData.get("Male, total / 5 to 9 years").get(i)) -
+							Integer.parseInt(myData.get("Female, total / 5 to 9 years").get(i)) ;
+					String pop = Integer.toString(populationTarget);
+					//String pop = myData.get(Utils.population + ", 2006").get(i);
 					writerZonalInputFile.append(dauid + ", " + pop + "\n");
 					count++;
 				}
@@ -116,53 +124,53 @@ public class CensusPreparator extends DataManager {
 		int ageM0 = 0;int ageM1 = 0;int ageM2 = 0;int ageM3 = 0;int ageM4 = 0;int ageM5 = 0;int ageM6 = 0;
 		int ageF0 = 0;int ageF1 = 0;int ageF2 = 0;int ageF3 = 0;int ageF4 = 0;int ageF5 = 0;int ageF6 = 0;
 		
-		ageM0 = Integer.parseInt(myData.get(" Male, total / 15 to 19 years").get(i)) +
-				Integer.parseInt(myData.get(" Male, total / 5 to 9 years").get(i)) +
-				Integer.parseInt(myData.get(" Male, total / 10 to 14 years").get(i));
+		ageM0 = Integer.parseInt(myData.get("Male, total / 15 to 19 years").get(i)) +
+				//Integer.parseInt(myData.get("Male, total / 5 to 9 years").get(i)) +
+				Integer.parseInt(myData.get("Male, total / 10 to 14 years").get(i));
 		
-		ageM1 = Integer.parseInt(myData.get(" Male, total / 20 to 24 years").get(i));
+		ageM1 = Integer.parseInt(myData.get("Male, total / 20 to 24 years").get(i));
 		
-		ageM2 = Integer.parseInt(myData.get(" Male, total / 25 to 29 years").get(i)) +
-				Integer.parseInt(myData.get(" Male, total / 30 to 34 years").get(i));
+		ageM2 = Integer.parseInt(myData.get("Male, total / 25 to 29 years").get(i)) +
+				Integer.parseInt(myData.get("Male, total / 30 to 34 years").get(i));
 		
-		ageM3 = Integer.parseInt(myData.get(" Male, total / 35 to 39 years").get(i)) +
-				Integer.parseInt(myData.get(" Male, total / 40 to 44 years").get(i));
+		ageM3 = Integer.parseInt(myData.get("Male, total / 35 to 39 years").get(i)) +
+				Integer.parseInt(myData.get("Male, total / 40 to 44 years").get(i));
 		
-		ageM4 = Integer.parseInt(myData.get(" Male, total / 45 to 49 years").get(i)) +
-				Integer.parseInt(myData.get(" Male, total / 50 to 54 years").get(i));
+		ageM4 = Integer.parseInt(myData.get("Male, total / 45 to 49 years").get(i)) +
+				Integer.parseInt(myData.get("Male, total / 50 to 54 years").get(i));
 		
-		ageM5 = Integer.parseInt(myData.get(" Male, total / 55 to 59 years").get(i)) +
-				Integer.parseInt(myData.get(" Male, total / 60 to 64 years").get(i));
+		ageM5 = Integer.parseInt(myData.get("Male, total / 55 to 59 years").get(i)) +
+				Integer.parseInt(myData.get("Male, total / 60 to 64 years").get(i));
 		
-		ageM6 = Integer.parseInt(myData.get(" Male, total / 65 to 69 years").get(i)) +
-				Integer.parseInt(myData.get(" Male, total / 70 to 74 years").get(i)) +
-				Integer.parseInt(myData.get(" Male, total / 75 to 79 years").get(i)) +
-				Integer.parseInt(myData.get(" Male, total / 80 to 84 years").get(i)) +
-				Integer.parseInt(myData.get(" Male, total / 85 years and over").get(i));
+		ageM6 = Integer.parseInt(myData.get("Male, total / 65 to 69 years").get(i)) +
+				Integer.parseInt(myData.get("Male, total / 70 to 74 years").get(i)) +
+				Integer.parseInt(myData.get("Male, total / 75 to 79 years").get(i)) +
+				Integer.parseInt(myData.get("Male, total / 80 to 84 years").get(i)) +
+				Integer.parseInt(myData.get("Male, total / 85 years and over").get(i));
 		
-		ageF0 = Integer.parseInt(myData.get(" Female, total / 15 to 19 years").get(i)) +
-				Integer.parseInt(myData.get(" Female, total / 5 to 9 years").get(i)) +
-				Integer.parseInt(myData.get(" Female, total / 10 to 14 years").get(i));
+		ageF0 = Integer.parseInt(myData.get("Female, total / 15 to 19 years").get(i)) +
+				//Integer.parseInt(myData.get("Female, total / 5 to 9 years").get(i)) +
+				Integer.parseInt(myData.get("Female, total / 10 to 14 years").get(i));
 		
-		ageF1 = Integer.parseInt(myData.get(" Female, total / 20 to 24 years").get(i));
+		ageF1 = Integer.parseInt(myData.get("Female, total / 20 to 24 years").get(i));
 		
-		ageF2 = Integer.parseInt(myData.get(" Female, total / 25 to 29 years").get(i)) +
-				Integer.parseInt(myData.get(" Female, total / 30 to 34 years").get(i));
+		ageF2 = Integer.parseInt(myData.get("Female, total / 25 to 29 years").get(i)) +
+				Integer.parseInt(myData.get("Female, total / 30 to 34 years").get(i));
 		
-		ageF3 = Integer.parseInt(myData.get(" Female, total / 35 to 39 years").get(i)) +
-				Integer.parseInt(myData.get(" Female, total / 40 to 44 years").get(i));
+		ageF3 = Integer.parseInt(myData.get("Female, total / 35 to 39 years").get(i)) +
+				Integer.parseInt(myData.get("Female, total / 40 to 44 years").get(i));
 		
-		ageF4 = Integer.parseInt(myData.get(" Female, total / 45 to 49 years").get(i)) +
-				Integer.parseInt(myData.get(" Female, total / 50 to 54 years").get(i));
+		ageF4 = Integer.parseInt(myData.get("Female, total / 45 to 49 years").get(i)) +
+				Integer.parseInt(myData.get("Female, total / 50 to 54 years").get(i));
 		
-		ageF5 = Integer.parseInt(myData.get(" Female, total / 55 to 59 years").get(i)) +
-				Integer.parseInt(myData.get(" Female, total / 60 to 64 years").get(i));
+		ageF5 = Integer.parseInt(myData.get("Female, total / 55 to 59 years").get(i)) +
+				Integer.parseInt(myData.get("Female, total / 60 to 64 years").get(i));
 		
-		ageF6 = Integer.parseInt(myData.get(" Female, total / 65 to 69 years").get(i)) +
-				Integer.parseInt(myData.get(" Female, total / 70 to 74 years").get(i)) +
-				Integer.parseInt(myData.get(" Female, total / 75 to 79 years").get(i)) +
-				Integer.parseInt(myData.get(" Female, total / 80 to 84 years").get(i)) +
-				Integer.parseInt(myData.get(" Female, total / 85 years and over").get(i));
+		ageF6 = Integer.parseInt(myData.get("Female, total / 65 to 69 years").get(i)) +
+				Integer.parseInt(myData.get("Female, total / 70 to 74 years").get(i)) +
+				Integer.parseInt(myData.get("Female, total / 75 to 79 years").get(i)) +
+				Integer.parseInt(myData.get("Female, total / 80 to 84 years").get(i)) +
+				Integer.parseInt(myData.get("Female, total / 85 years and over").get(i));
 		
 		addConditionals(writerAge, writerSex, ageM0, ageM1, ageM2, ageM3, ageM4, ageM5, ageM6,ageF0, ageF1, ageF2, ageF3, ageF4, ageF5, ageF6 );
 		writerAge.flush(); writerSex.flush();

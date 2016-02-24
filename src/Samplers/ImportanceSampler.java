@@ -100,7 +100,7 @@ public class ImportanceSampler extends Sampler
                 {
                     currRatio = 1.00;
                 }
-                if (cnt > 10000)
+                if (cnt > 1000)
                 {
                     currRatio = 1;
                 }
@@ -134,7 +134,7 @@ public class ImportanceSampler extends Sampler
                     {
                         currRatio = 1.00;
                     }
-                    if (cnt > 10000)
+                    if (cnt > 1000)
                     {
                         currRatio = 1;
                     }
