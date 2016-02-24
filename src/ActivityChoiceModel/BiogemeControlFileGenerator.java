@@ -226,7 +226,10 @@ public class BiogemeControlFileGenerator {
     		String output = new String();
     		if(!alreadyWritten.contains(choiceName)){
     			alreadyWritten.add(choiceName);
-    			output = choiceId + "	" + choiceName + "	avail " + choiceName + " * one" + addCoefficients(currChoice.choiceCombination);	
+    			output = choiceId + "	" 
+    					+ choiceName + "	avail " 
+    					+ choiceName + " * one" 
+    					+ addCoefficients(currChoice.choiceCombination);	
     			myDataWriter.WriteToFile(output);
     		}
     	}
@@ -248,11 +251,26 @@ public class BiogemeControlFileGenerator {
     			}
     		}
     		if(requiresCoefficient){
-    			output += " + " + e.coefName + " * " + e.coefName + UtilsTS.var;
+    			//output += " + " + e.coefName + " * " + e.coefName + UtilsTS.var;
+    			if(e.isDummy){
+    				output += " + " + e.coefName + " * " + getDummyName(e);
+    			}
+    			else if(!e.isDummy){
+    				output += " + " + e.coefName + " * " + e.affectingDimensionName;
+    			}
     		}
     	}
 		return output;
 	}
+    
+    private String getDummyName(BiogemeHypothesis hypo){
+    	String addendum = new String();
+    	addendum+= hypo.affectingDimensionName;
+    	for(int i : hypo.affectingCategories){
+    		addendum+= Integer.toString(i);
+    	}
+    	return addendum;
+    }
 
 	private void updateCombinations(String key) {
 
@@ -420,9 +438,9 @@ public class BiogemeControlFileGenerator {
     	myDataWriter.WriteToFile("one = 1 ");
     	myDataWriter.WriteToFile("avail = 1 ");
     	writeDummies();
-    	myDataWriter.WriteToFile("EARLY_WORKER_var = (OCCUP == 0 ) * (FIRST_DEPShort * 0 )");
+    	/*myDataWriter.WriteToFile("EARLY_WORKER_var = (OCCUP == 0 ) * (FIRST_DEPShort * 0 )");
     	myDataWriter.WriteToFile("RETIRE_FIRST_DEP_var = (OCCUP == 2 ) * (FIRST_DEPShort * 2 )");
-    	myDataWriter.WriteToFile("MOTOR_var = MOTOR )");
+    	myDataWriter.WriteToFile("MOTOR_var = MOTOR )");*/
     	myDataWriter.WriteToFile("[Exclude]");
     	//myDataWriter.WriteToFile("(GRPAGE == 0) >= 1");
     	myDataWriter.WriteToFile("(OCCUP == -1) >= 1");
@@ -437,7 +455,7 @@ public class BiogemeControlFileGenerator {
 		// TODO Auto-generated method stub
 		for(BiogemeHypothesis currH : hypothesis){
 			if(currH.isDummy){
-				String newExpression = currH.affectingDimensionName + UtilsTS.var + " = ";
+				String newExpression = getDummyName(currH) + " = ";
 				for(int i : currH.affectingCategories){
 					newExpression+= " (" + currH.affectingDimensionName + " == " + i + " ) *";
 				}

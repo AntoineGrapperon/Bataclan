@@ -93,7 +93,7 @@ public class Main {
 	    	//Create the zonal input file for population sinthesis (DAUID , Population)
 	    	//###############################################################################
 	    	
-	    	CensusPreparator census = new CensusPreparator(Utils.DATA_DIR + "CENSUS2006DAAROUNDSTOP.csv");
+	    	/*CensusPreparator census = new CensusPreparator(Utils.DATA_DIR + "CENSUS2006DAAROUNDSTOP.csv");
 	    	System.out.println("--census file was found"); 
 	     	int nBatch = 15;
 	    	census.writeZonalInputFile(nBatch);	
@@ -166,7 +166,7 @@ public class Main {
 	    	}
 
             localStatAnalysis.CloseFile();
-	    	population.CloseFile();
+	    	population.CloseFile();*/
 	    	
 	    	
 	    	
@@ -180,9 +180,9 @@ public class Main {
 	    	//Load hypothesis and dimension for the Joint model with Biogeme
 	    	//############################################################################################
 	    	
-	    	/*String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file.txt";
-			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrl4.mod";
-			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypothesis4.txt";
+	    	String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file.txt";
+			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrl5.mod";
+			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypothesis5.txt";
 	    	
 	    	myCtrlGenerator.initialize(pathControlFile, pathOutput, pathHypothesis);
 			myCtrlGenerator.generateBiogemeControlFile();
@@ -198,11 +198,11 @@ public class Main {
 	    	//Therefore, it is no honest to separate in subsample, because by doing so I am assuming that alternatives in the other samples are not reachable.
 	    	//Which is false. Therefore, the non multithreading function should be used. (it is 8 hours against 1/2 hours).
 			
-	    	/*odGatineau.initialize(Utils.DATA_DIR + "\\odGatineau.csv");
+	    	odGatineau.initialize(Utils.DATA_DIR + "\\odGatineau.csv");
 	    	int numberOfLogicalProcessors = Runtime.getRuntime().availableProcessors() -1;
 	    	numberOfLogicalProcessors = 4;
 	    	System.out.println("--computation with: " + numberOfLogicalProcessors + " logical processors");
-	    	odGatineau.processDataMultiThreads(numberOfLogicalProcessors, 8, myCtrlGenerator);*/
+	    	odGatineau.processDataMultiThreads(numberOfLogicalProcessors, 20, myCtrlGenerator);
 	    	
 	    	//############################################################################################
 	    	//Load Agents and simulate their choices from the travel survey
@@ -215,7 +215,7 @@ public class Main {
 			/*mySimulator = new BiogemeSimulator(myCtrlGenerator);
 			mySimulator.initialize(Utils.DATA_DIR + "biogeme\\data.csv");
 			mySimulator.importBiogemeModel(Utils.DATA_DIR + "biogeme\\ctrl.F12");
-			mySimulator.applyModelOnTravelSurveyPopulation(Utils.DATA_DIR + "biogeme\\simulationResults.csv");
+			mySimulator.applyModelOnTravelSurveyPopulation(Utils.DATA_DIR + "biogeme\\simulationResults.csv");*/
 			
 			//############################################################################################
 	    	//Load Smartcard data and process them to label with a choice id
