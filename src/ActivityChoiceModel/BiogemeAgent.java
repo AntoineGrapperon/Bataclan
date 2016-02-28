@@ -242,11 +242,11 @@ public class BiogemeAgent {
 		double[] newRow = new double[size];
 		//intialization avec une valeur de cout tres elevee
 		for(int i = 0; i < size; i++){
-			newRow[i] = UtilsSM.INFINIT;
+			newRow[i] = Double.MAX_VALUE;
 		}
 		for(BiogemeChoice currChoice: myChoices){
-			if(currChoice.getConstantName().equals(UtilsTS.noPt)){
-				double stayHomeCost = currChoice.probability / (size - smartcardCount);
+			if(currChoice.getConstantName().equals(UtilsSM.noPt)){
+				double stayHomeCost = currChoice.probability;
 				stayHomeCost = 1/stayHomeCost;
 				for(int i = smartcardCount; i < size; i++){
 					newRow[i] = stayHomeCost;
@@ -274,11 +274,24 @@ public class BiogemeAgent {
 				if(currH.isCst()){
 					utility += currH.getCoefficientValue();
 				}
-				else if(currChoice.isAffected(currH) && currChoice.isAffecting(currH, this) && currH.isDummy){
-					utility += currH.getCoefficientValue();
+				else if(currChoice.isAffected(currH)  && currH.isDummy){
+					if( currChoice.isAffecting(currH, this)){
+						utility += currH.getCoefficientValue();
+					}
 				}
 				else if(currChoice.isAffected(currH) && !currH.isDummy){
-					utility += currH.getCoefficientValue() * currChoice.getAffectingValue(currH, this);
+					if(currH.isAgentSpecificVariable){
+						String att = UtilsSM.dictionnary.get(currH.affectingDimensionName) ;
+						utility += currH.getCoefficientValue() * Double.parseDouble(myAttributes.get(att));
+					}
+					else if(currH.isAlternatibeSpecificVariable){
+						String att = UtilsSM.dictionnary.get(currH.affectingDimensionName);
+						utility += currH.getCoefficientValue() * Double.parseDouble(currChoice.myAttributes.get(att));
+					}
+					else{
+						System.out.println(currH.coefName + " was not considered");
+					}
+					//utility += currH.getCoefficientValue() * currChoice.getAffectingValue(currH, this);
 				}
 			}
 			currChoice.utility = utility;

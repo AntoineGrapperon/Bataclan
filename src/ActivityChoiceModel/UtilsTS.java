@@ -84,6 +84,9 @@ public class UtilsTS {
 	public static String biogemeStayedHome = "C_HOME";
 	public static String alternative = "alternative";
 	public static String var = "_var";
+	public static String edu = "edu";
+	public static String inc = "inc";
+	public static String mStat = "mStat";
 	
 	
 	

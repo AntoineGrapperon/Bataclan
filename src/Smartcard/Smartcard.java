@@ -42,12 +42,13 @@ public class Smartcard extends BiogemeChoice{
 		this.cardId = id;
 	}
 	
-	public void setChoiceId(){
 		HashMap<String, Integer> myCombination = new HashMap<String, Integer>();
+		public void setChoiceId(){
 		int firstDep = getWeekDayAverageFirstDep();
 		int lastDep = getWeekDayAverageLastDep();
 		int nAct = getWeekDayAverageActivityCount(UtilsSM.timeThreshold);
 		int ptFidelity = getWeekDayAveragePtFidelity(UtilsSM.distanceThreshold);
+		
 		myCombination.put(UtilsTS.firstDep+"Short", firstDep);
 		myCombination.put(UtilsTS.lastDep+"Short", lastDep);
 		myCombination.put(UtilsTS.nAct, nAct);
@@ -79,13 +80,13 @@ public class Smartcard extends BiogemeChoice{
 		}
 		averageDepHour = averageDepHour/counter;
 		
-		if(averageDepHour < UtilsSM.morningPeakHourStart){
+		if(averageDepHour <= UtilsSM.morningPeakHourStart){
 			return 0;
 		}
 		else if(averageDepHour < UtilsSM.morningPeakHourEnd){
 			return 1;
 		}
-		else if(averageDepHour > UtilsSM.morningPeakHourEnd){
+		else if(averageDepHour >= UtilsSM.morningPeakHourEnd){
 			return 2;
 		}
 		else{
@@ -118,13 +119,13 @@ public class Smartcard extends BiogemeChoice{
 		}
 		averageDepHour = averageDepHour/counter;
 		
-		if(averageDepHour < UtilsSM.eveningPeakHourStart){
+		if(averageDepHour <= UtilsSM.eveningPeakHourStart){
 			return 0;
 		}
 		else if(averageDepHour < UtilsSM.eveningPeakHourEnd){
 			return 1;
 		}
-		else if(averageDepHour > UtilsSM.eveningPeakHourEnd){
+		else if(averageDepHour >= UtilsSM.eveningPeakHourEnd){
 			return 2;
 		}
 		else{
@@ -157,14 +158,22 @@ public class Smartcard extends BiogemeChoice{
 		int nAct = 0;
 		int dayCounter = 0;
 		for(String date: boardingTimes.keySet()){
-			dayCounter++;			
-			Collections.sort(boardingTimes.get(date));
-			for(int j = 0; j < boardingTimes.get(date).size()-1; j++){
-				double timeInterval = boardingTimes.get(date).get(j+1) - boardingTimes.get(date).get(j);
-				if(timeInterval < timeThreshold){
+			if(!boardingTimes.get(date).isEmpty()){
+				dayCounter++;			
+				Collections.sort(boardingTimes.get(date));
+				if(boardingTimes.get(date).size() == 1){
 					nAct++;
 				}
+				else{
+					for(int j = 0; j < boardingTimes.get(date).size()-1; j++){
+						double timeInterval = boardingTimes.get(date).get(j+1) - boardingTimes.get(date).get(j);
+						if(timeInterval >= timeThreshold){
+							nAct++;
+						}
+					}
+				}
 			}
+			
 		}
 		
 		double avgNAct = nAct/dayCounter;
@@ -187,17 +196,19 @@ public class Smartcard extends BiogemeChoice{
 					station.getDistance(nextStation);
 					if(station.getDistance(nextStation)>distanceThreshold){
 						counterNonPt ++;
+						counterTripLegs ++;
 					}
 				}
 				else{
 					counterNonPt++;
+					counterTripLegs++;
 				}
 				counterTripLegs++;
 			}
 		}
 		if(counterTripLegs != 0){
-			double ptFidelity = counterNonPt/counterTripLegs;
-			if(ptFidelity < 0.5){return 0;}
+			double ptFidelity = 1 - counterNonPt/counterTripLegs;
+			if(ptFidelity < 0.05){return 0;}
 			else if(ptFidelity < 0.95){return 1;}
 			else{return 2;}
 		}
@@ -301,7 +312,7 @@ public class Smartcard extends BiogemeChoice{
 		time.trim();
 		double hour = 0;
 		if(time.length()==4){
-			hour = 60 * Double.parseDouble(time.substring(0, 1)) + Double.parseDouble(time.substring(2,3));
+			hour = 60 * Double.parseDouble(time.substring(0, 2)) + Double.parseDouble(time.substring(2,4));
 		}
 		else if(time.length() == 3){
 			hour = 60 * Double.parseDouble(Character.toString(time.charAt(0))) + Double.parseDouble(time.substring(1,2));

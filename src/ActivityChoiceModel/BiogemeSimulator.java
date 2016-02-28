@@ -46,7 +46,7 @@ public class BiogemeSimulator {
 	}
 	
 	public void setHypothesis(){
-		addHypothesis(myCtrlGen.hypothesis);
+		addHypothesis(BiogemeControlFileGenerator.hypothesis);
 		ArrayList<BiogemeHypothesis> constants = generateConstantHypothesis();
 		addHypothesis(constants);
 	}
@@ -62,20 +62,32 @@ public class BiogemeSimulator {
 		return myPopulationSample;
 	}
 	
+	
 	private ArrayList<BiogemeHypothesis> generateConstantHypothesis() {
 		// TODO Auto-generated method stub
 		ArrayList<BiogemeHypothesis> constants = new ArrayList<BiogemeHypothesis>();
-		
+		boolean noPt = false;
 		for(BiogemeChoice currChoice: BiogemeControlFileGenerator.choiceIndex){
 			BiogemeHypothesis currHypothesis = new BiogemeHypothesis();
 			String currCstName = currChoice.getConstantName();
-			currHypothesis.setCoefName(currCstName);
+			if(!currCstName.equals("C_NOPT")){
+				currHypothesis.setCoefName(currCstName);
+				constants.add(currHypothesis);
+			}
+			else if(currCstName.equals("C_NOPT") && !noPt){
+				currHypothesis.setCoefName(currCstName);
+				constants.add(currHypothesis);
+				noPt = true;
+			}
+			else{
+			}
+			
 			/*for(String dim: currChoice.choiceCombination.keySet()){
 				ArrayList<Integer> category = new ArrayList<Integer>();
 				category.add(currChoice.choiceCombination.get(dim));
 				currHypothesis.setAffectedDimension(dim, category);
 			}*/
-			constants.add(currHypothesis);
+			
 		}
 		return constants;
 	}

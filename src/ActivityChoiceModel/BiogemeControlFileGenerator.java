@@ -13,6 +13,7 @@ import java.util.Iterator;
 
 import Smartcard.PublicTransitSystem;
 import Smartcard.Smartcard;
+import Smartcard.UtilsSM;
 import Utils.InputDataReader;
 import Utils.OutputFileWritter;
 import Utils.Utils;
@@ -55,8 +56,13 @@ public class BiogemeControlFileGenerator {
 		  
 		  
 		  boolean isDummy = tok[3].trim().equals("dummy");
+		  boolean isAgent = tok[3].trim().equals("agent");
+		  boolean isAlternative = tok[3].trim().equals("alternative");
+		  
 		  currHypothesis.isDummy = isDummy;
-		  String coefName = tok[0];
+		  currHypothesis.isAgentSpecificVariable = isAgent;
+		  currHypothesis.isAlternatibeSpecificVariable = isAlternative;
+		  String coefName = tok[0].trim();
 		  currHypothesis.setCoefName(coefName);
 		  
 		  if(isDummy){
@@ -477,7 +483,7 @@ public class BiogemeControlFileGenerator {
 	public Smartcard getStayHomeChoice() {
 		// TODO Auto-generated method stub
 		for(BiogemeChoice temp : choiceIndex){
-			if(temp.getConstantName().equals(UtilsTS.noPt)){
+			if(temp.getConstantName().equals(UtilsSM.noPt)){
 				Smartcard answer = new Smartcard(temp);
 				answer.columnId = PublicTransitSystem.mySmartcards.size();
 				return answer;

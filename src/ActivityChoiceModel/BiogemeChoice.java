@@ -5,6 +5,8 @@ package ActivityChoiceModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import Smartcard.UtilsSM;
 import Utils.Utils;
 
 /**
@@ -18,6 +20,7 @@ public class BiogemeChoice {
 	public HashMap<String,Integer> choiceCombination = new HashMap<String,Integer> ();
 	public double probability;
 	public double utility;
+	public HashMap<String,String> myAttributes = new HashMap<String, String>();
 	
 	public BiogemeChoice(){
 		
@@ -83,7 +86,7 @@ public class BiogemeChoice {
 		String constantName = new String();
 		
 		if(choiceCombination.get(UtilsTS.nAct) == 0 || choiceCombination.get(UtilsTS.fidelPtRange)==0){
-			constantName = "C_NOPT";
+			constantName = UtilsSM.noPt;
 		}
 		/*if(choiceCombination.get(UtilsTS.nAct) == 0){
 			constantName = "C_HOME";

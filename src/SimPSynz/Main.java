@@ -50,6 +50,7 @@ public class Main {
 	    String city = "Gatineau";
 	    UtilsTS odDictionnary = new UtilsTS(city);
 	    Utils utils = new Utils(city);
+	    UtilsSM utilsSM = new UtilsSM();
 	    
 	    String workingDir = System.getProperty("user.dir");
 		System.out.println("Current working directory : " + workingDir);
@@ -112,9 +113,9 @@ public class Main {
             localStatAnalysis.OpenFile(Utils.DATA_DIR + "data\\505\\localStatAnalysis.csv");
             String headers =UtilsSM.zoneId + Utils.COLUMN_DELIMETER + Utils.population;
             for(int i = 0; i < ConfigFile.AttributeDefinitionsImportance.size(); i++){
-    			headers = headers + Utils.COLUMN_DELIMETER + ConfigFile.AttributeDefinitionsImportance.get(i).category + "MSE"
-    					 + Utils.COLUMN_DELIMETER + ConfigFile.AttributeDefinitionsImportance.get(i).category + "absErr"
-    							 + Utils.COLUMN_DELIMETER + ConfigFile.AttributeDefinitionsImportance.get(i).category + "%Err" ;
+    			headers = headers + Utils.COLUMN_DELIMETER + ConfigFile.AttributeDefinitionsImportance.get(i).category + "SRMSE"
+    					 + Utils.COLUMN_DELIMETER + ConfigFile.AttributeDefinitionsImportance.get(i).category + "TAE_DA"
+    							 + Utils.COLUMN_DELIMETER + ConfigFile.AttributeDefinitionsImportance.get(i).category + "%SAE_DA" ;
             }
             for(int i = 0; i < ConfigFile.AttributeDefinitionsImportance.size(); i++){
             	for(int j = 0 ; j < ConfigFile.AttributeDefinitionsImportance.get(i).value; j++){
@@ -122,7 +123,9 @@ public class Main {
             	}
             }
             for(int i = 0; i < ConfigFile.AttributeDefinitionsImportance.size(); i++){
+            	for(int j = 0 ; j < ConfigFile.AttributeDefinitionsImportance.get(i).value; j++){
             		headers = headers + Utils.COLUMN_DELIMETER  + ConfigFile.AttributeDefinitionsImportance.get(i).category + "SAE";
+            	}
             }
             for(int i = 0; i < ConfigFile.AttributeDefinitionsImportance.size(); i++){
             	for(int j = 0 ; j < ConfigFile.AttributeDefinitionsImportance.get(i).value; j++){
@@ -155,7 +158,7 @@ public class Main {
 	    		
 	    		World currWorld = new World(505);
 	    		currWorld.Initialize(true, 1, i);
-	    		int numberOfLogicalProcessors = Runtime.getRuntime().availableProcessors() -1;
+	    		int numberOfLogicalProcessors = Runtime.getRuntime().availableProcessors() -3;
 		    	System.out.println("--computation with: " + numberOfLogicalProcessors + " logical processors");
 		    	String[] answer = currWorld.CreatePersonPopulationPoolLocalLevelMultiThreadsBatch(Utils.DATA_DIR + "myPersonPool.csv", pathToSeeds,numberOfLogicalProcessors);
 				currWorld = null;
@@ -166,7 +169,7 @@ public class Main {
 	    	}
 
             localStatAnalysis.CloseFile();
-	    	population.CloseFile();*/
+	    	population.CloseFile();*/	
 	    	
 	    	
 	    	
@@ -181,12 +184,13 @@ public class Main {
 	    	//############################################################################################
 	    	
 	    	String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file.txt";
-			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrl5.mod";
-			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypothesis5.txt";
+			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrl6.mod";
+			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypothesis6.txt";
 	    	
 	    	myCtrlGenerator.initialize(pathControlFile, pathOutput, pathHypothesis);
 			myCtrlGenerator.generateBiogemeControlFile();
-			//myCtrlGenerator.printChoiceIndex(Utils.DATA_DIR + "biogeme\\choiceIndex.csv");
+			myCtrlGenerator.printChoiceIndex(Utils.DATA_DIR + "biogeme\\choiceIndex.csv");
+			System.out.println("-- control file generator initiated");
 	    	
 			//############################################################################################
 	    	//prepare OD data for modeling using multithreading, input: travel survey as CSV file
@@ -198,11 +202,11 @@ public class Main {
 	    	//Therefore, it is no honest to separate in subsample, because by doing so I am assuming that alternatives in the other samples are not reachable.
 	    	//Which is false. Therefore, the non multithreading function should be used. (it is 8 hours against 1/2 hours).
 			
-	    	odGatineau.initialize(Utils.DATA_DIR + "\\odGatineau.csv");
+	    	/*odGatineau.initialize(Utils.DATA_DIR + "\\odGatineau.csv");
 	    	int numberOfLogicalProcessors = Runtime.getRuntime().availableProcessors() -1;
 	    	numberOfLogicalProcessors = 4;
 	    	System.out.println("--computation with: " + numberOfLogicalProcessors + " logical processors");
-	    	odGatineau.processDataMultiThreads(numberOfLogicalProcessors, 20, myCtrlGenerator);
+	    	odGatineau.processDataMultiThreads(numberOfLogicalProcessors, 20, myCtrlGenerator);*/
 	    	
 	    	//############################################################################################
 	    	//Load Agents and simulate their choices from the travel survey
@@ -220,8 +224,11 @@ public class Main {
 			//############################################################################################
 	    	//Load Smartcard data and process them to label with a choice id
 	    	//############################################################################################
-	    	
-			/*myPublicTransitSystem.initialize(
+			/*mySimulator = new BiogemeSimulator(myCtrlGenerator);
+			mySimulator.importBiogemeModel(Utils.DATA_DIR + "biogeme\\ctrl6.F12");*/
+			
+			
+			myPublicTransitSystem.initialize(
 					myCtrlGenerator, 
 					Utils.DATA_DIR + "ptSystem\\smartcardData.txt", 
 					Utils.DATA_DIR + "ptSystem\\stops.txt",
@@ -270,7 +277,7 @@ public class Main {
 			}*/
 			
 			//########
-			//myPublicTransitSystem.createCostMatrixStationByStation();
+			myPublicTransitSystem.createCostMatrixStationByStation();
 			
 			/*mySimulator = new BiogemeSimulator(myCtrlGenerator);
 			mySimulator.initialize(Utils.DATA_DIR + "data\\505\\createdPopulation.csv");

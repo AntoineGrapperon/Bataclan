@@ -17,6 +17,8 @@ public class BiogemeHypothesis {
 	ArrayList<Integer> affectingCategories;
 	double coefValue;
 	public boolean isDummy = true;
+	public boolean isAgentSpecificVariable;
+	public boolean isAlternatibeSpecificVariable;
 	
 	public BiogemeHypothesis(){
 		

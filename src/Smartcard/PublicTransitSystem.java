@@ -14,6 +14,7 @@ import ActivityChoiceModel.BiogemeAgent;
 import ActivityChoiceModel.BiogemeChoice;
 import ActivityChoiceModel.BiogemeControlFileGenerator;
 import ActivityChoiceModel.BiogemeSimulator;
+import ActivityChoiceModel.UtilsTS;
 import Associations.HungarianAlgorithm;
 import Utils.OutputFileWritter;
 import Utils.Utils;
@@ -53,11 +54,8 @@ public class PublicTransitSystem {
 		PopulationDataManager myPopGenerator = new PopulationDataManager();
 		
 		myStations = myStationManager.prepareStations(pathStations);
-		myStationManager = null;
 		mySmartcards = mySmartcardManager.prepareSmartcards(pathSmartcard);
-		mySmartcardManager = null;
 		geoDico = myGeoDico.getDico(pathGeoDico);
-		myGeoDico= null;
 		System.out.println("--geodico assigned");
 		myPopulation = myPopGenerator.getAgents(pathPop);
 		
@@ -255,6 +253,7 @@ public class PublicTransitSystem {
 		//ArrayList<double[][]> myCostMatrices = new ArrayList<double[][]>();
 		
 		for(int key : myStations.keySet()){
+			
 			ArrayList<Smartcard> currLocalSmartcards = new ArrayList<Smartcard>();
 			ArrayList<BiogemeAgent> currLocalPopulation = new ArrayList<BiogemeAgent>();
 			Station currStation = myStations.get(key);
@@ -262,22 +261,35 @@ public class PublicTransitSystem {
 				
 			}
 			else{
+				System.out.println("station " + key);
 				currLocalSmartcards.addAll(currStation.getSmartcards());
 				currLocalPopulation.addAll(currStation.getLocalPopulation());
+				System.out.println( "size of local smart cards " + currLocalSmartcards.size());
 				assignColumnIndex(currLocalSmartcards);
 				HashMap<Double, ArrayList<Smartcard>> currZonalChoiceSets = assignSmartcardToZone(currLocalSmartcards);
 				//myCostMatrices.add(createLocalCostMatrix(currLocalPopulation, currLocalSmartcards, currZonalChoiceSets));
-				
+				double[][] costMatrix = createLocalCostMatrix(currLocalPopulation, currLocalSmartcards, currZonalChoiceSets);
 				int[] result;
-				HungarianAlgorithm hu =new HungarianAlgorithm(createLocalCostMatrix(currLocalPopulation, currLocalSmartcards, currZonalChoiceSets));
+				HungarianAlgorithm hu =new HungarianAlgorithm(costMatrix);
 				//HungarianAlgoRithmOptimized hu =new HungarianAlgoRithmOptimized(costMatrix);
 				result=hu.execute();
 				
 				BufferedWriter write = new BufferedWriter(new FileWriter(Utils.DATA_DIR + "ptSystem\\AAAtest" + key + ".csv"));
 
 				for(int j=0;j<result.length;j++){
-					write.write(result[j]+"\n");
-					write.flush();
+					if(currLocalSmartcards.size()>result[j]){
+						write.write(result[j]+ Utils.COLUMN_DELIMETER
+								+currLocalPopulation.get(j).myAttributes.get(UtilsSM.agentId) + Utils.COLUMN_DELIMETER
+								+ currLocalSmartcards.get(result[j]).cardId + "\n");
+						write.flush();
+					}
+					else{
+						write.write(result[j]+ Utils.COLUMN_DELIMETER 
+								+currLocalPopulation.get(j).myAttributes.get(UtilsSM.agentId) + Utils.COLUMN_DELIMETER
+								+ "-1" + "\n");
+						write.flush();
+					}
+					
 				} //for
 				write.close();
 			}
@@ -321,13 +333,13 @@ public class PublicTransitSystem {
 		int N = myPopulation.size();
 		int M = mySmartcards.size();
 		int rowIndex = 0;
-		double[][] costMatrix = new double[N][M];
+		double[][] costMatrix = new double[N][N];
 		
 		for(BiogemeAgent person: myPopulation){
 			double zoneId = Double.parseDouble(person.myAttributes.get(UtilsSM.zoneId));
 			if(myZonalChoiceSets.containsKey(zoneId)){
 				person.createAndWeighChoiceSet(UtilsSM.choiceSetSize, myZonalChoiceSets );
-				costMatrix[rowIndex] = person.writeCosts(myPopulation.size(), mySmartcards.size());
+				costMatrix[rowIndex] = person.writeCosts(N, M);
 				rowIndex++;
 			}
 			else{

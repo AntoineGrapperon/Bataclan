@@ -4,6 +4,9 @@
 package Smartcard;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import ActivityChoiceModel.UtilsTS;
 
 /**
  * This class is a dictionary which contains all references required from the data sets.
@@ -43,6 +46,26 @@ public class UtilsSM {
 	public static double timeThreshold = 30;
 	public static double distanceThreshold = 1000;
 	public static int choiceSetSize = 20;
+	public static String noPt = "C_NOPT";
+	
+	public static HashMap<String, String> dictionnary = new HashMap<String, String>();
+	public static String agentId = "agentId";
+	
+	public UtilsSM(){
+		dictionnary.put(UtilsTS.ageGroup, "age");
+		dictionnary.put(UtilsTS.sex, "sex");
+		dictionnary.put(UtilsTS.mStat, "mStat");
+		dictionnary.put(UtilsTS.pers, "nPers");
+		dictionnary.put(UtilsTS.inc, "inc");
+		dictionnary.put(UtilsTS.cars, "car");
+		dictionnary.put(UtilsTS.occupation, "occ");
+		dictionnary.put(UtilsTS.edu, "edu");
+		
+		dictionnary.put(UtilsTS.motor, "car");
+		dictionnary.put(UtilsTS.edu, "edu");
+		
+	}
+	
 	
 	
 }

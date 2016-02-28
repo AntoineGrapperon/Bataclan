@@ -38,6 +38,7 @@ public class Utils
     public static String pathToMarginalChecks = "D:\\Recherche\\CharlieWorkspace\\PopSynz\\marginalChecks.csv";
     public static String pathToMetroMarginalChecks = "D:\\Recherche\\CharlieWorkspace\\PopSynz\\metroMarginalChecks.csv";
     
+    
     String city;
     
     public static boolean createLocal = false;

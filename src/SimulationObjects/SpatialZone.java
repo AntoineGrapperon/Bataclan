@@ -506,11 +506,10 @@ public class SpatialZone extends SimulationObject
     			double target = marginalTargets.get(tempCat).GetValue(ConfigFile.fmt(j));
             	double result = marginalCounters.get(tempCat).GetValue(ConfigFile.fmt(j));
             	if(result!=0){
-        			stat += Utils.COLUMN_DELIMETER + Math.abs(target-result)/result;
+        			stat += Utils.COLUMN_DELIMETER + Math.abs(target-result);
             	}
             	else{
             		stat += Utils.COLUMN_DELIMETER + " ";
-;
             	}
     		}
     	}
@@ -526,6 +525,22 @@ public class SpatialZone extends SimulationObject
     	String  stat = new String();
     	for(int i = 0; i < ConfigFile.AttributeDefinitionsImportance.size(); i++){
     		String tempCat = myAttributesDiscConditional.get(i).GetDimensionName();
+    		for(int j = 0; j < ConfigFile.AttributeDefinitionsImportance.get(i).value; j++){
+    			double target = marginalTargets.get(tempCat).GetValue(ConfigFile.fmt(j));
+            	double result = marginalCounters.get(tempCat).GetValue(ConfigFile.fmt(j));
+            	if(result!=0){
+        			stat += Utils.COLUMN_DELIMETER + Math.abs(target-result)/result;
+            	}
+            	else{
+            		stat += Utils.COLUMN_DELIMETER + " ";
+            	}
+    		}
+    	}
+    	return stat;
+    	
+    	/*String  stat = new String();
+    	for(int i = 0; i < ConfigFile.AttributeDefinitionsImportance.size(); i++){
+    		String tempCat = myAttributesDiscConditional.get(i).GetDimensionName();
     		double pop = 0;
     		double absDiff = 0;
     		for(int j = 0; j < ConfigFile.AttributeDefinitionsImportance.get(i).value; j++){
@@ -536,7 +551,7 @@ public class SpatialZone extends SimulationObject
     		}
     		stat += Utils.COLUMN_DELIMETER + absDiff/pop;
     	}
-    	return stat;
+    	return stat;*/
     }
     
     
@@ -585,7 +600,7 @@ public class SpatialZone extends SimulationObject
     			
     			}
     			
-    			stdDev = stdDev/popTot;
+    			stdDev = Math.sqrt(stdDev/popTot);
     			relativeErr = absErr/popTot;
     			
     			statAnalysis = statAnalysis	+ Utils.COLUMN_DELIMETER 

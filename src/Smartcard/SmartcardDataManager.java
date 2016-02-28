@@ -77,6 +77,15 @@ public class SmartcardDataManager extends DataManager{
 			Smartcard currSm = getSmartcard(i);
 			updateSmartcard(currSm,i);
 		}
+		
+		for(Smartcard sm: mySmartcards){
+			for(String key: sm.choiceCombination.keySet()){
+				String value = Integer.toString(sm.choiceCombination.get(key));
+				sm.myAttributes.put(key, value);
+			}
+		}
+		
+		System.out.println("size : "+ mySmartcards.get(2).myData.size());
 		System.out.println("--number of smart cards " + mySmartcards.size());
 	}
 	
@@ -90,6 +99,10 @@ public class SmartcardDataManager extends DataManager{
 		double id = Double.parseDouble(myData.get(UtilsSM.cardId).get(i));
 		for(Smartcard currS : mySmartcards){
 			if(currS.cardId == id){
+				/*if(currS.cardId == 3.064000104E9){
+					System.out.println("coucou");
+				}*/
+
 				return currS;
 			}
 		}
