@@ -27,8 +27,10 @@ public class PublicTransitSystem {
 	
 	public static HashMap<Integer, Station> myStations = new HashMap<Integer, Station>();
 	public static ArrayList<Smartcard> mySmartcards = new ArrayList<Smartcard>();
-	//public static HashMap<Double,ArrayList<BiogemeAgent>> myDaZones = new HashMap<Double,ArrayList<BiogemeAgent>>();
+	
+	public static HashMap<Double,ArrayList<BiogemeAgent>> zonalPopulation = new HashMap<Double,ArrayList<BiogemeAgent>>();
 	public static HashMap<Double, ArrayList<Smartcard>> zonalChoiceSets = new HashMap<Double, ArrayList<Smartcard>>();
+	
 	public static ArrayList<BiogemeAgent> myPopulation = new ArrayList<BiogemeAgent>();
 	PopulationWriter myPopWriter = new PopulationWriter();
 	double[][] costMatrix;
@@ -46,7 +48,12 @@ public class PublicTransitSystem {
 		
 	}
 	
-	public void initialize(BiogemeControlFileGenerator ctrlGenerator, String pathSmartcard, String pathStations, String pathGeoDico, String pathPop) throws IOException{
+	public void initialize(BiogemeControlFileGenerator ctrlGenerator, 
+			String pathSmartcard, 
+			String pathStations, 
+			String pathGeoDico, 
+			String pathPop,
+			String pathModel) throws IOException{
 		myCtrlGen = ctrlGenerator;
 		SmartcardDataManager mySmartcardManager = new SmartcardDataManager(myCtrlGen);
 		StationDataManager myStationManager = new StationDataManager();
@@ -60,11 +67,12 @@ public class PublicTransitSystem {
 		myPopulation = myPopGenerator.getAgents(pathPop);
 		
 		mySimulator.setHypothesis();
+		mySimulator.importBiogemeModel(pathModel);
 	}
 	
 	
 	
-	public void assignPotentialSmartcardsToZones(){
+	public void createZonalSmartcardIndex(){
 		for(double currZone : geoDico.keySet()){
 			ArrayList<Integer> closeStations = geoDico.get(currZone);
 			ArrayList<Smartcard> zonalChoiceSet = new ArrayList<Smartcard>();
@@ -80,7 +88,7 @@ public class PublicTransitSystem {
 		}
 	}
 	
-	public HashMap<Double, ArrayList<Smartcard>> assignSmartcardToZone(ArrayList<Smartcard> mySmartcards){
+	public HashMap<Double, ArrayList<Smartcard>> createZonalSmartcardIndex(ArrayList<Smartcard> mySmartcards){
 		HashMap<Double, ArrayList<Smartcard>> localZonalChoiceSets = new HashMap<Double, ArrayList<Smartcard>>();
 		for(double currZone : geoDico.keySet()){
 			ArrayList<Integer> closeStations = geoDico.get(currZone);
@@ -98,6 +106,20 @@ public class PublicTransitSystem {
 		return localZonalChoiceSets;
 	}
 	
+	public void createZonalPopulationIndex() {
+		// TODO Auto-generated method stub
+		for(double currZone : geoDico.keySet()){
+			Iterator<BiogemeAgent> it = myPopulation.iterator();
+			zonalPopulation.put(currZone, new ArrayList<BiogemeAgent>());
+			while(it.hasNext()){
+				BiogemeAgent currAgent = it.next();
+				if(Double.parseDouble(currAgent.myAttributes.get(UtilsSM.zoneId)) == currZone){
+					zonalPopulation.get(currZone).add(currAgent);
+				}
+			}
+		}
+	}
+	
 	/*public void applyModelOnSmartcard(String outputPath) throws IOException{
 		int n = 0;
 		int N = myPopulation.size();
@@ -112,7 +134,10 @@ public class PublicTransitSystem {
 	}*/
 	
 		
-		
+	/**
+	 * Use this function only if you have access to a 1To + RAM system: it is creating a square matrix which size is
+	 * the size of the population: for a 300 000 population this is 600 Go of RAM required.	
+	 */
 	public double[][] createCostMatrix() throws IOException{
 		int n = 0;
 		int N = myPopulation.size();
@@ -123,7 +148,7 @@ public class PublicTransitSystem {
 		System.out.println("bouh");
 		
 		for(BiogemeAgent person: myPopulation){
-			double zoneId = Double.parseDouble(person.myAttributes.get("zoneId"));
+			double zoneId = Double.parseDouble(person.myAttributes.get(UtilsSM.zoneId));
 			if(zonalChoiceSets.containsKey(zoneId)){
 				person.createAndWeighChoiceSet(UtilsSM.choiceSetSize);
 				costMatrix[rowIndex] = person.writeCosts(myPopulation.size(), mySmartcards.size());
@@ -139,6 +164,69 @@ public class PublicTransitSystem {
 		return costMatrix;
 	}
 	
+	/**
+	 * This is still generating a choice set from the whole population. Use the same function including the located smartcard.
+	 * @param myPopulation
+	 * @param mySmartcards
+	 * @return
+	 * @throws IOException
+	 */
+	public double[][] createLocalCostMatrix(ArrayList<BiogemeAgent> myPopulation, ArrayList<Smartcard> mySmartcards) throws IOException{
+		int n = 0;
+		int N = myPopulation.size();
+		int M = mySmartcards.size();
+		int rowIndex = 0;
+		double[][] costMatrix = new double[N][N];
+		
+		for(BiogemeAgent person: myPopulation){
+			double zoneId = Double.parseDouble(person.myAttributes.get(UtilsSM.zoneId));
+			ArrayList<Smartcard> choiceSet = person.generateChoiceSet(UtilsSM.choiceSetSize, mySmartcards);
+			person.processSmartcardChoiceSet(choiceSet);
+			costMatrix[rowIndex] = person.writeCosts(myPopulation.size(), mySmartcards.size());
+			rowIndex++;
+		}
+		return costMatrix;
+	}
+	
+	public double[][] createLocalCostMatrix(
+			ArrayList<BiogemeAgent> myPopulation, 
+			ArrayList<Smartcard> mySmartcards, 
+			HashMap<Double, ArrayList<Smartcard>> zonalSmartcardIndex
+			) throws IOException{
+		
+		int n = 0;
+		int N = myPopulation.size();
+		int M = mySmartcards.size();
+		int rowIndex = 0;
+		double[][] costMatrix = new double[N][N];
+		
+		for(BiogemeAgent person: myPopulation){
+			double zoneId = Double.parseDouble(person.myAttributes.get(UtilsSM.zoneId));
+			if(zonalSmartcardIndex.containsKey(zoneId)){
+				ArrayList<Smartcard> choiceSet = person.generateChoiceSet(UtilsSM.choiceSetSize, zonalSmartcardIndex);
+				person.processSmartcardChoiceSet(choiceSet);
+				//person.createAndWeighChoiceSet(UtilsSM.choiceSetSize, zonalSmartcardIndex );
+				costMatrix[rowIndex] = person.writeCosts(N, M);
+				rowIndex++;
+			}
+			else{
+				double[] newRow = new double[myPopulation.size()];
+				for(int i = 0; i < myPopulation.size(); i++){newRow[i] = 999999.00;}
+				costMatrix[rowIndex] = newRow;
+				rowIndex++;
+				System.out.println("--this guy shouldn't be there...");
+			}
+		}
+		return costMatrix;
+	}
+	
+	/**
+	 * This never worked
+	 * @return
+	 * @throws IOException
+	 */
+	
+	@Deprecated
 	public ArrayList<HashMap<Integer,Double>> createCostMatrixOptimized() throws IOException{
 		int n = 0;
 		int N = myPopulation.size();
@@ -170,10 +258,12 @@ public class PublicTransitSystem {
 	
 	
 	/**
+	 * This is way too long due to hard memory access
 	 * CAREFUL: the costmatrix can be a few Go, you may want to write in an external hard-drive to avoid completely overflooding your harddrive.
 	 * @param path
 	 * @throws IOException
 	 */
+	@Deprecated
 	public void createCostMatrixHardCopy(String path) throws IOException{
 		OutputFileWritter myCopy = new OutputFileWritter();
 		myCopy.OpenFile(path);
@@ -199,6 +289,7 @@ public class PublicTransitSystem {
 		myCopy.CloseFile();
 	}
 	
+	
 	public void writeNextMatrixLine(double[] temp, OutputFileWritter myCopy) throws IOException{
 		String nextLine = new String();
 		for(int i = 0; i< temp.length; i++){
@@ -213,6 +304,7 @@ public class PublicTransitSystem {
 		myStations = null;
 	}
 
+	@Deprecated
 	public ArrayList<double[][]> createCostMatrixByBatch(int numberOfStationBatch) throws IOException {
 		// TODO Auto-generated method stub
 		int batchCount = 0;
@@ -240,14 +332,25 @@ public class PublicTransitSystem {
 				i++;
 			}
 			assignColumnIndex(currLocalSmartcards);
-			HashMap<Double, ArrayList<Smartcard>> currZonalChoiceSets = assignSmartcardToZone(currLocalSmartcards);
+			HashMap<Double, ArrayList<Smartcard>> currZonalChoiceSets = createZonalSmartcardIndex(currLocalSmartcards);
 			//myCostMatrices.add(createLocalCostMatrix(currLocalPopulation, currLocalSmartcards));
 			myCostMatrices.add(createLocalCostMatrix(currLocalPopulation, currLocalSmartcards, currZonalChoiceSets));
 		}
 		return myCostMatrices;
 	}
 	
-	public void createCostMatrixStationByStation() throws IOException {
+	
+
+	private void assignColumnIndex(ArrayList<Smartcard> mySmartcards) {
+		// TODO Auto-generated method stub
+		int column = 0;
+		for(Smartcard tempS : mySmartcards){
+			tempS.columnId = column;
+			column++;
+		}
+	}
+	
+	public void processMatchingStationByStation() throws IOException {
 		// TODO Auto-generated method stub
 		
 		//ArrayList<double[][]> myCostMatrices = new ArrayList<double[][]>();
@@ -266,9 +369,9 @@ public class PublicTransitSystem {
 				currLocalPopulation.addAll(currStation.getLocalPopulation());
 				System.out.println( "size of local smart cards " + currLocalSmartcards.size());
 				assignColumnIndex(currLocalSmartcards);
-				HashMap<Double, ArrayList<Smartcard>> currZonalChoiceSets = assignSmartcardToZone(currLocalSmartcards);
+				HashMap<Double, ArrayList<Smartcard>> zonalSmartcardIndex = createZonalSmartcardIndex(currLocalSmartcards);
 				//myCostMatrices.add(createLocalCostMatrix(currLocalPopulation, currLocalSmartcards, currZonalChoiceSets));
-				double[][] costMatrix = createLocalCostMatrix(currLocalPopulation, currLocalSmartcards, currZonalChoiceSets);
+				double[][] costMatrix = createLocalCostMatrix(currLocalPopulation, currLocalSmartcards, zonalSmartcardIndex);
 				int[] result;
 				HungarianAlgorithm hu =new HungarianAlgorithm(costMatrix);
 				//HungarianAlgoRithmOptimized hu =new HungarianAlgoRithmOptimized(costMatrix);
@@ -299,66 +402,45 @@ public class PublicTransitSystem {
 		//return myCostMatrices;
 	}
 
-	public double[][] createLocalCostMatrix(ArrayList<BiogemeAgent> myPopulation, ArrayList<Smartcard> mySmartcards) throws IOException{
-		int n = 0;
-		int N = myPopulation.size();
-		int M = mySmartcards.size();
-		int rowIndex = 0;
-		double[][] costMatrix = new double[N][M];
-		
-		for(BiogemeAgent person: myPopulation){
-			double zoneId = Double.parseDouble(person.myAttributes.get(UtilsSM.zoneId));
-			if(zonalChoiceSets.containsKey(zoneId)){
-				person.createAndWeighChoiceSet(UtilsSM.choiceSetSize);
-				costMatrix[rowIndex] = person.writeCosts(myPopulation.size(), mySmartcards.size());
-				rowIndex++;
-			}
-			else{
-				double[] newRow = new double[myPopulation.size()];
-				for(int i = 0; i < myPopulation.size(); i++){newRow[i] = 999999.00;}
-				costMatrix[rowIndex] = newRow;
-				rowIndex++;
-			}
+	public void processMatchingZoneByZone() throws IOException {
+		// TODO Auto-generated method stub
+		for(double zoneId: zonalChoiceSets.keySet()){
+			
+			ArrayList<Smartcard> currLocalSmartcards = new ArrayList<Smartcard>();
+			ArrayList<BiogemeAgent> currLocalPopulation = new ArrayList<BiogemeAgent>();
+			
+			currLocalSmartcards = zonalChoiceSets.get(zoneId);	
+			currLocalPopulation = zonalPopulation.get(zoneId);
+			assignColumnIndex(currLocalSmartcards);
+			
+			System.out.println("zone " + zoneId + " , population : " + currLocalPopulation.size() + ", smartcard count " + currLocalSmartcards.size());
+			
+			double[][] costMatrix = createLocalCostMatrix(currLocalPopulation, currLocalSmartcards);
+			int[] result;
+			
+			HungarianAlgorithm hu =new HungarianAlgorithm(costMatrix);
+			result=hu.execute();
+			
+			BufferedWriter write = new BufferedWriter(new FileWriter(Utils.DATA_DIR + "ptSystem\\AAAtest" + zoneId + ".csv"));
+			for(int j=0;j<result.length;j++){
+				if(currLocalSmartcards.size()>result[j]){
+					write.write(result[j]+ Utils.COLUMN_DELIMETER
+							+currLocalPopulation.get(j).myAttributes.get(UtilsSM.agentId) + Utils.COLUMN_DELIMETER
+							+ currLocalSmartcards.get(result[j]).cardId + "\n");
+					write.flush();
+				}
+				else{
+					write.write(result[j]+ Utils.COLUMN_DELIMETER 
+							+currLocalPopulation.get(j).myAttributes.get(UtilsSM.agentId) + Utils.COLUMN_DELIMETER
+							+ "-1" + "\n");
+					write.flush();
+				}
+			} 
+			write.close();
 		}
-		return costMatrix;
-	}
-	
-	public double[][] createLocalCostMatrix(
-			ArrayList<BiogemeAgent> myPopulation, 
-			ArrayList<Smartcard> mySmartcards, 
-			HashMap<Double, ArrayList<Smartcard>> myZonalChoiceSets
-			) throws IOException{
-		
-		int n = 0;
-		int N = myPopulation.size();
-		int M = mySmartcards.size();
-		int rowIndex = 0;
-		double[][] costMatrix = new double[N][N];
-		
-		for(BiogemeAgent person: myPopulation){
-			double zoneId = Double.parseDouble(person.myAttributes.get(UtilsSM.zoneId));
-			if(myZonalChoiceSets.containsKey(zoneId)){
-				person.createAndWeighChoiceSet(UtilsSM.choiceSetSize, myZonalChoiceSets );
-				costMatrix[rowIndex] = person.writeCosts(N, M);
-				rowIndex++;
-			}
-			else{
-				double[] newRow = new double[myPopulation.size()];
-				for(int i = 0; i < myPopulation.size(); i++){newRow[i] = 999999.00;}
-				costMatrix[rowIndex] = newRow;
-				rowIndex++;
-			}
-		}
-		return costMatrix;
+			
 	}
 
-	private void assignColumnIndex(ArrayList<Smartcard> mySmartcards) {
-		// TODO Auto-generated method stub
-		int column = 0;
-		for(Smartcard tempS : mySmartcards){
-			tempS.columnId = column;
-			column++;
-		}
-	}
+	
 	
 }

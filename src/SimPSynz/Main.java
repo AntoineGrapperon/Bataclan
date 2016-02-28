@@ -230,13 +230,15 @@ public class Main {
 			
 			myPublicTransitSystem.initialize(
 					myCtrlGenerator, 
-					Utils.DATA_DIR + "ptSystem\\smartcardData.txt", 
+					Utils.DATA_DIR + "ptSystem\\smartcardDataSmall.txt", 
 					Utils.DATA_DIR + "ptSystem\\stops.txt",
-					Utils.DATA_DIR + "ptSystem\\geoDico.csv",
-					Utils.DATA_DIR + "ptSystem\\population.csv"
+					Utils.DATA_DIR + "ptSystem\\geoDico500.csv",
+					Utils.DATA_DIR + "ptSystem\\population.csv",
+					Utils.DATA_DIR + "biogeme\\ctrl6.F12"
 					);
 			System.out.println("--pt system initialized");
-			myPublicTransitSystem.assignPotentialSmartcardsToZones();
+			myPublicTransitSystem.createZonalSmartcardIndex();
+			myPublicTransitSystem.createZonalPopulationIndex();
 			System.out.println("--potential smartcard assigned");
 			//myPublicTransitSystem.makeRoomForCostMatrix();
 			
@@ -277,7 +279,9 @@ public class Main {
 			}*/
 			
 			//########
-			myPublicTransitSystem.createCostMatrixStationByStation();
+			myPublicTransitSystem.processMatchingStationByStation();
+			
+			//myPublicTransitSystem.processMatchingZoneByZone();
 			
 			/*mySimulator = new BiogemeSimulator(myCtrlGenerator);
 			mySimulator.initialize(Utils.DATA_DIR + "data\\505\\createdPopulation.csv");
