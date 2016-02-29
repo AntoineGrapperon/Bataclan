@@ -57,7 +57,6 @@ public class Station {
 				}
 			}
 		}
-		System.out.println("--cost matrix size : " + localPopulation.size());
 		return localPopulation;
 	}
 }

@@ -352,9 +352,9 @@ public class PublicTransitSystem {
 	
 	public void processMatchingStationByStation() throws IOException {
 		// TODO Auto-generated method stub
-		
+		int count = 0;
 		for(int key : myStations.keySet()){
-			
+			count++;
 			ArrayList<Smartcard> currLocalSmartcards = new ArrayList<Smartcard>();
 			ArrayList<BiogemeAgent> currLocalPopulation = new ArrayList<BiogemeAgent>();
 			Station currStation = myStations.get(key);
@@ -365,10 +365,14 @@ public class PublicTransitSystem {
 				currLocalSmartcards.addAll(currStation.getSmartcards());
 				if(currLocalSmartcards.size() != 0){
 					currLocalPopulation.addAll(currStation.getLocalPopulation());
-					System.out.println("station " + key + "with " + currLocalSmartcards.size() +" local smart cards " );
+					
 					assignColumnIndex(currLocalSmartcards);
 					HashMap<Double, ArrayList<Smartcard>> zonalSmartcardIndex = createZonalSmartcardIndex(currLocalSmartcards);
 					double[][] costMatrix = createLocalCostMatrix(currLocalPopulation, currLocalSmartcards, zonalSmartcardIndex);
+					System.out.println("count : " + count + 
+							" station " + key + 
+							" with " + currLocalSmartcards.size() +" local smart cards " +
+							"costMatrix size " + costMatrix.length);
 					int[] result;
 					HungarianAlgorithm hu =new HungarianAlgorithm(costMatrix);
 					result=hu.execute();
@@ -468,6 +472,25 @@ public class PublicTransitSystem {
 			}
 		}
 		return null;
+	}
+
+	public void printStation(String string) throws IOException {
+		// TODO Auto-generated method stub
+		OutputFileWritter writer = new OutputFileWritter();
+		writer.OpenFile(string);
+		writer.WriteToFile("stationId, smartcard count, pop count");
+		
+		for(int key : myStations.keySet()){
+			ArrayList<Smartcard> currLocalSmartcards = new ArrayList<Smartcard>();
+			ArrayList<BiogemeAgent> currLocalPopulation = new ArrayList<BiogemeAgent>();
+			Station currStation = myStations.get(key);
+			currLocalSmartcards.addAll(currStation.getSmartcards());
+			currLocalPopulation.addAll(currStation.getLocalPopulation());
+			writer.WriteToFile(currStation.myId + Utils.COLUMN_DELIMETER + 
+					currLocalSmartcards.size() + Utils.COLUMN_DELIMETER +
+					currLocalPopulation.size());
+		}
+		writer.CloseFile();
 	}
 
 	

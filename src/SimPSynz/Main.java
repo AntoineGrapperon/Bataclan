@@ -239,8 +239,12 @@ public class Main {
 			System.out.println("--pt system initialized");
 			myPublicTransitSystem.createZonalSmartcardIndex();
 			myPublicTransitSystem.createZonalPopulationIndex();
+			myPublicTransitSystem.printStation(Utils.DATA_DIR + "ptSystem\\station_smartcard.csv");
 			System.out.println("--potential smartcard assigned");
-			//myPublicTransitSystem.makeRoomForCostMatrix();
+			
+			//########
+			myPublicTransitSystem.processMatchingStationByStation();
+			myPublicTransitSystem.printSmartcards();
 			
 			//ArrayList<HashMap<Integer, Double>> costMatrix = myPublicTransitSystem.createCostMatrixOptimized();
 			//myPublicTransitSystem.createCostMatrixHardCopy("F:\\test.csv");
@@ -278,9 +282,7 @@ public class Main {
 				write.close();
 			}*/
 			
-			//########
-			myPublicTransitSystem.processMatchingStationByStation();
-			myPublicTransitSystem.printSmartcards();
+			
 			
 			//myPublicTransitSystem.processMatchingZoneByZone();
 			

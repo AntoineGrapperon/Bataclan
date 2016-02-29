@@ -166,9 +166,15 @@ public class BiogemeAgent {
 		Random random = new Random();
 		for(int i = 0; i < choiceSetSize; i++){
 			if(potentialSmartcard.size()!=0){
-				int nextChoice = random.nextInt(potentialSmartcard.size());
-				Smartcard currChoice = potentialSmartcard.get(nextChoice);
-				agentChoiceSet.add(currChoice);
+				if(potentialSmartcard.size() > choiceSetSize){
+					int nextChoice = random.nextInt(potentialSmartcard.size());
+					Smartcard currChoice = potentialSmartcard.get(nextChoice);
+					agentChoiceSet.add(currChoice);
+				}
+			}
+
+			else{
+				agentChoiceSet = potentialSmartcard;
 			}
 		}
 		
@@ -184,9 +190,14 @@ public class BiogemeAgent {
 		Random random = new Random();
 		for(int i = 0; i < choiceSetSize; i++){
 			if(mySmartcards.size()!=0){
-				int nextChoice = random.nextInt(mySmartcards.size());
-				Smartcard currChoice = mySmartcards.get(nextChoice);
-				choiceSet.add(currChoice);
+				if(mySmartcards.size() > choiceSetSize){
+					int nextChoice = random.nextInt(mySmartcards.size());
+					Smartcard currChoice = mySmartcards.get(nextChoice);
+					choiceSet.add(currChoice);
+				}
+				else{
+					choiceSet = mySmartcards;
+				}
 			}
 			else{
 				System.out.println("--in zone " + myAttributes.get(UtilsSM.zoneId) + " there is no smartcards");
@@ -209,18 +220,28 @@ public class BiogemeAgent {
 		else{
 			ArrayList<Smartcard> potentialSmartcard = closeSmartcards.get(myZone);
 			
-			Random random = new Random();
-			for(int i = 0; i < choiceSetSize; i++){
-				if(potentialSmartcard.size()!=0){
-					int nextChoice = random.nextInt(potentialSmartcard.size());
-					Smartcard currChoice = potentialSmartcard.get(nextChoice);
-					if(!currChoice.isDistributed){
-						agentChoiceSet.add(currChoice);
+			if(potentialSmartcard.size() > choiceSetSize){
+				Random random = new Random();
+				for(int i = 0; i < choiceSetSize; i++){
+					if(potentialSmartcard.size()!=0){
+						int nextChoice = random.nextInt(potentialSmartcard.size());
+						Smartcard currChoice = potentialSmartcard.get(nextChoice);
+						if(!currChoice.isDistributed){
+							agentChoiceSet.add(currChoice);
+						}
+						else{
+							i = i-1;
+						}
 					}
-					else{
-						i = i-1;
+				}
+			}
+			
+			
+			else{
+				for(Smartcard sm: potentialSmartcard){
+					if(sm.isDistributed){
+						agentChoiceSet.add(sm);
 					}
-					
 				}
 			}
 			Smartcard stayHome = PublicTransitSystem.myCtrlGen.getStayHomeChoice();
