@@ -24,6 +24,7 @@ public class Smartcard extends BiogemeChoice{
 	//public int choiceId;
 	protected HashMap<String, ArrayList<String>> myData = new HashMap<String, ArrayList<String>>();
 	public int columnId;
+	public boolean isDistributed = false;
 	
 	public Smartcard(){
 	

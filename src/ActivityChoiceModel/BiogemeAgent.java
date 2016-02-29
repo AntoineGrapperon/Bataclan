@@ -24,6 +24,8 @@ public class BiogemeAgent {
 	public HashMap<String, String> myAttributes;
 	protected static RandomNumberGen randGen = new RandomNumberGen();
 	ArrayList<BiogemeChoice> myChoices = new ArrayList<BiogemeChoice>();
+	public boolean isDistributed = false;
+	public double smartcard = 0.0;
 	
 	public BiogemeAgent(){
 		myAttributes = new HashMap<String, String>();
@@ -198,20 +200,32 @@ public class BiogemeAgent {
 	public ArrayList<Smartcard> generateChoiceSet(int choiceSetSize, HashMap<Double,ArrayList<Smartcard>> closeSmartcards){
 		// TODO Auto-generated method stub
 		double myZone = Double.parseDouble(myAttributes.get(UtilsSM.zoneId));
-		//ArrayList<Integer> myStations = PublicTransitSystem.geoDico.get(myZone);
-		ArrayList<Smartcard> potentialSmartcard = closeSmartcards.get(myZone);
 		ArrayList<Smartcard> agentChoiceSet = new ArrayList<Smartcard>();
-		Random random = new Random();
-		for(int i = 0; i < choiceSetSize; i++){
-			if(potentialSmartcard.size()!=0){
-				int nextChoice = random.nextInt(potentialSmartcard.size());
-				Smartcard currChoice = potentialSmartcard.get(nextChoice);
-				agentChoiceSet.add(currChoice);
-			}
+		//ArrayList<Integer> myStations = PublicTransitSystem.geoDico.get(myZone);
+		if(isDistributed){
+			Smartcard stayHome = PublicTransitSystem.myCtrlGen.getStayHomeChoice();
+			agentChoiceSet.add(stayHome);
 		}
-		
-		Smartcard stayHome = PublicTransitSystem.myCtrlGen.getStayHomeChoice();
-		agentChoiceSet.add(stayHome);
+		else{
+			ArrayList<Smartcard> potentialSmartcard = closeSmartcards.get(myZone);
+			
+			Random random = new Random();
+			for(int i = 0; i < choiceSetSize; i++){
+				if(potentialSmartcard.size()!=0){
+					int nextChoice = random.nextInt(potentialSmartcard.size());
+					Smartcard currChoice = potentialSmartcard.get(nextChoice);
+					if(!currChoice.isDistributed){
+						agentChoiceSet.add(currChoice);
+					}
+					else{
+						i = i-1;
+					}
+					
+				}
+			}
+			Smartcard stayHome = PublicTransitSystem.myCtrlGen.getStayHomeChoice();
+			agentChoiceSet.add(stayHome);
+		}
 		
 		return agentChoiceSet;
 	}

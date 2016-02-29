@@ -230,7 +230,7 @@ public class Main {
 			
 			myPublicTransitSystem.initialize(
 					myCtrlGenerator, 
-					Utils.DATA_DIR + "ptSystem\\smartcardDataSmall.txt", 
+					Utils.DATA_DIR + "ptSystem\\smartcardData.txt", 
 					Utils.DATA_DIR + "ptSystem\\stops.txt",
 					Utils.DATA_DIR + "ptSystem\\geoDico500.csv",
 					Utils.DATA_DIR + "ptSystem\\population.csv",
@@ -280,6 +280,7 @@ public class Main {
 			
 			//########
 			myPublicTransitSystem.processMatchingStationByStation();
+			myPublicTransitSystem.printSmartcards();
 			
 			//myPublicTransitSystem.processMatchingZoneByZone();
 			

@@ -84,8 +84,6 @@ public class SmartcardDataManager extends DataManager{
 				sm.myAttributes.put(key, value);
 			}
 		}
-		
-		System.out.println("size : "+ mySmartcards.get(2).myData.size());
 		System.out.println("--number of smart cards " + mySmartcards.size());
 	}
 	

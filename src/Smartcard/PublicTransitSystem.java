@@ -353,8 +353,6 @@ public class PublicTransitSystem {
 	public void processMatchingStationByStation() throws IOException {
 		// TODO Auto-generated method stub
 		
-		//ArrayList<double[][]> myCostMatrices = new ArrayList<double[][]>();
-		
 		for(int key : myStations.keySet()){
 			
 			ArrayList<Smartcard> currLocalSmartcards = new ArrayList<Smartcard>();
@@ -364,43 +362,32 @@ public class PublicTransitSystem {
 				
 			}
 			else{
-				System.out.println("station " + key);
 				currLocalSmartcards.addAll(currStation.getSmartcards());
-				currLocalPopulation.addAll(currStation.getLocalPopulation());
-				System.out.println( "size of local smart cards " + currLocalSmartcards.size());
-				assignColumnIndex(currLocalSmartcards);
-				HashMap<Double, ArrayList<Smartcard>> zonalSmartcardIndex = createZonalSmartcardIndex(currLocalSmartcards);
-				//myCostMatrices.add(createLocalCostMatrix(currLocalPopulation, currLocalSmartcards, currZonalChoiceSets));
-				double[][] costMatrix = createLocalCostMatrix(currLocalPopulation, currLocalSmartcards, zonalSmartcardIndex);
-				int[] result;
-				HungarianAlgorithm hu =new HungarianAlgorithm(costMatrix);
-				//HungarianAlgoRithmOptimized hu =new HungarianAlgoRithmOptimized(costMatrix);
-				result=hu.execute();
-				
-				BufferedWriter write = new BufferedWriter(new FileWriter(Utils.DATA_DIR + "ptSystem\\AAAtest" + key + ".csv"));
+				if(currLocalSmartcards.size() != 0){
+					currLocalPopulation.addAll(currStation.getLocalPopulation());
+					System.out.println("station " + key + "with " + currLocalSmartcards.size() +" local smart cards " );
+					assignColumnIndex(currLocalSmartcards);
+					HashMap<Double, ArrayList<Smartcard>> zonalSmartcardIndex = createZonalSmartcardIndex(currLocalSmartcards);
+					double[][] costMatrix = createLocalCostMatrix(currLocalPopulation, currLocalSmartcards, zonalSmartcardIndex);
+					int[] result;
+					HungarianAlgorithm hu =new HungarianAlgorithm(costMatrix);
+					result=hu.execute();
 
-				for(int j=0;j<result.length;j++){
-					if(currLocalSmartcards.size()>result[j]){
-						write.write(result[j]+ Utils.COLUMN_DELIMETER
-								+currLocalPopulation.get(j).myAttributes.get(UtilsSM.agentId) + Utils.COLUMN_DELIMETER
-								+ currLocalSmartcards.get(result[j]).cardId + "\n");
-						write.flush();
-					}
-					else{
-						write.write(result[j]+ Utils.COLUMN_DELIMETER 
-								+currLocalPopulation.get(j).myAttributes.get(UtilsSM.agentId) + Utils.COLUMN_DELIMETER
-								+ "-1" + "\n");
-						write.flush();
-					}
-					
-				} //for
-				write.close();
+					for(int j=0;j<result.length;j++){
+						if(currLocalSmartcards.size()>result[j]){
+							currLocalSmartcards.get(result[j]).isDistributed = true;
+							currLocalPopulation.get(j).isDistributed = true;
+							currLocalPopulation.get(j).smartcard = currLocalSmartcards.get(result[j]).cardId;
+						}
+						else{
+						}
+					} 
+				}
 			}
-			
-			
 		}
-		//return myCostMatrices;
 	}
+
+	
 
 	public void processMatchingZoneByZone() throws IOException {
 		// TODO Auto-generated method stub
@@ -439,6 +426,48 @@ public class PublicTransitSystem {
 			write.close();
 		}
 			
+	}
+
+	public void printSmartcards() throws IOException {
+		// TODO Auto-generated method stub
+		OutputFileWritter write = new OutputFileWritter();
+		write.OpenFile(Utils.DATA_DIR + "ptSystem\\matchedSmartcard.csv");
+		Smartcard tempSm = mySmartcards.get(0);
+		BiogemeAgent tempAgent = myPopulation.get(0);
+		String header = new String();
+		for(String key : tempAgent.myAttributes.keySet()){
+			header+= key + Utils.COLUMN_DELIMETER;
+		}
+		header+= UtilsSM.cardId + Utils.COLUMN_DELIMETER
+				+UtilsSM.stationId;
+		write.WriteToFile(header);
+		
+		for(BiogemeAgent currAgent: myPopulation){
+			if(currAgent.smartcard != 0){
+				String newLine = new String();
+				Smartcard sm = getSmartcard(currAgent);
+				for(String key: tempAgent.myAttributes.keySet()){
+					newLine+= tempAgent.myAttributes.get(key) + Utils.COLUMN_DELIMETER;
+				}
+				newLine+= sm.cardId + Utils.COLUMN_DELIMETER
+						+ sm.stationId;
+				write.WriteToFile(newLine);
+			}
+		}
+		write.CloseFile();
+		
+	}
+
+	private Smartcard getSmartcard(BiogemeAgent currAgent) {
+		// TODO Auto-generated method stub
+		if(currAgent.smartcard != 0){
+			for(Smartcard sm: mySmartcards){
+				if(sm.cardId == currAgent.smartcard){
+					return sm;
+				}
+			}
+		}
+		return null;
 	}
 
 	
