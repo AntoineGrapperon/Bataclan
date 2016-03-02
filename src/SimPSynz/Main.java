@@ -188,8 +188,8 @@ public class Main {
 			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypothesis6.txt";
 	    	
 	    	myCtrlGenerator.initialize(pathControlFile, pathOutput, pathHypothesis);
-			myCtrlGenerator.generateBiogemeControlFile();
-			myCtrlGenerator.printChoiceIndex(Utils.DATA_DIR + "biogeme\\choiceIndex.csv");
+			/*myCtrlGenerator.generateBiogemeControlFile();
+			myCtrlGenerator.printChoiceIndex(Utils.DATA_DIR + "biogeme\\choiceIndex.csv");*/
 			System.out.println("-- control file generator initiated");
 	    	
 			//############################################################################################
@@ -218,7 +218,7 @@ public class Main {
 			
 			/*mySimulator = new BiogemeSimulator(myCtrlGenerator);
 			mySimulator.initialize(Utils.DATA_DIR + "biogeme\\data.csv");
-			mySimulator.importBiogemeModel(Utils.DATA_DIR + "biogeme\\ctrl.F12");
+			mySimulator.importBiogemeModel(Utils.DATA_DIR + "biogeme\\ctrl6.F12");
 			mySimulator.applyModelOnTravelSurveyPopulation(Utils.DATA_DIR + "biogeme\\simulationResults.csv");*/
 			
 			//############################################################################################
@@ -243,8 +243,9 @@ public class Main {
 			System.out.println("--potential smartcard assigned");
 			
 			//########
-			myPublicTransitSystem.processMatchingStationByStation();
-			myPublicTransitSystem.printSmartcards();
+			//myPublicTransitSystem.processMatchingStationByStation();
+			myPublicTransitSystem.globalRandomMatch();
+			myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSmartcardGlobalRandom.csv");
 			
 			//ArrayList<HashMap<Integer, Double>> costMatrix = myPublicTransitSystem.createCostMatrixOptimized();
 			//myPublicTransitSystem.createCostMatrixHardCopy("F:\\test.csv");

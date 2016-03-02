@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Random;
 
 import ActivityChoiceModel.BiogemeAgent;
 import ActivityChoiceModel.BiogemeChoice;
@@ -88,7 +89,7 @@ public class PublicTransitSystem {
 		}
 	}
 	
-	public HashMap<Double, ArrayList<Smartcard>> createZonalSmartcardIndex(ArrayList<Smartcard> mySmartcards){
+	private HashMap<Double, ArrayList<Smartcard>> createZonalSmartcardIndex(ArrayList<Smartcard> mySmartcards){
 		HashMap<Double, ArrayList<Smartcard>> localZonalChoiceSets = new HashMap<Double, ArrayList<Smartcard>>();
 		for(double currZone : geoDico.keySet()){
 			ArrayList<Integer> closeStations = geoDico.get(currZone);
@@ -138,7 +139,7 @@ public class PublicTransitSystem {
 	 * Use this function only if you have access to a 1To + RAM system: it is creating a square matrix which size is
 	 * the size of the population: for a 300 000 population this is 600 Go of RAM required.	
 	 */
-	public double[][] createCostMatrix() throws IOException{
+	private double[][] createCostMatrix() throws IOException{
 		int n = 0;
 		int N = myPopulation.size();
 		int M = mySmartcards.size();
@@ -171,7 +172,7 @@ public class PublicTransitSystem {
 	 * @return
 	 * @throws IOException
 	 */
-	public double[][] createLocalCostMatrix(ArrayList<BiogemeAgent> myPopulation, ArrayList<Smartcard> mySmartcards) throws IOException{
+	private double[][] createLocalCostMatrix(ArrayList<BiogemeAgent> myPopulation, ArrayList<Smartcard> mySmartcards) throws IOException{
 		int n = 0;
 		int N = myPopulation.size();
 		int M = mySmartcards.size();
@@ -188,10 +189,43 @@ public class PublicTransitSystem {
 		return costMatrix;
 	}
 	
-	public double[][] createLocalCostMatrix(
+	private double[][] createLocalCostMatrix(
 			ArrayList<BiogemeAgent> myPopulation, 
 			ArrayList<Smartcard> mySmartcards, 
 			HashMap<Double, ArrayList<Smartcard>> zonalSmartcardIndex
+			) throws IOException{
+		
+		int n = 0;
+		int N = myPopulation.size();
+		int M = mySmartcards.size();
+		int rowIndex = 0;
+		double[][] costMatrix = new double[N][N];
+		
+		for(BiogemeAgent person: myPopulation){
+			double zoneId = Double.parseDouble(person.myAttributes.get(UtilsSM.zoneId));
+			if(zonalSmartcardIndex.containsKey(zoneId)){
+				ArrayList<Smartcard> choiceSet = person.generateChoiceSet(UtilsSM.choiceSetSize, zonalSmartcardIndex);
+				person.processSmartcardChoiceSet(choiceSet);
+				//person.createAndWeighChoiceSet(UtilsSM.choiceSetSize, zonalSmartcardIndex );
+				costMatrix[rowIndex] = person.writeCosts(N, M);
+				rowIndex++;
+			}
+			else{
+				double[] newRow = new double[myPopulation.size()];
+				for(int i = 0; i < myPopulation.size(); i++){newRow[i] = 999999.00;}
+				costMatrix[rowIndex] = newRow;
+				rowIndex++;
+				System.out.println("--this guy shouldn't be there...");
+			}
+		}
+		return costMatrix;
+	}
+	
+	private double[][] createLocalCostMatrix(
+			ArrayList<BiogemeAgent> myPopulation, 
+			ArrayList<Smartcard> mySmartcards, 
+			HashMap<Double, ArrayList<Smartcard>> zonalSmartcardIndex,
+			boolean occupationCriterion
 			) throws IOException{
 		
 		int n = 0;
@@ -227,7 +261,7 @@ public class PublicTransitSystem {
 	 */
 	
 	@Deprecated
-	public ArrayList<HashMap<Integer,Double>> createCostMatrixOptimized() throws IOException{
+	private ArrayList<HashMap<Integer,Double>> createCostMatrixOptimized() throws IOException{
 		int n = 0;
 		int N = myPopulation.size();
 		int M = mySmartcards.size();
@@ -264,7 +298,7 @@ public class PublicTransitSystem {
 	 * @throws IOException
 	 */
 	@Deprecated
-	public void createCostMatrixHardCopy(String path) throws IOException{
+	private void createCostMatrixHardCopy(String path) throws IOException{
 		OutputFileWritter myCopy = new OutputFileWritter();
 		myCopy.OpenFile(path);
 		int n = 0;
@@ -290,7 +324,7 @@ public class PublicTransitSystem {
 	}
 	
 	
-	public void writeNextMatrixLine(double[] temp, OutputFileWritter myCopy) throws IOException{
+	private void writeNextMatrixLine(double[] temp, OutputFileWritter myCopy) throws IOException{
 		String nextLine = new String();
 		for(int i = 0; i< temp.length; i++){
 			nextLine+= Utils.COLUMN_DELIMETER + temp[i];
@@ -299,13 +333,13 @@ public class PublicTransitSystem {
 		myCopy.WriteToFile(nextLine);
 	}
 
-	public void makeRoomForCostMatrix() {
+	private void makeRoomForCostMatrix() {
 		// TODO Auto-generated method stub
 		myStations = null;
 	}
 
 	@Deprecated
-	public ArrayList<double[][]> createCostMatrixByBatch(int numberOfStationBatch) throws IOException {
+	private ArrayList<double[][]> createCostMatrixByBatch(int numberOfStationBatch) throws IOException {
 		// TODO Auto-generated method stub
 		int batchCount = 0;
 		int batchSize = myStations.size() / numberOfStationBatch;
@@ -390,6 +424,56 @@ public class PublicTransitSystem {
 			}
 		}
 	}
+	
+	public void localRandomMatch() {
+		// TODO Auto-generated method stub
+		
+		//TO BE CONTINUED
+		int count = 0;
+		Random random = new Random();
+		for(int key : myStations.keySet()){
+			count++;
+			ArrayList<Smartcard> currLocalSmartcards = new ArrayList<Smartcard>();
+			ArrayList<BiogemeAgent> currLocalPopulation = new ArrayList<BiogemeAgent>();
+			Station currStation = myStations.get(key);
+			if(currStation.myId == 1 || currStation.myId== 2){
+				
+			}
+			else{
+				currLocalSmartcards.addAll(currStation.getSmartcards());
+				if(currLocalSmartcards.size() != 0){
+					currLocalPopulation.addAll(currStation.getLocalPopulation());
+					
+					Iterator<Smartcard> it = currLocalSmartcards.iterator();
+					while(it.hasNext()){
+						Smartcard sm = it.next();
+						int r = random.nextInt(currLocalPopulation.size());
+						currLocalPopulation.get(r).smartcard = sm.cardId;
+						sm.isDistributed = true;
+						currLocalPopulation.get(r).isDistributed = true;
+					}
+					
+				}
+			}
+		}
+	}
+	
+	public void globalRandomMatch(){
+		Random random = new Random();
+		for(int i = 0; i < mySmartcards.size(); i++){
+			int r = random.nextInt(myPopulation.size());
+			BiogemeAgent ag = myPopulation.get(r);
+			Smartcard sm = mySmartcards.get(i);
+			if(ag.isDistributed){
+				i=i-1;
+			}
+			else{
+				sm.isDistributed = true;
+				ag.isDistributed = true;
+				ag.smartcard = sm.cardId;
+			}
+		}
+	}
 
 	
 
@@ -432,10 +516,10 @@ public class PublicTransitSystem {
 			
 	}
 
-	public void printSmartcards() throws IOException {
+	public void printSmartcards(String path) throws IOException {
 		// TODO Auto-generated method stub
 		OutputFileWritter write = new OutputFileWritter();
-		write.OpenFile(Utils.DATA_DIR + "ptSystem\\matchedSmartcard.csv");
+		write.OpenFile(path);
 		Smartcard tempSm = mySmartcards.get(0);
 		BiogemeAgent tempAgent = myPopulation.get(0);
 		String header = new String();
@@ -443,18 +527,24 @@ public class PublicTransitSystem {
 			header+= key + Utils.COLUMN_DELIMETER;
 		}
 		header+= UtilsSM.cardId + Utils.COLUMN_DELIMETER
-				+UtilsSM.stationId;
+				+UtilsSM.stationId + Utils.COLUMN_DELIMETER
+				+ UtilsSM.fare;
+		for(String key: mySmartcards.get(0).myAttributes.keySet()){
+			header+= Utils.COLUMN_DELIMETER + key;
+		}
 		write.WriteToFile(header);
 		
 		for(BiogemeAgent currAgent: myPopulation){
 			if(currAgent.smartcard != 0){
 				String newLine = new String();
 				Smartcard sm = getSmartcard(currAgent);
-				for(String key: tempAgent.myAttributes.keySet()){
-					newLine+= tempAgent.myAttributes.get(key) + Utils.COLUMN_DELIMETER;
+				for(String key: currAgent.myAttributes.keySet()){
+					newLine+= currAgent.myAttributes.get(key) + Utils.COLUMN_DELIMETER;
 				}
 				newLine+= sm.cardId + Utils.COLUMN_DELIMETER
-						+ sm.stationId;
+						+ sm.stationId + Utils.COLUMN_DELIMETER
+						+ sm.fare + Utils.COLUMN_DELIMETER +
+						sm.getConstantName();
 				write.WriteToFile(newLine);
 			}
 		}

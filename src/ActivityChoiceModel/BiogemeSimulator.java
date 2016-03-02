@@ -98,6 +98,7 @@ public class BiogemeSimulator {
 		for(BiogemeAgent person: myPopulationSample){
 			ArrayList<Integer> choiceSet = person.processChoiceSetFromTravelSurvey();
 			//System.out.println(choiceSet);
+			
 			person.applyModel(choiceSet);
 			n++;
 			if(n%1000 == 0){
@@ -170,7 +171,7 @@ public class BiogemeSimulator {
 	public void createAgents() throws IOException
     {
     	 ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
-    	 data = getData();// careful this is running with a "short" loading of agents
+    	 data = getData();
     	 
     	 ArrayList<String> decisionMakerAttributes = data.get(0);
 

@@ -48,12 +48,14 @@ public class Station {
 		Iterator<BiogemeAgent> itA = PublicTransitSystem.myPopulation.iterator();
 		while(itA.hasNext()){
 			BiogemeAgent currA = itA.next();
-			double agentZone = Double.parseDouble(currA.myAttributes.get(UtilsSM.zoneId));
-			
-			if(PublicTransitSystem.geoDico.containsKey(agentZone)){
-				ArrayList<Integer> closeStation = PublicTransitSystem.geoDico.get(agentZone);
-				if(closeStation.contains(myId)){
-					localPopulation.add(currA);
+			if(!currA.isDistributed){
+				double agentZone = Double.parseDouble(currA.myAttributes.get(UtilsSM.zoneId));
+				
+				if(PublicTransitSystem.geoDico.containsKey(agentZone)){
+					ArrayList<Integer> closeStation = PublicTransitSystem.geoDico.get(agentZone);
+					if(closeStation.contains(myId)){
+						localPopulation.add(currA);
+					}
 				}
 			}
 		}

@@ -33,13 +33,35 @@ public class SmartcardDataManager extends DataManager{
 		System.out.println("--smartcard created");
 		identifyMostFrequentStation();
 		System.out.println("--assign bus station");
+		identifyFare();
 		assignChoiceId();
 		System.out.println("--identify choice Id");
+		prepareTripChainAttributes();
 		assignColumnIndex();
 		
 		return mySmartcards;
 	}
 	
+
+	private void prepareTripChainAttributes() {
+		// TODO Auto-generated method stub
+
+		for(Smartcard sm: mySmartcards){
+			for(String key: sm.choiceCombination.keySet()){
+				String value = Integer.toString(sm.choiceCombination.get(key));
+				sm.myAttributes.put(key, value);
+			}
+		}
+		// add any data processing of the smartcard data to create trip chains attributes
+	}
+
+	private void identifyFare() {
+		// TODO Auto-generated method stub
+		for(Smartcard sm: mySmartcards){
+			sm.fare = Integer.parseInt(sm.myData.get(UtilsSM.fare).get(0));
+		}
+	}
+
 	private void assignColumnIndex() {
 		// TODO Auto-generated method stub
 		int column = 0;
@@ -78,12 +100,6 @@ public class SmartcardDataManager extends DataManager{
 			updateSmartcard(currSm,i);
 		}
 		
-		for(Smartcard sm: mySmartcards){
-			for(String key: sm.choiceCombination.keySet()){
-				String value = Integer.toString(sm.choiceCombination.get(key));
-				sm.myAttributes.put(key, value);
-			}
-		}
 		System.out.println("--number of smart cards " + mySmartcards.size());
 	}
 	
@@ -131,6 +147,7 @@ public class SmartcardDataManager extends DataManager{
 			String value = myData.get(key).get(i);
 			sm.myData.get(key).add(value);
 		}
+		
 	}
 	
 	/**

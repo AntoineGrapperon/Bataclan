@@ -25,6 +25,7 @@ public class Smartcard extends BiogemeChoice{
 	protected HashMap<String, ArrayList<String>> myData = new HashMap<String, ArrayList<String>>();
 	public int columnId;
 	public boolean isDistributed = false;
+	public int fare;
 	
 	public Smartcard(){
 	
@@ -43,8 +44,9 @@ public class Smartcard extends BiogemeChoice{
 		this.cardId = id;
 	}
 	
+	
+	public void setChoiceId(){
 		HashMap<String, Integer> myCombination = new HashMap<String, Integer>();
-		public void setChoiceId(){
 		int firstDep = getWeekDayAverageFirstDep();
 		int lastDep = getWeekDayAverageLastDep();
 		int nAct = getWeekDayAverageActivityCount(UtilsSM.timeThreshold);
@@ -57,6 +59,8 @@ public class Smartcard extends BiogemeChoice{
 		biogeme_group_id = BiogemeControlFileGenerator.returnChoiceId(myCombination);
 		choiceCombination = myCombination;
 	}
+
+
 	
 	/**
 	 * This function process the departure hour which is assumed to be in a string format HHMM based on the public transit authority journey which starts at 00AM and end at 2730 (in case of Gatineau, 2005, public transit system.)

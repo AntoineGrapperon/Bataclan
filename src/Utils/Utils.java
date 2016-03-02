@@ -44,6 +44,7 @@ public class Utils
     public static boolean createLocal = false;
 	public static int personId = 0;
 	public static String population = "Population";
+	public static boolean occupationCriterion = true;
     
     public Utils(String city){
     	this.city = city;

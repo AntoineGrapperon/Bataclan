@@ -50,6 +50,7 @@ public class UtilsSM {
 	
 	public static HashMap<String, String> dictionnary = new HashMap<String, String>();
 	public static String agentId = "agentId";
+	public static String fare = "paidFare";
 	
 	public UtilsSM(){
 		dictionnary.put(UtilsTS.ageGroup, "age");

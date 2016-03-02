@@ -38,6 +38,7 @@ public class BiogemeAgent {
 		}
 	}
 
+	@Deprecated
 	public void applyModel(ArrayList<Integer> choiceSet) {
 		// TODO Auto-generated method stub
 		//rigth I am just able to apply dummies
@@ -51,6 +52,33 @@ public class BiogemeAgent {
 				if(currH.isCst()){
 					utility += currH.getCoefficientValue();
 				}
+				else if(currChoice.isAffected(currH)  && currH.isDummy){
+					if( currChoice.isAffecting(currH, this)){
+						utility += currH.getCoefficientValue();
+					}
+				}
+				else if(currChoice.isAffected(currH) && !currH.isDummy){
+					if(currH.isAgentSpecificVariable){
+						String att = currH.affectingDimensionName ;
+						utility += currH.getCoefficientValue() * Double.parseDouble(myAttributes.get(att));
+					}
+					else if(currH.isAlternatibeSpecificVariable){
+						String att = currH.affectingDimensionName;
+						utility += currH.getCoefficientValue() * Double.parseDouble(currChoice.myAttributes.get(att));
+					}
+					else{
+						System.out.println(currH.coefName + " was not considered");
+					}
+					//utility += currH.getCoefficientValue() * currChoice.getAffectingValue(currH, this);
+				}
+			}
+			//currChoice.utility = utility;
+			utilities.add(utility);
+			
+			/*for(BiogemeHypothesis currH: BiogemeSimulator.modelHypothesis){
+				if(currH.isCst()){
+					utility += currH.getCoefficientValue();
+				}
 				else if(currChoice.isAffected(currH) && currChoice.isAffecting(currH, this) && currH.isDummy){
 					utility += currH.getCoefficientValue();
 				}
@@ -58,7 +86,7 @@ public class BiogemeAgent {
 					utility += currH.getCoefficientValue() * currChoice.getAffectingValue(currH, this);
 				}
 			}
-			utilities.add(utility);
+			utilities.add(utility);*/
 		}
 		
 		ArrayList<Double> cumProbabilities = processUtilities(utilities);
@@ -208,8 +236,10 @@ public class BiogemeAgent {
 		return choiceSet;
 	}
 	
-	public ArrayList<Smartcard> generateChoiceSet(int choiceSetSize, HashMap<Double,ArrayList<Smartcard>> closeSmartcards){
+	public ArrayList<Smartcard> generateChoiceSet(int choiceSetSize, 
+			HashMap<Double,ArrayList<Smartcard>> closeSmartcards){
 		// TODO Auto-generated method stub
+		
 		double myZone = Double.parseDouble(myAttributes.get(UtilsSM.zoneId));
 		ArrayList<Smartcard> agentChoiceSet = new ArrayList<Smartcard>();
 		//ArrayList<Integer> myStations = PublicTransitSystem.geoDico.get(myZone);
@@ -227,7 +257,19 @@ public class BiogemeAgent {
 						int nextChoice = random.nextInt(potentialSmartcard.size());
 						Smartcard currChoice = potentialSmartcard.get(nextChoice);
 						if(!currChoice.isDistributed){
-							agentChoiceSet.add(currChoice);
+							if(Utils.occupationCriterion){
+								if((Integer.parseInt(myAttributes.get(UtilsTS.occupation)) == currChoice.fare) ||
+										(myAttributes.get(UtilsTS.occupation).equals("3") && 
+												currChoice.fare ==0) ){
+									agentChoiceSet.add(currChoice);
+								}
+								else{
+									i= i - 1;
+								}
+							}
+							else{
+								agentChoiceSet.add(currChoice);
+							}
 						}
 						else{
 							i = i-1;
@@ -238,9 +280,9 @@ public class BiogemeAgent {
 			
 			
 			else{
-				for(Smartcard sm: potentialSmartcard){
-					if(sm.isDistributed){
-						agentChoiceSet.add(sm);
+				for(Smartcard currChoice: potentialSmartcard){
+					if(!currChoice.isDistributed){
+						agentChoiceSet.add(currChoice);
 					}
 				}
 			}
