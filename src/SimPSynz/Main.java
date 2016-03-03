@@ -188,8 +188,8 @@ public class Main {
 			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypothesis6.txt";
 	    	
 	    	myCtrlGenerator.initialize(pathControlFile, pathOutput, pathHypothesis);
-			/*myCtrlGenerator.generateBiogemeControlFile();
-			myCtrlGenerator.printChoiceIndex(Utils.DATA_DIR + "biogeme\\choiceIndex.csv");*/
+			myCtrlGenerator.generateBiogemeControlFile();
+			myCtrlGenerator.printChoiceIndex(Utils.DATA_DIR + "biogeme\\choiceIndex.csv");
 			System.out.println("-- control file generator initiated");
 	    	
 			//############################################################################################
@@ -202,11 +202,11 @@ public class Main {
 	    	//Therefore, it is no honest to separate in subsample, because by doing so I am assuming that alternatives in the other samples are not reachable.
 	    	//Which is false. Therefore, the non multithreading function should be used. (it is 8 hours against 1/2 hours).
 			
-	    	/*odGatineau.initialize(Utils.DATA_DIR + "\\odGatineau.csv");
+	    	odGatineau.initialize(Utils.DATA_DIR + "\\odGatineauRESTREINT.csv");
 	    	int numberOfLogicalProcessors = Runtime.getRuntime().availableProcessors() -1;
 	    	numberOfLogicalProcessors = 4;
 	    	System.out.println("--computation with: " + numberOfLogicalProcessors + " logical processors");
-	    	odGatineau.processDataMultiThreads(numberOfLogicalProcessors, 20, myCtrlGenerator);*/
+	    	odGatineau.processDataMultiThreads(numberOfLogicalProcessors, 20, myCtrlGenerator);
 	    	
 	    	//############################################################################################
 	    	//Load Agents and simulate their choices from the travel survey
@@ -228,7 +228,7 @@ public class Main {
 			mySimulator.importBiogemeModel(Utils.DATA_DIR + "biogeme\\ctrl6.F12");*/
 			
 			
-			myPublicTransitSystem.initialize(
+			/*myPublicTransitSystem.initialize(
 					myCtrlGenerator, 
 					Utils.DATA_DIR + "ptSystem\\smartcardData.txt", 
 					Utils.DATA_DIR + "ptSystem\\stops.txt",
@@ -237,15 +237,15 @@ public class Main {
 					Utils.DATA_DIR + "biogeme\\ctrl6.F12"
 					);
 			System.out.println("--pt system initialized");
-			myPublicTransitSystem.createZonalSmartcardIndex();
+			/*myPublicTransitSystem.createZonalSmartcardIndex();
 			myPublicTransitSystem.createZonalPopulationIndex();
-			myPublicTransitSystem.printStation(Utils.DATA_DIR + "ptSystem\\station_smartcard.csv");
+			//myPublicTransitSystem.printStation(Utils.DATA_DIR + "ptSystem\\station_smartcard.csv");
 			System.out.println("--potential smartcard assigned");
 			
 			//########
 			//myPublicTransitSystem.processMatchingStationByStation();
 			myPublicTransitSystem.globalRandomMatch();
-			myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSmartcardGlobalRandom.csv");
+			//myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSmartcardGlobalRandom.csv");
 			
 			//ArrayList<HashMap<Integer, Double>> costMatrix = myPublicTransitSystem.createCostMatrixOptimized();
 			//myPublicTransitSystem.createCostMatrixHardCopy("F:\\test.csv");

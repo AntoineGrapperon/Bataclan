@@ -124,7 +124,6 @@ public class BiogemeControlFileGenerator {
 
 	public void generateCombinations() throws IOException{
     	for(String key: choiceDimensions.keySet()){
-    		System.out.println(key);
     		updateCombinations(key);
     	}
     }

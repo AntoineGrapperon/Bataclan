@@ -61,14 +61,16 @@ public class PublicTransitSystem {
 		GeoDicoManager myGeoDico = new GeoDicoManager();
 		PopulationDataManager myPopGenerator = new PopulationDataManager();
 		
+		mySimulator.setHypothesis();
+		mySimulator.importBiogemeModel(pathModel);
+		
 		myStations = myStationManager.prepareStations(pathStations);
 		mySmartcards = mySmartcardManager.prepareSmartcards(pathSmartcard);
 		geoDico = myGeoDico.getDico(pathGeoDico);
 		System.out.println("--geodico assigned");
 		myPopulation = myPopGenerator.getAgents(pathPop);
 		
-		mySimulator.setHypothesis();
-		mySimulator.importBiogemeModel(pathModel);
+		
 	}
 	
 	
@@ -541,9 +543,9 @@ public class PublicTransitSystem {
 				for(String key: currAgent.myAttributes.keySet()){
 					newLine+= currAgent.myAttributes.get(key) + Utils.COLUMN_DELIMETER;
 				}
-				newLine+= sm.cardId + Utils.COLUMN_DELIMETER
-						+ sm.stationId + Utils.COLUMN_DELIMETER
-						+ sm.fare + Utils.COLUMN_DELIMETER +
+				newLine+= sm.cardId + "_"
+						+ sm.stationId + "_"
+						+ sm.fare + "_" +
 						sm.getConstantName();
 				write.WriteToFile(newLine);
 			}

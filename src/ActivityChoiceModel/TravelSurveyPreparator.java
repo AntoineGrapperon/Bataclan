@@ -486,7 +486,7 @@ public class TravelSurveyPreparator {
 				if(Double.isNaN(ratio)){
 					myData.get(UtilsTS.fidelPtRange).add("0");
 				}
-				else if(ratio<=0.5){
+				else if(ratio<=0.05){
 					myData.get(UtilsTS.fidelPtRange).add("0");
 				}
 				/*else if(ratio<=0.4){
@@ -630,6 +630,7 @@ public class TravelSurveyPreparator {
 		for(int i = 0; i < myData.get(UtilsTS.id).size();i++){
 			if(myData.get(UtilsTS.pDebut).get(i).equals("T")){
 				int nActivities =0; 
+				
 				String hhId = (String)myData.get(UtilsTS.mNumero).get(i);
 				String persId = (String)myData.get(UtilsTS.pRang).get(i);
 				for(int j = i; j < myData.get(UtilsTS.id).size()-1; j++){
@@ -929,6 +930,7 @@ public class TravelSurveyPreparator {
 		headers.add(UtilsTS.pStatut);
 		headers.add(UtilsTS.firstDep + "Short");//FIRST departure
 		headers.add(UtilsTS.lastDep + "Short");
+		headers.add(UtilsTS.fidelPt);
 		headers.add(UtilsTS.fidelPtRange);
 		headers.add(UtilsTS.nAct);
 		/*headers.add(UtilsTS.firstDep);//FIRST departure
@@ -940,8 +942,10 @@ public class TravelSurveyPreparator {
 		headers.add(UtilsTS.fidelPt);
 		headers.add(UtilsTS.tourType);*/
 		headers.add(UtilsTS.alternative);
+		headers.add(UtilsTS.choice);
+		headers.add(UtilsTS.stoUser);
 		for(int i = 0; i < choiceSetSize; i++){
-			headers.add(UtilsTS.pStatut+Integer.toString(i));
+			/*headers.add(UtilsTS.pStatut+Integer.toString(i));
 			headers.add(UtilsTS.firstDep + "Short" +Integer.toString(i));
 			headers.add(UtilsTS.lastDep + "Short" +Integer.toString(i));
 			headers.add(UtilsTS.fidelPtRange+Integer.toString(i));
@@ -1042,6 +1046,7 @@ public class TravelSurveyPreparator {
 		processMotorRate();
 		System.out.println("--motorazation rate computed");
 
+		processSTOuser();
 		
 		processSocioDemographic();
 		System.out.println("--socio demographic category were processed");
@@ -1111,6 +1116,46 @@ public class TravelSurveyPreparator {
 		cores.shutdown();
     }
 	
+	private void processSTOuser() {
+		// TODO Auto-generated method stub
+		ArrayList<Object> stoUser = new ArrayList<Object>();
+		for(int i = 0; i < myData.get(UtilsTS.id).size(); i++){
+			if(myData.get(UtilsTS.pDebut).get(i).equals("T")){
+				boolean isSTOuser = false;
+				String hhId = (String)myData.get(UtilsTS.mNumero).get(i);
+				String persId = (String)myData.get(UtilsTS.pRang).get(i);
+				for(int j = i; j < myData.get(UtilsTS.id).size()-1; j++){
+					if(hhId.equals((String)myData.get(UtilsTS.mNumero).get(j)) && persId.equals((String)myData.get(UtilsTS.pRang).get(j))){
+						String mode1 = ((String) myData.get(UtilsTS.mode1).get(j)).trim();
+						String mode2 = ((String) myData.get(UtilsTS.mode2).get(j)).trim();
+						String mode3 = ((String) myData.get(UtilsTS.mode3).get(j)).trim();
+						String mode4 = ((String) myData.get(UtilsTS.mode4).get(j)).trim();
+						String mode5 = ((String) myData.get(UtilsTS.mode5).get(j)).trim();
+						if(mode1.equals("4")||
+								mode2.equals("4")||
+								mode3.equals("4")||
+								mode4.equals("4")||
+								mode5.equals("4")){
+							isSTOuser = true;
+						}
+						
+					}
+					else{
+						j+= 400000;
+					}
+				}
+				if(isSTOuser){
+					stoUser.add("1");
+				}
+				else{
+					stoUser.add("0");
+				}
+			}
+			stoUser.add("0");
+		}
+		myData.put(UtilsTS.stoUser, stoUser);
+	}
+
 	private void processSocioDemographic() {
 		// TODO Auto-generated method stub
 		ArrayList<Object> myAges = new ArrayList<Object>();
@@ -1179,6 +1224,7 @@ public class TravelSurveyPreparator {
 	private void processChoiceIndex() {
 		// TODO Auto-generated method stub
 		myData.put(UtilsTS.alternative, new ArrayList<Object>());
+		myData.put(UtilsTS.choice, new ArrayList<Object>());
 		
 		for(int i = 0; i < myData.get(UtilsTS.id).size(); i++){
 			String altFirstDep = (String)myData.get(UtilsTS.firstDep + "Short").get(i);
@@ -1193,6 +1239,8 @@ public class TravelSurveyPreparator {
 			currCombinationChoice.put(UtilsTS.fidelPtRange, Integer.parseInt(fidelPTRange));
 			int choice = getChoiceIndex(currCombinationChoice);
 			myData.get(UtilsTS.alternative).add(Integer.toString(choice));
+			String myChoice = BiogemeChoice.getConstantName(currCombinationChoice);
+			myData.get(UtilsTS.choice).add(myChoice);
 		}
 	}
 	

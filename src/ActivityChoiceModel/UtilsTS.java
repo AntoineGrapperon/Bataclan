@@ -77,6 +77,14 @@ public class UtilsTS {
 	public static String stayedHome;
 	public static String noPT;
 	
+	public static String mode1;
+	public static String mode2;
+	public static String mode3;
+	public static String mode4;
+	public static String mode5;
+	
+	public static String stoUser;
+	
 	
 	//###########DICO pour le recensement
 	public static String dauid = "dauid";
@@ -87,6 +95,8 @@ public class UtilsTS {
 	public static String edu = "edu";
 	public static String inc = "inc";
 	public static String mStat = "mStat";
+	
+	
 	
 	
 	
@@ -236,6 +246,13 @@ public class UtilsTS {
 			 stayedHome = "HOME";
 			 noPT = "NO_PT";
 			 
+			 mode1 = "MODE1";
+			 mode2 = "MODE2";
+			 mode3 = "MODE3";
+			 mode4 = "MODE4";
+			 mode5 = "MODE5";
+			 
+			 stoUser = "stoUser";
 		}
 	}
 

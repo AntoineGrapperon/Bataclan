@@ -95,10 +95,39 @@ public class BiogemeChoice {
 			constantName = "C_NOT_PT_RIDER";
 		}*/
 		else if(choiceCombination.get(UtilsTS.nAct)!=0 && choiceCombination.get(UtilsTS.fidelPtRange)!=0){
-			constantName = "C";
+			/*constantName = "C";
 			for(String key: choiceCombination.keySet()){
 				constantName+= "_"+choiceCombination.get(key);
-			}
+			}*/
+			constantName = "C_"+choiceCombination.get(UtilsTS.fidelPtRange) +
+					"_" + choiceCombination.get(UtilsTS.firstDep+"Short") +
+					"_" + choiceCombination.get(UtilsTS.nAct) +
+					"_" + choiceCombination.get(UtilsTS.lastDep+"Short");
+		}
+		return constantName;
+	}
+	
+	public static String getConstantName(HashMap<String, Integer> combination){
+		String constantName = new String();
+		
+		if(combination.get(UtilsTS.nAct) == 0 || combination.get(UtilsTS.fidelPtRange)==0){
+			constantName = UtilsSM.noPt;
+		}
+		/*if(choiceCombination.get(UtilsTS.nAct) == 0){
+			constantName = "C_HOME";
+		}
+		else if(choiceCombination.get(UtilsTS.nAct)!= 0 && choiceCombination.get(UtilsTS.fidelPtRange)==0){
+			constantName = "C_NOT_PT_RIDER";
+		}*/
+		else if(combination.get(UtilsTS.nAct)!=0 && combination.get(UtilsTS.fidelPtRange)!=0){
+			/*constantName = "C";
+			for(String key: choiceCombination.keySet()){
+				constantName+= "_"+choiceCombination.get(key);
+			}*/
+			constantName = "C_"+combination.get(UtilsTS.fidelPtRange) +
+					"_" + combination.get(UtilsTS.firstDep+"Short") +
+					"_" + combination.get(UtilsTS.nAct) +
+					"_" + combination.get(UtilsTS.lastDep+"Short");
 		}
 		return constantName;
 	}
