@@ -58,7 +58,27 @@ public class SmartcardDataManager extends DataManager{
 	private void identifyFare() {
 		// TODO Auto-generated method stub
 		for(Smartcard sm: mySmartcards){
-			sm.fare = Integer.parseInt(sm.myData.get(UtilsSM.fare).get(0));
+			int fare = Integer.parseInt(sm.myData.get(UtilsSM.fare).get(0));
+			sm.fare = fare;
+			/*if(fare == 1 ||
+					fare==2||
+					fare==3||
+					fare==9||
+					fare==10||
+					fare==15||
+					fare==16||
+					fare==17||
+					fare==42||
+					fare==43){
+				sm.fare = 0;
+			}
+			else if(fare ==8 ||
+					fare == 18){
+				sm.fare = 2;
+			}
+			else{
+				sm.fare = 1;
+			}*/
 		}
 	}
 

@@ -354,7 +354,7 @@ public class TravelSurveyPreparator {
 	public void processAverageTourLength() {
 		// TODO Auto-generated method stub
 		myData.put(UtilsTS.chainLength, new ArrayList<Object>());
-		for(int i = 0; i < myData.get(UtilsTS.id).size()-1;i++){
+		for(int i = 0; i < myData.get(UtilsTS.id).size();i++){
 			if(myData.get(UtilsTS.pDebut).get(i).equals("T")){
 				double distance = 0;
 				String hhId = (String)myData.get(UtilsTS.mNumero).get(i);
@@ -464,8 +464,17 @@ public class TravelSurveyPreparator {
 						j+=400000;
 					}
 				}
+				
+				double ratio;
 				//System.out.println((counters.get("nPT")+counters.get("nPrivate")+counters.get("nActive")));
-				double ratio = (double)(counters.get("nPT"))/ ((double)(counters.get("nPT")+counters.get("nPrivate")+counters.get("nActive")));
+				if(((double)(counters.get("nPT")+counters.get("nPrivate")+counters.get("nActive")))!=0){
+					ratio = (double)(counters.get("nPT"))/ ((double)(counters.get("nPT")+counters.get("nPrivate")+counters.get("nActive")));
+
+				}
+				else{
+					ratio = 0;
+				}
+				
 				//System.out.println(ratio);
 				if(Double.isNaN(ratio)){
 					myData.get(UtilsTS.fidelPt).add("0");
@@ -604,19 +613,24 @@ public class TravelSurveyPreparator {
 				int nTemp = counters.get("nPrivate") + 1;
 				counters.put("nPrivate", nTemp);
 				}
-			else if(myData.get(mode).get(i).equals("3") || 
-					myData.get(mode).get(i).equals("4") || 
-					myData.get(mode).get(i).equals("5") ||
+			else if(//myData.get(mode).get(i).equals("3") || 
+					myData.get(mode).get(i).equals("4") //|| 
+					/*myData.get(mode).get(i).equals("5") ||
 					myData.get(mode).get(i).equals("6") ||
 					myData.get(mode).get(i).equals("7") || 
-					myData.get(mode).get(i).equals("8") 
+					myData.get(mode).get(i).equals("8") */
 					){
 				modalClass.put("isPT", true);
 				int nTemp = counters.get("nPT") + 1;
 				counters.put("nPT", nTemp);
 				}
 			else if (myData.get(mode).get(i).equals("11") || 
-					myData.get(mode).get(i).equals("12")
+					myData.get(mode).get(i).equals("12")	||
+					myData.get(mode).get(i).equals("5") ||
+					myData.get(mode).get(i).equals("6") ||
+					myData.get(mode).get(i).equals("7") || 
+					myData.get(mode).get(i).equals("3") || 
+					myData.get(mode).get(i).equals("8")
 					){
 				modalClass.put("isActive", true);
 				int nTemp = counters.get("nActive") + 1;
@@ -660,7 +674,7 @@ public class TravelSurveyPreparator {
 	
 	public void processTourTypes(){
 		myData.put(UtilsTS.tourType, new ArrayList());
-		for(int i = 0; i < myData.get(UtilsTS.id).size()-1;i++){
+		for(int i = 0; i < myData.get(UtilsTS.id).size();i++){
 			if(myData.get(UtilsTS.pDebut).get(i).equals("T")){
 				String hhId = (String)myData.get(UtilsTS.mNumero).get(i);
 				String persId = (String)myData.get(UtilsTS.pRang).get(i);
@@ -674,7 +688,7 @@ public class TravelSurveyPreparator {
 				if((int)myData.get(UtilsTS.nAct).get(i) == 0){	
 				}
 				else{
-					for(int j = i; j < myData.get(UtilsTS.id).size()-1; j++){
+					for(int j = i; j < myData.get(UtilsTS.id).size(); j++){
 						
 						if(hhId.equals((String)myData.get(UtilsTS.mNumero).get(j)) && persId.equals((String)myData.get(UtilsTS.pRang).get(j))){
 							if(getActivityType((String)myData.get(UtilsTS.dMotif).get(j)).equals("H")){
@@ -884,22 +898,22 @@ public class TravelSurveyPreparator {
 		while(it.hasNext()){
 			String head = it.next();
 			headers+= head + Utils.COLUMN_DELIMETER;
+			int ipere =myData.get(UtilsTS.id).size();
+			int att = myData.get(UtilsTS.id).size();
+			if(ipere != att){
+				System.out.println("ipere size: " + ipere + " attribute size " + head + " " + att);
+			}
 		}
 		headers = headers.substring(0, headers.length()-1);
 		myOutputFileWritter.WriteToFile(headers);
 		
-		for(int i=0; i < myData.get(UtilsTS.id).size()-1; i++){
+		for(int i=0; i < myData.get(UtilsTS.id).size(); i++){
 			if(myData.get(UtilsTS.pDebut).get(i).equals("1")){
 				String line = new String();
 				Iterator<String> it2 = toPrint.iterator();
 				while(it2.hasNext()){
 					String head = it2.next();
-					try{
-						line += myData.get(head).get(i) + Utils.COLUMN_DELIMETER;
-					}
-					catch(NullPointerException ex){
-						System.out.println("null pointer exception : " + head);
-					}
+					line += myData.get(head).get(i) + Utils.COLUMN_DELIMETER;
 				}
 				line = line.substring(0, line.length()-1);
 				myOutputFileWritter.WriteToFile(line);
@@ -997,6 +1011,7 @@ public class TravelSurveyPreparator {
 		    			((HashMap<String, ArrayList<Object>>) subSamples.get(idxCore)).get(key).add(myData.get(key).get(k));
 	    			}
 	    			catch(IndexOutOfBoundsException e){
+	    				((HashMap<String, ArrayList<Object>>) subSamples.get(idxCore)).get(key).add("1000");
 	    				System.out.println(key + "  "+ idxCore + "  " + k);
 	    				System.out.println(e);
 	    			}
@@ -1120,11 +1135,11 @@ public class TravelSurveyPreparator {
 		// TODO Auto-generated method stub
 		ArrayList<Object> stoUser = new ArrayList<Object>();
 		for(int i = 0; i < myData.get(UtilsTS.id).size(); i++){
+			boolean isSTOuser = false;
 			if(myData.get(UtilsTS.pDebut).get(i).equals("T")){
-				boolean isSTOuser = false;
 				String hhId = (String)myData.get(UtilsTS.mNumero).get(i);
 				String persId = (String)myData.get(UtilsTS.pRang).get(i);
-				for(int j = i; j < myData.get(UtilsTS.id).size()-1; j++){
+				for(int j = i; j < myData.get(UtilsTS.id).size(); j++){
 					if(hhId.equals((String)myData.get(UtilsTS.mNumero).get(j)) && persId.equals((String)myData.get(UtilsTS.pRang).get(j))){
 						String mode1 = ((String) myData.get(UtilsTS.mode1).get(j)).trim();
 						String mode2 = ((String) myData.get(UtilsTS.mode2).get(j)).trim();
@@ -1144,14 +1159,13 @@ public class TravelSurveyPreparator {
 						j+= 400000;
 					}
 				}
-				if(isSTOuser){
-					stoUser.add("1");
-				}
-				else{
-					stoUser.add("0");
-				}
 			}
-			stoUser.add("0");
+			if(isSTOuser){
+				stoUser.add("1");
+			}
+			else{
+				stoUser.add("0");
+			}
 		}
 		myData.put(UtilsTS.stoUser, stoUser);
 	}
@@ -1251,7 +1265,7 @@ public class TravelSurveyPreparator {
 				return currChoice.biogeme_group_id;
 			}
 		}
-		System.out.println("--error: combination index was not found for code: " + myCombinationChoice.toString());
+		//System.out.println("--error: combination index was not found for code: " + myCombinationChoice.toString());
 		return 0;
 	}
 	
@@ -1516,104 +1530,7 @@ public class TravelSurveyPreparator {
 	}
 
 	
-	public void nActivitiesSimulation(){
-		myData.put(UtilsTS.sim + UtilsTS.nAct, new ArrayList<Object>());
-		for(int i = 0; i < myData.get(UtilsTS.id).size()-1; i++){
-			Double act0 = 3.19 * (int)myData.get(UtilsTS.dummyInactiveWomen).get(i) + 
-					2.45 * (int)myData.get(UtilsTS.dummyActiveMen).get(i) + 
-					2.87 * (int)myData.get(UtilsTS.dummyInactiveMen).get(i);
-			Double act1 = -1.76  -0.212 * (int)myData.get(UtilsTS.kids).get(i) + 
-					0.566 * Integer.parseInt((String)myData.get(UtilsTS.firstDep).get(i)) + 
-					0.844 * (int)myData.get(UtilsTS.dummyStudent).get(i) +
-					4.41 * (double)myData.get(UtilsTS.chainLength).get(i);
-			Double act2 = -5.8 - 0.212*(int)myData.get(UtilsTS.kids).get(i) +
-					0.866 * Integer.parseInt((String)myData.get(UtilsTS.lastDep).get(i)) +
-					4.41 * (double)myData.get(UtilsTS.chainLength).get(i);
-			Double act3 = -6.57  - 0.212*(int)myData.get(UtilsTS.kids).get(i) +
-					0.485 * (int)myData.get(UtilsTS.mother34).get(i) +
-					4.41 * (double)myData.get(UtilsTS.chainLength).get(i);
-			
-			ArrayList<Double> utilities = new ArrayList<Double>();
-			utilities.add(act0);utilities.add(act1); utilities.add(act2); utilities.add(act3);
-			int choice = antitheticDrawMNL(utilities);
-			myData.get(UtilsTS.sim + UtilsTS.nAct).add(choice);
-			//System.out.println(act0 + "  " + act1+ "  " + act2+ "  " + act3);
-			//System.out.println(choice);
-		}
-	}
 	
-	public void ptFidelitySimulation(){
-		myData.put(UtilsTS.sim + UtilsTS.fidelPtRange, new ArrayList<Object>());
-		for(int i = 0; i < myData.get(UtilsTS.id).size(); i++){
-			Double noPT = 1.98 * (double)myData.get(UtilsTS.motor).get(i) + 
-					0.881 * (int)myData.get(UtilsTS.dummyInactive).get(i);
-			Double partialPT = -0.792  +1* (int)myData.get(UtilsTS.dummyStudent).get(i) + 
-					0.254 * (int)myData.get(UtilsTS.dummyYoung).get(i) + 
-					0.268 * (int)myData.get(UtilsTS.dummyFemale).get(i) - 
-					0.268 * (int)myData.get(UtilsTS.nAct).get(i) ;
-			Double fullPT = -0.222  + 1.71 * (int)myData.get(UtilsTS.dummyStudent).get(i)  +
-					0.268 * (int)myData.get(UtilsTS.dummyFemale).get(i) - 
-					0.268 * (int)myData.get(UtilsTS.nAct).get(i) ;
-			
-			ArrayList<Double> utilities = new ArrayList<Double>();
-			utilities.add(noPT);utilities.add(partialPT); utilities.add(fullPT);
-			int choice = antitheticDrawMNL(utilities);
-			myData.get(UtilsTS.sim + UtilsTS.fidelPtRange).add(choice);
-		}
-	}
-	
-	public void firstDepartureSimulation(){
-		myData.put(UtilsTS.sim + UtilsTS.firstDep, new ArrayList<Object>());
-		for(int i = 0; i < myData.get(UtilsTS.id).size(); i++){
-			Double h1 = 3.24 * (int) myData.get(UtilsTS.dummyWorker).get(i) +
-					1.45 * (int) myData.get(UtilsTS.dummyTempWorker).get(i);
-			Double h2 = 2.67 + 2.33 * (int) myData.get(UtilsTS.dummyWorker).get(i) +
-					1.03 * (int) myData.get(UtilsTS.dummyTempWorker).get(i) + 
-					1.59 * (int) myData.get(UtilsTS.dummyStudent).get(i) +
-					0.364 * (int) myData.get(UtilsTS.dummyPTuser).get(i) +
-					0.629 * (int) myData.get(UtilsTS.dummyUnder15).get(i) +
-					1.09 * (int) myData.get(UtilsTS.dummyUnder19).get(i) ;
-			Double h3 = 3.60 + 0.212 * (int) myData.get(UtilsTS.dummyInactive).get(i);
-			Double h4 = 3.07 + 0.212 * (int) myData.get(UtilsTS.dummyInactive).get(i);
-			Double h5 = 1.85;
-			Double h6 = 0.859;
-			Double h7 = -3.74;
-			
-			ArrayList<Double> utilities = new ArrayList<Double>();
-			utilities.add(h1);utilities.add(h2); utilities.add(h3);utilities.add(h4);utilities.add(h5); utilities.add(h6);utilities.add(h7);
-			int choice = antitheticDrawMNL(utilities);
-			myData.get(UtilsTS.sim + UtilsTS.firstDep).add(choice);
-		}
-	}
-	
-	public void lastDepartureSimulation(){
-		myData.put(UtilsTS.sim + UtilsTS.lastDep, new ArrayList<Object>());
-		for(int i = 0; i < myData.get(UtilsTS.id).size(); i++){
-			Double h1 = 0.0;
-			Double h2 = 2.74 ;
-			Double h3 = 4.56 + 1.71 * (int) myData.get(UtilsTS.dummyRetire).get(i);
-			Double h4 = 6.04 + 1.71 * (int) myData.get(UtilsTS.dummyRetire).get(i)
-					+ 0.199 * (int) myData.get(UtilsTS.dummyFullPT).get(i)
-					+ 0.131 * (int) myData.get(UtilsTS.dummyKids2).get(i);
-			Double h5 = 6.06 + 1.71 * (int) myData.get(UtilsTS.dummyRetire).get(i)
-					+ 1.59 * (int) myData.get(UtilsTS.dummyWorker).get(i)
-					+ 1.59 * (int) myData.get(UtilsTS.dummyTempWorker).get(i)
-					+ 1.19 * (int) myData.get(UtilsTS.dummyStudent).get(i);
-			Double h6 = 5.33 + 1.22 * (int) myData.get(UtilsTS.dummyWorker).get(i)
-					+ 1.22 * (int) myData.get(UtilsTS.dummyTempWorker).get(i)
-					+ 0.219 * (int) myData.get(UtilsTS.dummyMale).get(i)
-					+ 1.71 * (int) myData.get(UtilsTS.dummyRetire).get(i)
-					+ 0.350 * (int) myData.get(UtilsTS.dummyKids01).get(i)
-					+ 1.14 * (int) myData.get(UtilsTS.dummyPartialPT).get(i);
-			Double h7 = 4.11 + 0.350 * (int) myData.get(UtilsTS.dummyKids01).get(i)
-					+ 0.219 * (int) myData.get(UtilsTS.dummyMale).get(i);
-			
-			ArrayList<Double> utilities = new ArrayList<Double>();
-			utilities.add(h1);utilities.add(h2); utilities.add(h3);utilities.add(h4);utilities.add(h5); utilities.add(h6);utilities.add(h7);
-			int choice = antitheticDrawMNL(utilities);
-			myData.get(UtilsTS.sim + UtilsTS.lastDep).add(choice);
-		}
-	}
 	
 	public int antitheticDrawMNL(ArrayList<Double> utilities){
 		ArrayList<Double> exponentials = new ArrayList<Double>();

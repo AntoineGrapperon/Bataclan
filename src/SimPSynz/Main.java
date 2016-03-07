@@ -16,6 +16,8 @@ import ActivityChoiceModel.TravelSurveyPreparator;
 import ActivityChoiceModel.UtilsTS;
 import Associations.HungarianAlgoRithmOptimized;
 import Associations.HungarianAlgorithm;
+import SRMSE.JointDistributionTravelSurvey;
+import SRMSE.SRMSE;
 import SimulationObjects.World;
 import Smartcard.PublicTransitSystem;
 import Smartcard.UtilsSM;
@@ -44,7 +46,7 @@ public class Main {
 	    //TravelSurveyPreparator odPreparator = new TravelSurveyPreparator("D:\\Recherche\\model\\model\\ODprepared.csv");
 	    TravelSurveyPreparator odGatineau = new TravelSurveyPreparator();
 	    BiogemeSimulator odGatineauValidation;
-	    BiogemeControlFileGenerator myCtrlGenerator = new BiogemeControlFileGenerator();
+	    //BiogemeControlFileGenerator myCtrlGenerator = new BiogemeControlFileGenerator();
 	    BiogemeSimulator mySimulator;
 	    
 	    String city = "Gatineau";
@@ -57,7 +59,7 @@ public class Main {
 	   
 	    
 	    
-	    PublicTransitSystem myPublicTransitSystem = new PublicTransitSystem();
+	    //PublicTransitSystem myPublicTransitSystem = new PublicTransitSystem();
 		
 		
 	    
@@ -183,12 +185,12 @@ public class Main {
 	    	//Load hypothesis and dimension for the Joint model with Biogeme
 	    	//############################################################################################
 	    	
-	    	String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file.txt";
-			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrl6.mod";
-			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypothesis6.txt";
-	    	
+	    	/*String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file.txt";
+			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrl.mod";
+			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypothesis7.txt";
+			BiogemeControlFileGenerator myCtrlGenerator = new BiogemeControlFileGenerator();
 	    	myCtrlGenerator.initialize(pathControlFile, pathOutput, pathHypothesis);
-			myCtrlGenerator.generateBiogemeControlFile();
+			/*myCtrlGenerator.generateBiogemeControlFile();
 			myCtrlGenerator.printChoiceIndex(Utils.DATA_DIR + "biogeme\\choiceIndex.csv");
 			System.out.println("-- control file generator initiated");
 	    	
@@ -202,11 +204,11 @@ public class Main {
 	    	//Therefore, it is no honest to separate in subsample, because by doing so I am assuming that alternatives in the other samples are not reachable.
 	    	//Which is false. Therefore, the non multithreading function should be used. (it is 8 hours against 1/2 hours).
 			
-	    	odGatineau.initialize(Utils.DATA_DIR + "\\odGatineauRESTREINT.csv");
+	    	/*odGatineau.initialize(Utils.DATA_DIR + "\\odGatineauRESTREINT.csv");
 	    	int numberOfLogicalProcessors = Runtime.getRuntime().availableProcessors() -1;
 	    	numberOfLogicalProcessors = 4;
 	    	System.out.println("--computation with: " + numberOfLogicalProcessors + " logical processors");
-	    	odGatineau.processDataMultiThreads(numberOfLogicalProcessors, 20, myCtrlGenerator);
+	    	odGatineau.processDataMultiThreads(numberOfLogicalProcessors, 20, myCtrlGenerator);*/
 	    	
 	    	//############################################################################################
 	    	//Load Agents and simulate their choices from the travel survey
@@ -224,73 +226,81 @@ public class Main {
 			//############################################################################################
 	    	//Load Smartcard data and process them to label with a choice id
 	    	//############################################################################################
-			/*mySimulator = new BiogemeSimulator(myCtrlGenerator);
-			mySimulator.importBiogemeModel(Utils.DATA_DIR + "biogeme\\ctrl6.F12");*/
 			
+	    	String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file.txt";
+			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrl.mod";
+			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypothesis6.txt";
+			BiogemeControlFileGenerator myCtrlGenerator = new BiogemeControlFileGenerator();
 			
-			/*myPublicTransitSystem.initialize(
+			PublicTransitSystem myPublicTransitSystem = new PublicTransitSystem();
+			
+	    	myCtrlGenerator.initialize(pathControlFile, pathOutput, pathHypothesis);
+			//myCtrlGenerator.generateBiogemeControlFile();
+			//myCtrlGenerator.printChoiceIndex(Utils.DATA_DIR + "biogeme\\choiceIndex.csv");
+			System.out.println("-- control file generator initiated");
+			
+			myPublicTransitSystem.initialize(
 					myCtrlGenerator, 
 					Utils.DATA_DIR + "ptSystem\\smartcardData.txt", 
 					Utils.DATA_DIR + "ptSystem\\stops.txt",
 					Utils.DATA_DIR + "ptSystem\\geoDico500.csv",
 					Utils.DATA_DIR + "ptSystem\\population.csv",
-					Utils.DATA_DIR + "biogeme\\ctrl6.F12"
+					Utils.DATA_DIR + "biogeme\\ctrl1.F12"
 					);
 			System.out.println("--pt system initialized");
-			/*myPublicTransitSystem.createZonalSmartcardIndex();
+			myPublicTransitSystem.createZonalSmartcardIndex();
 			myPublicTransitSystem.createZonalPopulationIndex();
+			
 			//myPublicTransitSystem.printStation(Utils.DATA_DIR + "ptSystem\\station_smartcard.csv");
 			System.out.println("--potential smartcard assigned");
 			
 			//########
-			//myPublicTransitSystem.processMatchingStationByStation();
-			myPublicTransitSystem.globalRandomMatch();
-			//myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSmartcardGlobalRandom.csv");
+			Utils.occupationCriterion = false;
+			myPublicTransitSystem.processMatchingStationByStation();
+			myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSMstation.csv");
 			
-			//ArrayList<HashMap<Integer, Double>> costMatrix = myPublicTransitSystem.createCostMatrixOptimized();
-			//myPublicTransitSystem.createCostMatrixHardCopy("F:\\test.csv");
-			/*System.out.println("--cost matrix");
+			myCtrlGenerator = null;
+			myPublicTransitSystem = null;
 			
-			int[] result;
-			HungarianAlgorithm hu =new HungarianAlgorithm(costMatrix);
-			//HungarianAlgoRithmOptimized hu =new HungarianAlgoRithmOptimized(costMatrix);
-			result=hu.execute();
-			
-			BufferedWriter write = new BufferedWriter(new FileWriter(Utils.DATA_DIR + "ptSystem\\test.csv"));
 
-			for(int i=0;i<result.length;i++){
-				write.write(result[i]+"\n");
-				write.flush();
-			} //for
-			write.close();*/
+			myCtrlGenerator = new BiogemeControlFileGenerator();
 			
-			/*ArrayList<double[][]> costMatrix = myPublicTransitSystem.createCostMatrixByBatch(500);
+			myPublicTransitSystem = new PublicTransitSystem();
 			
-			System.out.println("--cost matrix");
-			for(int i = 0; i < costMatrix.size(); i++){
-				
-				int[] result;
-				HungarianAlgorithm hu =new HungarianAlgorithm(costMatrix.get(i));
-				//HungarianAlgoRithmOptimized hu =new HungarianAlgoRithmOptimized(costMatrix);
-				result=hu.execute();
-				
-				BufferedWriter write = new BufferedWriter(new FileWriter(Utils.DATA_DIR + "ptSystem\\test" + i + ".csv"));
+	    	myCtrlGenerator.initialize(pathControlFile, pathOutput, pathHypothesis);
+			//myCtrlGenerator.generateBiogemeControlFile();
+			//myCtrlGenerator.printChoiceIndex(Utils.DATA_DIR + "biogeme\\choiceIndex.csv");
+			System.out.println("-- control file generator initiated");
+			
+			myPublicTransitSystem.initialize(
+					myCtrlGenerator, 
+					Utils.DATA_DIR + "ptSystem\\smartcardData.txt", 
+					Utils.DATA_DIR + "ptSystem\\stops.txt",
+					Utils.DATA_DIR + "ptSystem\\geoDico500.csv",
+					Utils.DATA_DIR + "ptSystem\\population.csv",
+					Utils.DATA_DIR + "biogeme\\ctrl1.F12"
+					);
+			System.out.println("--pt system initialized");
+			myPublicTransitSystem.createZonalSmartcardIndex();
+			myPublicTransitSystem.createZonalPopulationIndex();
+			
+			//myPublicTransitSystem.printStation(Utils.DATA_DIR + "ptSystem\\station_smartcard.csv");
+			System.out.println("--potential smartcard assigned");
+			Utils.occupationCriterion = true;
+			myPublicTransitSystem.processMatchingStationByStation();
+			myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSMstationWithChoiceSetControl.csv");
+			
 
-				for(int j=0;j<result.length;j++){
-					write.write(result[j]+"\n");
-					write.flush();
-				} //for
-				write.close();
-			}*/
-			
-			
-			
-			//myPublicTransitSystem.processMatchingZoneByZone();
-			
-			/*mySimulator = new BiogemeSimulator(myCtrlGenerator);
-			mySimulator.initialize(Utils.DATA_DIR + "data\\505\\createdPopulation.csv");
-			mySimulator.importBiogemeModel(Utils.DATA_DIR + "biogeme\\ctrl.F12");
-			mySimulator.applyModel(Utils.DATA_DIR + "Outputs\\simulationResults.csv");*/
+			//###############################################################################
+	    	//COMPUTE THE SRMSE BETWEEN TWO DATA SETS
+	    	//###############################################################################
+			/*String pathData = Utils.DATA_DIR + "SRMSE//globalRandom.csv";
+			String pathRef = Utils.DATA_DIR + "SRMSE//refOd.csv";
+	    	SRMSE srmse = new SRMSE();
+			srmse.getDistributions(pathData, pathRef);
+			double temp = srmse.computeSRMSE();
+			System.out.println(temp);*/
+
 	    	
 	    	//###############################################################################
 	    	//Generate a synthetic population and output statistical analysis of the goodness
@@ -322,35 +332,6 @@ public class Main {
 	    	System.out.println("--computation with: " + numberOfLogicalProcessors + " logical processors");
 	    	myWorld.CreatePersonPopulationPoolLocalLevelMultiThreads(Utils.DATA_DIR + "myPersonPool.csv", pathToSeeds,numberOfLogicalProcessors);
 			myWorld.printMetroMarginalFittingAnalysis("Vancouver", startTime);*/
-	    	
-	    	//###############################################################################
-	    	//Uses OD survey, extract information from it and apply the model specified
-	    	//##############################################################################
-	    	/*odPreparator.storeData();
-			System.out.println("--data stored");
-			odPreparator.processMobility();
-			System.out.println("--mobility processed");
-			odPreparator.processTourTypes();
-			System.out.println("--tour types processed");
-			odPreparator.processModalClass();
-			System.out.println("--modal class and fidelity to public transit processed");
-			odPreparator.processLastDepartureHour();
-			System.out.println("--last departure hours processed ");
-			odPreparator.processAverageTourLength();
-			System.out.println("--average tour length processed");
-			odPreparator.processNumberOfKids();
-			System.out.println("--number of kids in household processed");
-			odPreparator.processActivityDuration();
-			System.out.println("--max activity duration computed");
-			odPreparator.processMinMaxTourLength();
-			System.out.println("-- min and max distance for a trip processed");
-			odPreparator.processMotorRate();
-			System.out.println("--motorazation rate computed");
-			odPreparator.processDummies();
-			odPreparator.nActivitiesSimulation();
-			odPreparator.firstDepartureSimulation();*/
-	    	
-	    	
 	    	
 	    	
 			

@@ -258,8 +258,8 @@ public class BiogemeAgent {
 						Smartcard currChoice = potentialSmartcard.get(nextChoice);
 						if(!currChoice.isDistributed){
 							if(Utils.occupationCriterion){
-								if((Integer.parseInt(myAttributes.get(UtilsTS.occupation)) == currChoice.fare) ||
-										(myAttributes.get(UtilsTS.occupation).equals("3") && 
+								if((Integer.parseInt(myAttributes.get("occ")) == currChoice.fare) ||
+										(myAttributes.get("occ").equals("3") && 
 												currChoice.fare ==0) ){
 									agentChoiceSet.add(currChoice);
 								}
@@ -290,6 +290,42 @@ public class BiogemeAgent {
 			agentChoiceSet.add(stayHome);
 		}
 		
+		return agentChoiceSet;
+	}
+	
+	public ArrayList<Smartcard> generateChoiceSet( HashMap<Double,ArrayList<Smartcard>> closeSmartcards){
+		// TODO Auto-generated method stub
+		
+		double myZone = Double.parseDouble(myAttributes.get(UtilsSM.zoneId));
+		ArrayList<Smartcard> agentChoiceSet = new ArrayList<Smartcard>();
+		//ArrayList<Integer> myStations = PublicTransitSystem.geoDico.get(myZone);
+		if(isDistributed){
+			Smartcard stayHome = PublicTransitSystem.myCtrlGen.getStayHomeChoice();
+			agentChoiceSet.add(stayHome);
+		}
+		else{
+			ArrayList<Smartcard> potentialSmartcard = closeSmartcards.get(myZone);
+			
+			if(potentialSmartcard.size()!=0){
+				for(int i = 0; i < potentialSmartcard.size();i++){
+					Smartcard currChoice = potentialSmartcard.get(i);
+					if(!currChoice.isDistributed){
+						if(Utils.occupationCriterion){
+							if((Integer.parseInt(myAttributes.get("occ")) == currChoice.fare) ||
+									(myAttributes.get("occ").equals("3") && 
+											currChoice.fare ==0) ){
+								agentChoiceSet.add(currChoice);
+							}
+						}
+						else{
+							agentChoiceSet.add(currChoice);
+						}
+					}
+				}
+			}
+			Smartcard stayHome = PublicTransitSystem.myCtrlGen.getStayHomeChoice();
+			agentChoiceSet.add(stayHome);
+		}
 		return agentChoiceSet;
 	}
 	
@@ -350,6 +386,12 @@ public class BiogemeAgent {
 					//utility += currH.getCoefficientValue() * currChoice.getAffectingValue(currH, this);
 				}
 			}
+			//######################################
+			//ATTENTION CECI N EST PAS BO A VOIR
+			if(currChoice.biogeme_group_id == 0){
+				utility += BiogemeSimulator.STOnest;
+			}
+			//######################################
 			currChoice.utility = utility;
 			utilities.add(utility);
 		}

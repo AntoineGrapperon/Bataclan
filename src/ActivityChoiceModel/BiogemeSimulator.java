@@ -27,6 +27,7 @@ public class BiogemeSimulator {
 	OutputFileWritter myOutputFileWriter = new OutputFileWritter();
 	ArrayList<BiogemeAgent> myPopulationSample = new ArrayList<BiogemeAgent>();
 	public static ArrayList<BiogemeHypothesis> modelHypothesis = new ArrayList<BiogemeHypothesis>();
+	public static double STOnest;
 	
 	/**
 	 * choiceUniverse is required only for simulating the model with smart card data. For simulating the model with the travel survey, alternatives are computed a bit differently.
@@ -167,6 +168,28 @@ public class BiogemeSimulator {
 	 	}
 	}
 	
+	public void importNest(String path) throws IOException {
+		// TODO Auto-generated method stub
+		InputDataReader modelReader = new InputDataReader();
+		modelReader.OpenFile(path);
+		ArrayList <String> lines = modelReader.StoreLineByLine();
+		String[] list;
+		int cur = 0;
+		while(!(lines.get(cur).trim().equals("END"))){
+			cur++;
+		}
+		cur++;
+	 	while(!(lines.get(cur).trim().equals("-1"))){
+	 		String[] strTok = lines.get(cur).split("\\t");
+	 		String coefName = strTok[1].trim();
+	 		double coefValue = Double.parseDouble(strTok[3]);
+	 		updateNest(coefName,coefValue);
+	 		cur++;
+	 	}
+	}
+	
+
+
 	@Deprecated
 	public void createAgents() throws IOException
     {
@@ -252,6 +275,14 @@ public class BiogemeSimulator {
 		}
 	}
 	
+	private void updateNest(String coefName, double coefValue) {
+		// TODO Auto-generated method stub
+		if(coefName.equals("STO")){
+			STOnest = coefValue;
+		}
+		
+	}
+	
 	public void printHypothesis(String path) throws IOException{
 		OutputFileWritter tempWriter = new OutputFileWritter();
 		tempWriter.OpenFile(path);
@@ -293,6 +324,8 @@ public class BiogemeSimulator {
 		headers += headers + UtilsTS.alternative + "_DEF" + Utils.COLUMN_DELIMETER + UtilsTS.sim + "_DEF";
 		myOutputFileWriter.WriteToFile(headers);
 	}
+
+
 
 
 }

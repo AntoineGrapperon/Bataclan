@@ -2841,7 +2841,7 @@ public void printLocalMarginalFittingAnalysis(String metro, long startTime){
 			    
 	        	String statistics = new String();// Utils.NEW_LINE_DELIMITER; //new String();
 	        	String population = new String();
-	        	if(Utils.createLocal){
+	        	/*if(Utils.createLocal){
 	        		
 		        	try{
 		        		 for (Map.Entry<String, Object> entry : zones.entrySet())
@@ -2888,7 +2888,7 @@ public void printLocalMarginalFittingAnalysis(String metro, long startTime){
 		        	return answer;
 	        	}
 	        	
-	        	else{
+	        	else{*/
 		        	try{
 		        		 for (Map.Entry<String, Object> entry : zones.entrySet())
 		                 {
@@ -2929,7 +2929,7 @@ public void printLocalMarginalFittingAnalysis(String metro, long startTime){
 		        	answer.add(statistics);
 		        	answer.add(population);
 		        	return answer;
-	        	}
+	        	//}
 	        	
 	        }
 

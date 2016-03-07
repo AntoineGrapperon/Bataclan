@@ -63,6 +63,7 @@ public class PublicTransitSystem {
 		
 		mySimulator.setHypothesis();
 		mySimulator.importBiogemeModel(pathModel);
+		mySimulator.importNest(pathModel);
 		
 		myStations = myStationManager.prepareStations(pathStations);
 		mySmartcards = mySmartcardManager.prepareSmartcards(pathSmartcard);
@@ -206,7 +207,8 @@ public class PublicTransitSystem {
 		for(BiogemeAgent person: myPopulation){
 			double zoneId = Double.parseDouble(person.myAttributes.get(UtilsSM.zoneId));
 			if(zonalSmartcardIndex.containsKey(zoneId)){
-				ArrayList<Smartcard> choiceSet = person.generateChoiceSet(UtilsSM.choiceSetSize, zonalSmartcardIndex);
+				//ArrayList<Smartcard> choiceSet = person.generateChoiceSet(UtilsSM.choiceSetSize, zonalSmartcardIndex);
+				ArrayList<Smartcard> choiceSet = person.generateChoiceSet(zonalSmartcardIndex);
 				person.processSmartcardChoiceSet(choiceSet);
 				//person.createAndWeighChoiceSet(UtilsSM.choiceSetSize, zonalSmartcardIndex );
 				costMatrix[rowIndex] = person.writeCosts(N, M);
@@ -454,7 +456,6 @@ public class PublicTransitSystem {
 						sm.isDistributed = true;
 						currLocalPopulation.get(r).isDistributed = true;
 					}
-					
 				}
 			}
 		}
@@ -530,7 +531,8 @@ public class PublicTransitSystem {
 		}
 		header+= UtilsSM.cardId + Utils.COLUMN_DELIMETER
 				+UtilsSM.stationId + Utils.COLUMN_DELIMETER
-				+ UtilsSM.fare;
+				+ UtilsSM.fare + Utils.COLUMN_DELIMETER
+				+ UtilsTS.choice;
 		for(String key: mySmartcards.get(0).myAttributes.keySet()){
 			header+= Utils.COLUMN_DELIMETER + key;
 		}
@@ -543,10 +545,13 @@ public class PublicTransitSystem {
 				for(String key: currAgent.myAttributes.keySet()){
 					newLine+= currAgent.myAttributes.get(key) + Utils.COLUMN_DELIMETER;
 				}
-				newLine+= sm.cardId + "_"
-						+ sm.stationId + "_"
-						+ sm.fare + "_" +
+				newLine+= sm.cardId + Utils.COLUMN_DELIMETER
+						+ sm.stationId + Utils.COLUMN_DELIMETER
+						+ sm.fare + Utils.COLUMN_DELIMETER +
 						sm.getConstantName();
+				for(String key : sm.myAttributes.keySet()){
+					newLine+= Utils.COLUMN_DELIMETER +sm.myAttributes.get(key) ;
+				}
 				write.WriteToFile(newLine);
 			}
 		}

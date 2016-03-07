@@ -143,10 +143,10 @@ public class BiogemeControlFileGenerator {
     		if(!alreadyWritten.contains(choiceName)){
     			alreadyWritten.add(choiceName);
     			if(choiceName.equals("C_NOPT")){
-    				myDataWriter.WriteToFile(choiceName + " 	    0.0          -100.0     100.0         1");	
+    				myDataWriter.WriteToFile(choiceName + " 	    0.0          -25.0     5.0         1");	
     			}
     			else{
-    				myDataWriter.WriteToFile(choiceName + " 	    0.0          -100.0     100.0         0");	
+    				myDataWriter.WriteToFile(choiceName + " 	    0.0          -25.0     5.0         0");	
     			}
     		}
     	}
@@ -195,7 +195,7 @@ public class BiogemeControlFileGenerator {
     
     public void writeHypothesisBeta() throws IOException{
     	for(BiogemeHypothesis h: hypothesis){
-    		myDataWriter.WriteToFile(h.coefName + " 	    0.0          -100.0     100.0         0");
+    		myDataWriter.WriteToFile(h.coefName + " 	    0.0          -10.0     10.0         0");
     	}
     }
     
@@ -463,7 +463,7 @@ public class BiogemeControlFileGenerator {
 			if(currH.isDummy){
 				String newExpression = getDummyName(currH) + " = ";
 				for(int i : currH.affectingCategories){
-					newExpression+= " (" + currH.affectingDimensionName + " == " + i + " ) *";
+					newExpression+= " (" + currH.affectingDimensionName + " == " + i + " ) +";
 				}
 				newExpression = newExpression.trim().substring(0, newExpression.length() -1);
 				myDataWriter.WriteToFile(newExpression);
