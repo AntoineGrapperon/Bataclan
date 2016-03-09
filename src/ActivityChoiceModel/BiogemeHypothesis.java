@@ -18,7 +18,7 @@ public class BiogemeHypothesis {
 	double coefValue;
 	public boolean isDummy = true;
 	public boolean isAgentSpecificVariable;
-	public boolean isAlternatibeSpecificVariable;
+	public boolean isAlternativeSpecificVariable;
 	
 	public BiogemeHypothesis(){
 		

@@ -62,7 +62,7 @@ public class BiogemeAgent {
 						String att = currH.affectingDimensionName ;
 						utility += currH.getCoefficientValue() * Double.parseDouble(myAttributes.get(att));
 					}
-					else if(currH.isAlternatibeSpecificVariable){
+					else if(currH.isAlternativeSpecificVariable){
 						String att = currH.affectingDimensionName;
 						utility += currH.getCoefficientValue() * Double.parseDouble(currChoice.myAttributes.get(att));
 					}
@@ -376,7 +376,7 @@ public class BiogemeAgent {
 						String att = UtilsSM.dictionnary.get(currH.affectingDimensionName) ;
 						utility += currH.getCoefficientValue() * Double.parseDouble(myAttributes.get(att));
 					}
-					else if(currH.isAlternatibeSpecificVariable){
+					else if(currH.isAlternativeSpecificVariable){
 						String att = UtilsSM.dictionnary.get(currH.affectingDimensionName);
 						utility += currH.getCoefficientValue() * Double.parseDouble(currChoice.myAttributes.get(att));
 					}
@@ -386,12 +386,7 @@ public class BiogemeAgent {
 					//utility += currH.getCoefficientValue() * currChoice.getAffectingValue(currH, this);
 				}
 			}
-			//######################################
-			//ATTENTION CECI N EST PAS BO A VOIR
-			if(currChoice.biogeme_group_id == 0){
-				utility += BiogemeSimulator.STOnest;
-			}
-			//######################################
+
 			currChoice.utility = utility;
 			utilities.add(utility);
 		}
@@ -408,6 +403,90 @@ public class BiogemeAgent {
 		}
 		myChoices.addAll(choiceSet);
 	}
+	
+	public boolean isStoRider() {
+		// TODO Auto-generated method stub
+		ArrayList<BiogemeChoice> choiceSet = BiogemeSimulator.modelChoiceUniverse;
+		computeUtilities(choiceSet);
+		ArrayList<Double> nestCumProb = getNestCumulativeProbabilities();
+		int choice = antitheticDraw(nestCumProb);
+		if(choice == 0){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+
+
+	private ArrayList<Double> getNestCumulativeProbabilities() {
+		// TODO Auto-generated method stub
+		ArrayList<Double> cumProb = new ArrayList<Double>();
+		double logsumStoNest = 0;
+		double logsumNoPtNest = 0;
+		double noPtScale = BiogemeSimulator.noPtScale;
+		double stoScale = BiogemeSimulator.stoScale;
+		
+		for(BiogemeChoice curChoice: BiogemeSimulator.modelChoiceUniverse){
+			if(curChoice.biogeme_group_id == 0){
+				logsumNoPtNest+= Math.exp(noPtScale * curChoice.utility);
+			}
+			else{
+				logsumStoNest += Math.exp(stoScale * curChoice.utility);
+			}
+		}
+		logsumNoPtNest = Math.log(logsumNoPtNest);
+		logsumStoNest = Math.log(logsumStoNest);
+		
+		
+		Double probSto = Math.exp(logsumStoNest/stoScale)/
+				(Math.exp(logsumStoNest/stoScale)+Math.exp(logsumNoPtNest/noPtScale));
+		Double probNoPt = Math.exp(logsumNoPtNest/noPtScale)/
+				(Math.exp(logsumStoNest/stoScale)+Math.exp(logsumNoPtNest/noPtScale));
+		
+		cumProb.add(probSto);
+		cumProb.add(1.0);
+		
+		return cumProb;
+	}
+
+	private void computeUtilities(ArrayList<BiogemeChoice> choiceSet){
+		
+		for(int i = 0; i < choiceSet.size(); i++){
+			
+			double utility = 0;
+			//int choiceId = choiceSet.get(i).biogeme_group_id;
+			BiogemeChoice currChoice = choiceSet.get(i);
+			currChoice.utility = 0;
+			
+			for(BiogemeHypothesis currH: BiogemeSimulator.modelHypothesis){
+				if(currH.isCst()){
+					utility += currH.getCoefficientValue();
+				}
+				else if(currChoice.isAffected(currH)  && currH.isDummy){
+					if( currChoice.isAffecting(currH, this)){
+						utility += currH.getCoefficientValue();
+					}
+				}
+				else if(currChoice.isAffected(currH) && !currH.isDummy){
+					if(currH.isAgentSpecificVariable){
+						String att = UtilsSM.dictionnary.get(currH.affectingDimensionName) ;
+						utility += currH.getCoefficientValue() * Double.parseDouble(myAttributes.get(att));
+					}
+					else if(currH.isAlternativeSpecificVariable){
+						String att = UtilsSM.dictionnary.get(currH.affectingDimensionName);
+						utility += currH.getCoefficientValue() * Double.parseDouble(currChoice.myAttributes.get(att));
+					}
+					else{
+						System.out.println(currH.coefName + " was not considered");
+					}
+					//utility += currH.getCoefficientValue() * currChoice.getAffectingValue(currH, this);
+				}
+			}
+			currChoice.utility = utility;
+		}
+	}
+	
 	
 	@Deprecated
 	public void createAndWeighChoiceSet(int choiceSetSize) {
@@ -475,7 +554,7 @@ public class BiogemeAgent {
 						String att = UtilsSM.dictionnary.get(currH.affectingDimensionName) ;
 						utility += currH.getCoefficientValue() * Double.parseDouble(myAttributes.get(att));
 					}
-					else if(currH.isAlternatibeSpecificVariable){
+					else if(currH.isAlternativeSpecificVariable){
 						String att = UtilsSM.dictionnary.get(currH.affectingDimensionName);
 						utility += currH.getCoefficientValue() * Double.parseDouble(currChoice.myAttributes.get(att));
 					}
@@ -502,7 +581,7 @@ public class BiogemeAgent {
 		myChoices.addAll(choiceSet);
 	}
 	
-	public HashMap<Integer,Double> getChoiceSet(int size, int smartcardCount) {
+	/*public HashMap<Integer,Double> getChoiceSet(int size, int smartcardCount) {
 		// TODO Auto-generated method stub
 		HashMap<Integer,Double> newRow = new HashMap<Integer,Double>();
 		//intialization avec une valeur de cout tres elevee
@@ -515,13 +594,15 @@ public class BiogemeAgent {
 					newRow[i] = stayHomeCost;
 				}
 			}
-			else{*/
+			else{
 				newRow.put(((Smartcard)currChoice).columnId , 1/currChoice.probability);
 				//newRow[((Smartcard)currChoice).columnId] = 1/currChoice.probability;//maybe not "probability, but something like it.
 			//}
 		}
 		return newRow;
-	}
+	}*/
+
+	
 
 
 	

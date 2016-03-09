@@ -64,6 +64,7 @@ public class PublicTransitSystem {
 		mySimulator.setHypothesis();
 		mySimulator.importBiogemeModel(pathModel);
 		mySimulator.importNest(pathModel);
+		mySimulator.extractChoiceUniverse();
 		
 		myStations = myStationManager.prepareStations(pathStations);
 		mySmartcards = mySmartcardManager.prepareSmartcards(pathSmartcard);
@@ -142,7 +143,7 @@ public class PublicTransitSystem {
 	 * Use this function only if you have access to a 1To + RAM system: it is creating a square matrix which size is
 	 * the size of the population: for a 300 000 population this is 600 Go of RAM required.	
 	 */
-	private double[][] createCostMatrix() throws IOException{
+	/*private double[][] createCostMatrix() throws IOException{
 		int n = 0;
 		int N = myPopulation.size();
 		int M = mySmartcards.size();
@@ -166,7 +167,7 @@ public class PublicTransitSystem {
 			}
 		}
 		return costMatrix;
-	}
+	}*/
 	
 	/**
 	 * This is still generating a choice set from the whole population. Use the same function including the located smartcard.
@@ -225,38 +226,8 @@ public class PublicTransitSystem {
 		return costMatrix;
 	}
 	
-	private double[][] createLocalCostMatrix(
-			ArrayList<BiogemeAgent> myPopulation, 
-			ArrayList<Smartcard> mySmartcards, 
-			HashMap<Double, ArrayList<Smartcard>> zonalSmartcardIndex,
-			boolean occupationCriterion
-			) throws IOException{
-		
-		int n = 0;
-		int N = myPopulation.size();
-		int M = mySmartcards.size();
-		int rowIndex = 0;
-		double[][] costMatrix = new double[N][N];
-		
-		for(BiogemeAgent person: myPopulation){
-			double zoneId = Double.parseDouble(person.myAttributes.get(UtilsSM.zoneId));
-			if(zonalSmartcardIndex.containsKey(zoneId)){
-				ArrayList<Smartcard> choiceSet = person.generateChoiceSet(UtilsSM.choiceSetSize, zonalSmartcardIndex);
-				person.processSmartcardChoiceSet(choiceSet);
-				//person.createAndWeighChoiceSet(UtilsSM.choiceSetSize, zonalSmartcardIndex );
-				costMatrix[rowIndex] = person.writeCosts(N, M);
-				rowIndex++;
-			}
-			else{
-				double[] newRow = new double[myPopulation.size()];
-				for(int i = 0; i < myPopulation.size(); i++){newRow[i] = 999999.00;}
-				costMatrix[rowIndex] = newRow;
-				rowIndex++;
-				System.out.println("--this guy shouldn't be there...");
-			}
-		}
-		return costMatrix;
-	}
+	
+	
 	
 	/**
 	 * This never worked
@@ -264,7 +235,7 @@ public class PublicTransitSystem {
 	 * @throws IOException
 	 */
 	
-	@Deprecated
+	/*@Deprecated
 	private ArrayList<HashMap<Integer,Double>> createCostMatrixOptimized() throws IOException{
 		int n = 0;
 		int N = myPopulation.size();
@@ -272,7 +243,7 @@ public class PublicTransitSystem {
 		int rowIndex = 0;
 		/**
 		 * Assumption: there is a bigger population than the number of smartcards.
-		 */
+		 
 		ArrayList<HashMap<Integer,Double>> costMatrixOptimized = new ArrayList<HashMap<Integer,Double>>();
 		
 		for(BiogemeAgent person: myPopulation){
@@ -292,15 +263,16 @@ public class PublicTransitSystem {
 			}
 		}
 		return costMatrixOptimized;
-	}
+	}*/
 	
 	
-	/**
+	/*
 	 * This is way too long due to hard memory access
 	 * CAREFUL: the costmatrix can be a few Go, you may want to write in an external hard-drive to avoid completely overflooding your harddrive.
 	 * @param path
 	 * @throws IOException
 	 */
+	/*
 	@Deprecated
 	private void createCostMatrixHardCopy(String path) throws IOException{
 		OutputFileWritter myCopy = new OutputFileWritter();
@@ -375,7 +347,7 @@ public class PublicTransitSystem {
 			myCostMatrices.add(createLocalCostMatrix(currLocalPopulation, currLocalSmartcards, currZonalChoiceSets));
 		}
 		return myCostMatrices;
-	}
+	}*/
 	
 	
 
@@ -406,7 +378,11 @@ public class PublicTransitSystem {
 					
 					assignColumnIndex(currLocalSmartcards);
 					HashMap<Double, ArrayList<Smartcard>> zonalSmartcardIndex = createZonalSmartcardIndex(currLocalSmartcards);
-					double[][] costMatrix = createLocalCostMatrix(currLocalPopulation, currLocalSmartcards, zonalSmartcardIndex);
+					
+					ArrayList<BiogemeAgent> ptRiders = getPtRiders(currLocalPopulation, currLocalSmartcards.size());
+					double[][] costMatrix = createLocalCostMatrix(ptRiders, currLocalSmartcards, zonalSmartcardIndex);
+					//double[][] costMatrix = createLocalCostMatrix(currLocalPopulation, currLocalSmartcards, zonalSmartcardIndex);
+					
 					System.out.println("count : " + count + 
 							" station " + key + 
 							" with " + currLocalSmartcards.size() +" local smart cards " +
@@ -429,6 +405,26 @@ public class PublicTransitSystem {
 		}
 	}
 	
+
+
+	private ArrayList<BiogemeAgent> getPtRiders(ArrayList<BiogemeAgent> currLocalPopulation, int size) {
+		// TODO Auto-generated method stub
+		
+		int i = 0;
+		ArrayList<BiogemeAgent> ptRiders = new ArrayList<BiogemeAgent>();
+		Random r = new Random();
+		
+		while(i<size){
+			int n = r.nextInt(currLocalPopulation.size());
+			BiogemeAgent curAgent = currLocalPopulation.get(n);
+			if(curAgent.isStoRider()){
+				ptRiders.add(curAgent);
+				i++;
+			}
+		}
+		return ptRiders;
+	}
+
 	public void localRandomMatch() {
 		// TODO Auto-generated method stub
 		

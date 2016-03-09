@@ -61,7 +61,7 @@ public class BiogemeControlFileGenerator {
 		  
 		  currHypothesis.isDummy = isDummy;
 		  currHypothesis.isAgentSpecificVariable = isAgent;
-		  currHypothesis.isAlternatibeSpecificVariable = isAlternative;
+		  currHypothesis.isAlternativeSpecificVariable = isAlternative;
 		  String coefName = tok[0].trim();
 		  currHypothesis.setCoefName(coefName);
 		  
@@ -110,12 +110,20 @@ public class BiogemeControlFileGenerator {
     	writeUpperPart();
     	writeBetaPart();
     	writeCombinations();
-    	writeLowerPart();
+    	writeExpressionsExclusions();
+    	writeStructure();
     	descReader.CloseFile();
     	myDataWriter.CloseFile();
     }
     
-    private void writeBetaPart() throws IOException {
+    private void writeStructure() throws IOException {
+		// TODO Auto-generated method stub
+    	myDataWriter.WriteToFile("[Model]");
+    	myDataWriter.WriteToFile("$MNL");
+    	
+	}
+
+	private void writeBetaPart() throws IOException {
 		// TODO Auto-generated method stub
     	myDataWriter.WriteToFile("[Beta]");
     	writeConstants();
@@ -439,7 +447,7 @@ public class BiogemeControlFileGenerator {
     	
     }
     
-    public void writeLowerPart() throws IOException{
+    public void writeExpressionsExclusions() throws IOException{
     	myDataWriter.WriteToFile("[Expressions] ");
     	myDataWriter.WriteToFile("one = 1 ");
     	myDataWriter.WriteToFile("avail = 1 ");
@@ -452,8 +460,7 @@ public class BiogemeControlFileGenerator {
     	myDataWriter.WriteToFile("(OCCUP == -1) >= 1");
     			
     	//myDataWriter.WriteToFile("((P_GRAGE == 1) + (P_STATUT == 6) + (P_STATUT == 8) + (P_STATUT == 5) + (N_ACT == 0))  >= 1  //+ ((P_STATUT != 1) + (P_STATUT != 2)) / 2)");
-    	myDataWriter.WriteToFile("[Model]");
-    	myDataWriter.WriteToFile("$MNL");
+    	
     }
     
 

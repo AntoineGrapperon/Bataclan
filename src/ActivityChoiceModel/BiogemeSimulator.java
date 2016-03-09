@@ -27,7 +27,10 @@ public class BiogemeSimulator {
 	OutputFileWritter myOutputFileWriter = new OutputFileWritter();
 	ArrayList<BiogemeAgent> myPopulationSample = new ArrayList<BiogemeAgent>();
 	public static ArrayList<BiogemeHypothesis> modelHypothesis = new ArrayList<BiogemeHypothesis>();
-	public static double STOnest;
+	public static ArrayList<BiogemeChoice> modelChoiceUniverse = new ArrayList<BiogemeChoice>();
+	
+	public static double stoScale = 1;
+	public static double noPtScale = 1;
 	
 	/**
 	 * choiceUniverse is required only for simulating the model with smart card data. For simulating the model with the travel survey, alternatives are computed a bit differently.
@@ -188,6 +191,19 @@ public class BiogemeSimulator {
 	 	}
 	}
 	
+	public void extractChoiceUniverse() {
+		// TODO Auto-generated method stub
+		HashMap<Integer, Boolean> list = new HashMap<Integer,Boolean>();
+		ArrayList<BiogemeChoice> choiceUniverse = new ArrayList<BiogemeChoice>();
+		for(BiogemeChoice curChoice: BiogemeControlFileGenerator.choiceIndex){
+			if(!list.containsKey(curChoice.biogeme_group_id)){
+				list.put(curChoice.biogeme_group_id, true);
+				choiceUniverse.add(curChoice);
+			}
+		}
+		modelChoiceUniverse=choiceUniverse;
+	}
+	
 
 
 	@Deprecated
@@ -278,7 +294,7 @@ public class BiogemeSimulator {
 	private void updateNest(String coefName, double coefValue) {
 		// TODO Auto-generated method stub
 		if(coefName.equals("STO")){
-			STOnest = coefValue;
+			stoScale = coefValue;
 		}
 		
 	}
@@ -324,8 +340,5 @@ public class BiogemeSimulator {
 		headers += headers + UtilsTS.alternative + "_DEF" + Utils.COLUMN_DELIMETER + UtilsTS.sim + "_DEF";
 		myOutputFileWriter.WriteToFile(headers);
 	}
-
-
-
 
 }
