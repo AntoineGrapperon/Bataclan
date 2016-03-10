@@ -47,6 +47,7 @@ public class BiogemeSimulator {
 	
 	public BiogemeSimulator(BiogemeControlFileGenerator ctrlGen){
 		myCtrlGen = ctrlGen;
+		extractChoiceUniverse();
 	}
 	
 	public void setHypothesis(){
@@ -55,7 +56,7 @@ public class BiogemeSimulator {
 		addHypothesis(constants);
 	}
 	
-	@Deprecated
+	
 	public ArrayList<BiogemeAgent> initialize(String path ) throws IOException{
 		myReader.OpenFile(path);
 		createAgents();
@@ -96,13 +97,15 @@ public class BiogemeSimulator {
 		return constants;
 	}
 
-	public void applyModelOnTravelSurveyPopulation(String outputPath) throws IOException{
+	public void applyModelOnTravelSurveyPopulation(String outputPath, int mode) throws IOException{
 		int n = 0;
 		int N = myPopulationSample.size();
 		for(BiogemeAgent person: myPopulationSample){
-			ArrayList<Integer> choiceSet = person.processChoiceSetFromTravelSurvey();
-			//System.out.println(choiceSet);
-			
+			ArrayList<BiogemeChoice> choiceSet = new ArrayList<BiogemeChoice>();
+			if(mode == 1){choiceSet = modelChoiceUniverse;;}
+			else if(mode == 2){choiceSet = person.generateChoiceSetFromTravelSurvey();}
+			else if(mode == 3){choiceSet = person.generateChoiceSetFromTravelSurveyCHEAT();}
+
 			person.applyModel(choiceSet);
 			n++;
 			if(n%1000 == 0){
@@ -139,8 +142,18 @@ public class BiogemeSimulator {
 	private String getChoice(String string) {
 		// TODO Auto-generated method stub
 		for(BiogemeChoice temp: myCtrlGen.choiceIndex){
-			if(temp.biogeme_id == Integer.parseInt(string)){
+			if(temp.biogeme_group_id == Integer.parseInt(string)){
 				return temp.getConstantName();
+			}
+		}
+		return null;
+	}
+	
+	public static BiogemeChoice getChoice(int groupId) {
+		// TODO Auto-generated method stub
+		for(BiogemeChoice temp: modelChoiceUniverse){
+			if(temp.biogeme_group_id == groupId){
+				return temp;
 			}
 		}
 		return null;
@@ -206,7 +219,7 @@ public class BiogemeSimulator {
 	
 
 
-	@Deprecated
+	
 	public void createAgents() throws IOException
     {
     	 ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
@@ -225,7 +238,7 @@ public class BiogemeSimulator {
     	 }
     }
 	
-	@Deprecated
+	
 	public ArrayList<ArrayList<String>> getData() throws IOException
     {
     	String line=null;
@@ -296,7 +309,6 @@ public class BiogemeSimulator {
 		if(coefName.equals("STO")){
 			stoScale = coefValue;
 		}
-		
 	}
 	
 	public void printHypothesis(String path) throws IOException{

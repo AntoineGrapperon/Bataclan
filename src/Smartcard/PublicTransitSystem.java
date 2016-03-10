@@ -176,7 +176,7 @@ public class PublicTransitSystem {
 	 * @return
 	 * @throws IOException
 	 */
-	private double[][] createLocalCostMatrix(ArrayList<BiogemeAgent> myPopulation, ArrayList<Smartcard> mySmartcards) throws IOException{
+	/*private double[][] createLocalCostMatrix(ArrayList<BiogemeAgent> myPopulation, ArrayList<Smartcard> mySmartcards) throws IOException{
 		int n = 0;
 		int N = myPopulation.size();
 		int M = mySmartcards.size();
@@ -191,7 +191,7 @@ public class PublicTransitSystem {
 			rowIndex++;
 		}
 		return costMatrix;
-	}
+	}*/
 	
 	private double[][] createLocalCostMatrix(
 			ArrayList<BiogemeAgent> myPopulation, 
@@ -360,6 +360,32 @@ public class PublicTransitSystem {
 		}
 	}
 	
+	public void processMatchingOnPtRiders() throws IOException {
+		// TODO Auto-generated method stub
+		int count = 0;
+		
+		assignColumnIndex(mySmartcards);
+		HashMap<Double, ArrayList<Smartcard>> zonalSmartcardIndex = createZonalSmartcardIndex(mySmartcards);
+		
+		ArrayList<BiogemeAgent> ptRiders = getPtRiders(myPopulation, mySmartcards.size());
+		double[][] costMatrix = createLocalCostMatrix(ptRiders, mySmartcards, zonalSmartcardIndex);
+	
+					
+		int[] result;
+		HungarianAlgorithm hu =new HungarianAlgorithm(costMatrix);
+		result=hu.execute();
+
+		for(int j=0;j<result.length;j++){
+			if(mySmartcards.size()>result[j]){
+				mySmartcards.get(result[j]).isDistributed = true;
+				ptRiders.get(j).isDistributed = true;
+				ptRiders.get(j).smartcard = mySmartcards.get(result[j]).cardId;
+			}
+			else{
+			}
+		} 
+	}
+	
 	public void processMatchingStationByStation() throws IOException {
 		// TODO Auto-generated method stub
 		int count = 0;
@@ -379,8 +405,8 @@ public class PublicTransitSystem {
 					assignColumnIndex(currLocalSmartcards);
 					HashMap<Double, ArrayList<Smartcard>> zonalSmartcardIndex = createZonalSmartcardIndex(currLocalSmartcards);
 					
-					ArrayList<BiogemeAgent> ptRiders = getPtRiders(currLocalPopulation, currLocalSmartcards.size());
-					double[][] costMatrix = createLocalCostMatrix(ptRiders, currLocalSmartcards, zonalSmartcardIndex);
+					
+					double[][] costMatrix = createLocalCostMatrix(currLocalPopulation, currLocalSmartcards, zonalSmartcardIndex);
 					//double[][] costMatrix = createLocalCostMatrix(currLocalPopulation, currLocalSmartcards, zonalSmartcardIndex);
 					
 					System.out.println("count : " + count + 
@@ -475,7 +501,7 @@ public class PublicTransitSystem {
 	}
 
 	
-
+	/*
 	public void processMatchingZoneByZone() throws IOException {
 		// TODO Auto-generated method stub
 		for(double zoneId: zonalChoiceSets.keySet()){
@@ -513,7 +539,7 @@ public class PublicTransitSystem {
 			write.close();
 		}
 			
-	}
+	}*/
 
 	public void printSmartcards(String path) throws IOException {
 		// TODO Auto-generated method stub

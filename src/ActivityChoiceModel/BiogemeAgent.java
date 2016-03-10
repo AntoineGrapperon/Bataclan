@@ -37,8 +37,20 @@ public class BiogemeAgent {
 			myAttributes.put(attributeNames.get(i), attributeValues.get(i));
 		}
 	}
+	
+	public void applyModel(ArrayList<BiogemeChoice> choiceSet) {
+		// TODO Auto-generated method stub
+		computeUtilities(choiceSet);
+		ArrayList<Double> choiceCumProb = getChoicesCumulativeProbabilities(choiceSet);
+		int choiceIndex = antitheticDraw(choiceCumProb);
+		BiogemeChoice choice = choiceSet.get(choiceIndex);
+		myAttributes.put(UtilsTS.sim, Integer.toString(choiceSet.get(choiceIndex).biogeme_group_id));
+		
+	}
 
-	@Deprecated
+	
+
+	/*
 	public void applyModel(ArrayList<Integer> choiceSet) {
 		// TODO Auto-generated method stub
 		//rigth I am just able to apply dummies
@@ -86,13 +98,13 @@ public class BiogemeAgent {
 					utility += currH.getCoefficientValue() * currChoice.getAffectingValue(currH, this);
 				}
 			}
-			utilities.add(utility);*/
+			utilities.add(utility);
 		}
 		
 		ArrayList<Double> cumProbabilities = processUtilities(utilities);
 		int choiceIndex = antitheticDraw(cumProbabilities);
 		myAttributes.put(UtilsTS.sim, Integer.toString(choiceSet.get(choiceIndex)));
-	}
+	}*/
 	
 	/*public void applyModelSmartcard(ArrayList<BiogemeChoice> choiceSet) {
 		// TODO Auto-generated method stub
@@ -153,14 +165,38 @@ public class BiogemeAgent {
 		return cumProbabilities;
 	}
 
-	public ArrayList<Integer> processChoiceSetFromTravelSurvey() {
+	public ArrayList<BiogemeChoice> generateChoiceSetFromTravelSurveyCHEAT() {
 		// TODO Auto-generated method stub
-		ArrayList<Integer> choiceSet = new ArrayList<Integer>();
+		ArrayList<BiogemeChoice> choiceSet = new ArrayList<BiogemeChoice>();
+		boolean pt = false;
 		for(String header: myAttributes.keySet()){
 			//System.out.println(header);
 			//System.out.println(header);
 			if(header.contains(UtilsTS.alternative)){
-				choiceSet.add(Integer.parseInt(myAttributes.get(header)));
+				int choiceIndex = Integer.parseInt(myAttributes.get(header));
+				BiogemeChoice curChoice = BiogemeSimulator.getChoice(choiceIndex);
+				if(curChoice.getConstantName().equals(UtilsTS.noPt) && !pt){
+					choiceSet.add(curChoice);
+					pt = true;
+				}
+				else if(!curChoice.getConstantName().equals(UtilsTS.noPt)){
+					choiceSet.add(curChoice);
+				}
+			}
+		}
+		return choiceSet;
+	}
+	
+	public ArrayList<BiogemeChoice> generateChoiceSetFromTravelSurvey() {
+		// TODO Auto-generated method stub
+		ArrayList<BiogemeChoice> choiceSet = new ArrayList<BiogemeChoice>();
+		for(String header: myAttributes.keySet()){
+			//System.out.println(header);
+			//System.out.println(header);
+			if(header.contains(UtilsTS.alternative)){
+				int choiceIndex = Integer.parseInt(myAttributes.get(header));
+				BiogemeChoice curChoice = BiogemeSimulator.getChoice(choiceIndex);
+				choiceSet.add(curChoice);
 			}
 		}
 		return choiceSet;
@@ -184,7 +220,7 @@ public class BiogemeAgent {
 		return index;
 	}
 
-	public ArrayList<Smartcard> generateChoiceSet(int choiceSetSize) {
+	/*public ArrayList<Smartcard> generateChoiceSet(int choiceSetSize) {
 		// TODO Auto-generated method stub
 		double myZone = Double.parseDouble(myAttributes.get(UtilsSM.zoneId));
 		//ArrayList<Integer> myStations = PublicTransitSystem.geoDico.get(myZone);
@@ -234,7 +270,7 @@ public class BiogemeAgent {
 		Smartcard stayHome = PublicTransitSystem.myCtrlGen.getStayHomeChoice();
 		choiceSet.add(stayHome);
 		return choiceSet;
-	}
+	}*/
 	
 	public ArrayList<Smartcard> generateChoiceSet(int choiceSetSize, 
 			HashMap<Double,ArrayList<Smartcard>> closeSmartcards){
@@ -449,6 +485,42 @@ public class BiogemeAgent {
 		
 		return cumProb;
 	}
+	
+	private ArrayList<Double> getChoicesCumulativeProbabilities(ArrayList<BiogemeChoice> myChoices) {
+		// TODO Auto-generated method stub
+		ArrayList<Double> cumProb = new ArrayList<Double>();
+		double logsumStoNest = 0;
+		double logsumNoPtNest = 0;
+		double noPtScale = BiogemeSimulator.noPtScale;
+		double stoScale = BiogemeSimulator.stoScale;
+		
+		for(BiogemeChoice curChoice: myChoices){
+			if(curChoice.biogeme_group_id == 0){
+				logsumNoPtNest+= Math.exp(noPtScale * curChoice.utility);
+			}
+			else{
+				logsumStoNest += Math.exp(stoScale * curChoice.utility);
+			}
+		}
+		logsumNoPtNest = Math.log(logsumNoPtNest);
+		logsumStoNest = Math.log(logsumStoNest);
+		double cumP = 0;
+		for(int i = 0; i < myChoices.size(); i++){
+			BiogemeChoice curChoice = myChoices.get(i);
+			double thisProb = 0;
+			if(curChoice.biogeme_group_id == 0){
+				thisProb = (Math.exp(noPtScale * curChoice.utility) / Math.exp(logsumNoPtNest)) *
+						(Math.exp(logsumNoPtNest/noPtScale) / (Math.exp(logsumNoPtNest/noPtScale) +Math.exp(logsumStoNest/stoScale)));
+			}
+			else{
+				thisProb = (Math.exp(stoScale * curChoice.utility) / Math.exp(logsumStoNest)) *
+						(Math.exp(logsumStoNest/stoScale) / (Math.exp(logsumNoPtNest/noPtScale) +Math.exp(logsumStoNest/stoScale) ));
+			}
+			cumP+=thisProb;
+			cumProb.add(cumP);
+		}
+		return cumProb;
+	}
 
 	private void computeUtilities(ArrayList<BiogemeChoice> choiceSet){
 		
@@ -487,7 +559,7 @@ public class BiogemeAgent {
 		}
 	}
 	
-	
+	/*
 	@Deprecated
 	public void createAndWeighChoiceSet(int choiceSetSize) {
 		// TODO Auto-generated method stub
@@ -579,7 +651,7 @@ public class BiogemeAgent {
 			currChoice.probability = currProbability;
 		}
 		myChoices.addAll(choiceSet);
-	}
+	}*/
 	
 	/*public HashMap<Integer,Double> getChoiceSet(int size, int smartcardCount) {
 		// TODO Auto-generated method stub

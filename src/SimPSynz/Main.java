@@ -185,7 +185,7 @@ public class Main {
 	    	//Load hypothesis and dimension for the Joint model with Biogeme
 	    	//############################################################################################
 	    	
-	    	/*String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file.txt";
+	    	String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file.txt";
 			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrl.mod";
 			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypothesis7.txt";
 			BiogemeControlFileGenerator myCtrlGenerator = new BiogemeControlFileGenerator();
@@ -220,14 +220,15 @@ public class Main {
 			
 			/*mySimulator = new BiogemeSimulator(myCtrlGenerator);
 			mySimulator.initialize(Utils.DATA_DIR + "biogeme\\data.csv");
-			mySimulator.importBiogemeModel(Utils.DATA_DIR + "biogeme\\ctrl6.F12");
-			mySimulator.applyModelOnTravelSurveyPopulation(Utils.DATA_DIR + "biogeme\\simulationResults.csv");*/
+			mySimulator.importBiogemeModel(Utils.DATA_DIR + "biogeme\\ctrlNest80.F12");
+			mySimulator.importNest(Utils.DATA_DIR + "biogeme\\ctrlNest80.F12");
+			mySimulator.applyModelOnTravelSurveyPopulation(Utils.DATA_DIR + "biogeme\\simulationResultsCHEAT.csv",3);*/
 			
 			//############################################################################################
 	    	//Load Smartcard data and process them to label with a choice id
 	    	//############################################################################################
 			
-	    	String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file.txt";
+	    	/*String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file.txt";
 			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrl.mod";
 			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypothesis6.txt";
 			BiogemeControlFileGenerator myCtrlGenerator = new BiogemeControlFileGenerator();
@@ -256,7 +257,8 @@ public class Main {
 			
 			//########
 			Utils.occupationCriterion = false;
-			myPublicTransitSystem.processMatchingStationByStation();
+			//myPublicTransitSystem.processMatchingStationByStation();
+			myPublicTransitSystem.processMatchingOnPtRiders();
 			myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSMstation.csv");
 			
 			myCtrlGenerator = null;
@@ -287,7 +289,8 @@ public class Main {
 			//myPublicTransitSystem.printStation(Utils.DATA_DIR + "ptSystem\\station_smartcard.csv");
 			System.out.println("--potential smartcard assigned");
 			Utils.occupationCriterion = true;
-			myPublicTransitSystem.processMatchingStationByStation();
+			//myPublicTransitSystem.processMatchingStationByStation();
+			myPublicTransitSystem.processMatchingOnPtRiders();
 			myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSMstationWithChoiceSetControl.csv");
 			
 
