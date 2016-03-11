@@ -185,7 +185,7 @@ public class Main {
 	    	//Load hypothesis and dimension for the Joint model with Biogeme
 	    	//############################################################################################
 	    	
-	    	String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file.txt";
+	    	/*String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file.txt";
 			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrl.mod";
 			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypothesis7.txt";
 			BiogemeControlFileGenerator myCtrlGenerator = new BiogemeControlFileGenerator();
@@ -228,9 +228,9 @@ public class Main {
 	    	//Load Smartcard data and process them to label with a choice id
 	    	//############################################################################################
 			
-	    	/*String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file.txt";
+	    	String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file.txt";
 			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrl.mod";
-			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypothesis6.txt";
+			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypothesis7.txt";
 			BiogemeControlFileGenerator myCtrlGenerator = new BiogemeControlFileGenerator();
 			
 			PublicTransitSystem myPublicTransitSystem = new PublicTransitSystem();
@@ -246,7 +246,7 @@ public class Main {
 					Utils.DATA_DIR + "ptSystem\\stops.txt",
 					Utils.DATA_DIR + "ptSystem\\geoDico500.csv",
 					Utils.DATA_DIR + "ptSystem\\population.csv",
-					Utils.DATA_DIR + "biogeme\\ctrl1.F12"
+					Utils.DATA_DIR + "biogeme\\ctrlNest80.F12"
 					);
 			System.out.println("--pt system initialized");
 			myPublicTransitSystem.createZonalSmartcardIndex();
@@ -259,7 +259,7 @@ public class Main {
 			Utils.occupationCriterion = false;
 			//myPublicTransitSystem.processMatchingStationByStation();
 			myPublicTransitSystem.processMatchingOnPtRiders();
-			myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSMstation.csv");
+			myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSM.csv");
 			
 			myCtrlGenerator = null;
 			myPublicTransitSystem = null;
@@ -291,7 +291,7 @@ public class Main {
 			Utils.occupationCriterion = true;
 			//myPublicTransitSystem.processMatchingStationByStation();
 			myPublicTransitSystem.processMatchingOnPtRiders();
-			myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSMstationWithChoiceSetControl.csv");
+			myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSMWithChoiceSetControl.csv");
 			
 
 			//###############################################################################

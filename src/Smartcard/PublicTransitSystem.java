@@ -210,7 +210,8 @@ public class PublicTransitSystem {
 			if(zonalSmartcardIndex.containsKey(zoneId)){
 				//ArrayList<Smartcard> choiceSet = person.generateChoiceSet(UtilsSM.choiceSetSize, zonalSmartcardIndex);
 				ArrayList<Smartcard> choiceSet = person.generateChoiceSet(zonalSmartcardIndex);
-				person.processSmartcardChoiceSet(choiceSet);
+				person.computeUtilities(choiceSet);
+				//person.processSmartcardChoiceSet(choiceSet);
 				//person.createAndWeighChoiceSet(UtilsSM.choiceSetSize, zonalSmartcardIndex );
 				costMatrix[rowIndex] = person.writeCosts(N, M);
 				rowIndex++;

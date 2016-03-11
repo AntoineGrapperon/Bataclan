@@ -23,7 +23,7 @@ public class BiogemeAgent {
 	
 	public HashMap<String, String> myAttributes;
 	protected static RandomNumberGen randGen = new RandomNumberGen();
-	ArrayList<BiogemeChoice> myChoices = new ArrayList<BiogemeChoice>();
+	ArrayList<? extends BiogemeChoice> myChoices = new ArrayList<BiogemeChoice>();
 	public boolean isDistributed = false;
 	public double smartcard = 0.0;
 	
@@ -359,9 +359,10 @@ public class BiogemeAgent {
 					}
 				}
 			}
-			Smartcard stayHome = PublicTransitSystem.myCtrlGen.getStayHomeChoice();
-			agentChoiceSet.add(stayHome);
+			/*Smartcard stayHome = PublicTransitSystem.myCtrlGen.getStayHomeChoice();
+			agentChoiceSet.add(stayHome);*/
 		}
+		myChoices = agentChoiceSet;
 		return agentChoiceSet;
 	}
 	
@@ -376,20 +377,31 @@ public class BiogemeAgent {
 			newRow[i] = Double.MAX_VALUE;
 		}
 		for(BiogemeChoice currChoice: myChoices){
+			double cost = 100 - currChoice.utility;
 			if(currChoice.getConstantName().equals(UtilsSM.noPt)){
-				double stayHomeCost = currChoice.probability;
-				stayHomeCost = 1/stayHomeCost;
+				//double stayHomeCost = currChoice.probability;
 				for(int i = smartcardCount; i < size; i++){
-					newRow[i] = stayHomeCost;
+					newRow[i] = cost;
 				}
 			}
 			else{
-				newRow[((Smartcard)currChoice).columnId] = 1/currChoice.probability;//maybe not "probability, but something like it.
+				newRow[((Smartcard)currChoice).columnId] = cost;
 			}
 		}
 		return newRow;
 	}
 	
+	/*public <T> void processSmartcardChoiceSet(ArrayList<T> choiceSet2){
+		ArrayList<Double> utilities	 = new ArrayList<Double>();
+		ArrayList<BiogemeChoice> choiceSet =(ArrayList <BiogemeChoice>)choiceSet2;
+		for(int i = 0; i < choiceSet.size(); i++){
+			
+			computeUtilities((ArrayList <BiogemeChoice>)choiceSet);
+			double utility = 0;
+			//int choiceId = choiceSet.get(i).biogeme_group_id;
+			BiogemeChoice currChoice = choiceSet.get(i);*/
+	
+	@Deprecated
 	public void processSmartcardChoiceSet(ArrayList<Smartcard> choiceSet){
 		ArrayList<Double> utilities	 = new ArrayList<Double>();
 		for(int i = 0; i < choiceSet.size(); i++){
@@ -437,7 +449,7 @@ public class BiogemeAgent {
 			currProbability = Math.exp(currChoice.utility) / logsum;
 			currChoice.probability = currProbability;
 		}
-		myChoices.addAll(choiceSet);
+		myChoices = choiceSet;
 	}
 	
 	public boolean isStoRider() {
@@ -522,7 +534,7 @@ public class BiogemeAgent {
 		return cumProb;
 	}
 
-	private void computeUtilities(ArrayList<BiogemeChoice> choiceSet){
+	public void computeUtilities(ArrayList<? extends BiogemeChoice> choiceSet){
 		
 		for(int i = 0; i < choiceSet.size(); i++){
 			
@@ -557,6 +569,7 @@ public class BiogemeAgent {
 			}
 			currChoice.utility = utility;
 		}
+		myChoices = choiceSet;
 	}
 	
 	/*
