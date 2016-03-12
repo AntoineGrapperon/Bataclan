@@ -94,6 +94,7 @@ public class PublicTransitSystem {
 	}
 	
 	private HashMap<Double, ArrayList<Smartcard>> createZonalSmartcardIndex(ArrayList<Smartcard> mySmartcards){
+		
 		HashMap<Double, ArrayList<Smartcard>> localZonalChoiceSets = new HashMap<Double, ArrayList<Smartcard>>();
 		for(double currZone : geoDico.keySet()){
 			ArrayList<Integer> closeStations = geoDico.get(currZone);
@@ -221,7 +222,7 @@ public class PublicTransitSystem {
 				for(int i = 0; i < myPopulation.size(); i++){newRow[i] = 999999.00;}
 				costMatrix[rowIndex] = newRow;
 				rowIndex++;
-				System.out.println("--this guy shouldn't be there...");
+				//System.out.println("--this guy shouldn't be there...");
 			}
 		}
 		return costMatrix;
@@ -368,7 +369,8 @@ public class PublicTransitSystem {
 		assignColumnIndex(mySmartcards);
 		HashMap<Double, ArrayList<Smartcard>> zonalSmartcardIndex = createZonalSmartcardIndex(mySmartcards);
 		
-		ArrayList<BiogemeAgent> ptRiders = getPtRiders(myPopulation, mySmartcards.size());
+		ArrayList<BiogemeAgent> ptRiders = getPtRiders(zonalPopulation, zonalChoiceSets);
+		System.out.println("--pt riders generated");
 		double[][] costMatrix = createLocalCostMatrix(ptRiders, mySmartcards, zonalSmartcardIndex);
 	
 					
@@ -434,21 +436,27 @@ public class PublicTransitSystem {
 	
 
 
-	private ArrayList<BiogemeAgent> getPtRiders(ArrayList<BiogemeAgent> currLocalPopulation, int size) {
+	private ArrayList<BiogemeAgent> getPtRiders(HashMap<Double, ArrayList<BiogemeAgent>> zonalPopulationIndex, HashMap<Double, ArrayList<Smartcard>> zonalChoiceSetsIndex) {
 		// TODO Auto-generated method stub
 		
 		int i = 0;
 		ArrayList<BiogemeAgent> ptRiders = new ArrayList<BiogemeAgent>();
 		Random r = new Random();
 		
-		while(i<size){
-			int n = r.nextInt(currLocalPopulation.size());
-			BiogemeAgent curAgent = currLocalPopulation.get(n);
-			if(curAgent.isStoRider()){
-				ptRiders.add(curAgent);
-				i++;
+		for(double zoneId: zonalChoiceSetsIndex.keySet()){
+			ArrayList<BiogemeAgent> localPop = zonalPopulationIndex.get(zoneId);
+			while(i<zonalChoiceSetsIndex.get(zoneId).size()){
+				int n = r.nextInt(localPop.size());
+				BiogemeAgent curAgent = localPop.get(n);
+				if(curAgent.isStoRider()&& !curAgent.isDistributed){
+					curAgent.isDistributed = true;
+					ptRiders.add(curAgent);
+					i++;
+				}
 			}
 		}
+		
+		
 		return ptRiders;
 	}
 
