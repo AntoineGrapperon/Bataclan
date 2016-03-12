@@ -280,7 +280,7 @@ public class Main {
 					Utils.DATA_DIR + "ptSystem\\stops.txt",
 					Utils.DATA_DIR + "ptSystem\\geoDico500.csv",
 					Utils.DATA_DIR + "ptSystem\\population.csv",
-					Utils.DATA_DIR + "biogeme\\ctrl1.F12"
+					Utils.DATA_DIR + "biogeme\\ctrlNest80.F12"
 					);
 			System.out.println("--pt system initialized");
 			myPublicTransitSystem.createZonalSmartcardIndex();

@@ -84,7 +84,10 @@ public class PublicTransitSystem {
 			Iterator<Smartcard> universalChoiceSet = mySmartcards.iterator();
 			while(universalChoiceSet.hasNext()){
 				Smartcard currCard = universalChoiceSet.next();
-				if(closeStations.contains(currCard.stationId)){
+				if(currCard.stationId == 1 || currCard.stationId == 2){
+					
+				}
+				else if(closeStations.contains(currCard.stationId)){
 					zonalChoiceSet.add(currCard);
 				}
 			}
@@ -102,7 +105,10 @@ public class PublicTransitSystem {
 			Iterator<Smartcard> universalChoiceSet = mySmartcards.iterator();
 			while(universalChoiceSet.hasNext()){
 				Smartcard currCard = universalChoiceSet.next();
-				if(closeStations.contains(currCard.stationId)){
+				if(currCard.stationId == 1 || currCard.stationId == 2){
+					
+				}
+				else if(closeStations.contains(currCard.stationId)){
 					zonalChoiceSet.add(currCard);
 				}
 			}
@@ -222,7 +228,7 @@ public class PublicTransitSystem {
 				for(int i = 0; i < myPopulation.size(); i++){newRow[i] = 999999.00;}
 				costMatrix[rowIndex] = newRow;
 				rowIndex++;
-				//System.out.println("--this guy shouldn't be there...");
+				System.out.println("--this guy shouldn't be there...");
 			}
 		}
 		return costMatrix;
@@ -367,11 +373,13 @@ public class PublicTransitSystem {
 		int count = 0;
 		
 		assignColumnIndex(mySmartcards);
-		HashMap<Double, ArrayList<Smartcard>> zonalSmartcardIndex = createZonalSmartcardIndex(mySmartcards);
-		
-		ArrayList<BiogemeAgent> ptRiders = getPtRiders(zonalPopulation, zonalChoiceSets);
+		HashMap<Double, ArrayList<Smartcard>> zonalSmartcardIndex = zonalChoiceSets;// createZonalSmartcardIndex(mySmartcards);
+		System.out.println("--prepare to get pt riders");
+		ArrayList<BiogemeAgent> ptRiders = getPtRiders();
 		System.out.println("--pt riders generated");
-		double[][] costMatrix = createLocalCostMatrix(ptRiders, mySmartcards, zonalSmartcardIndex);
+		ArrayList<Smartcard> consistentSmartcards = sortSmartcard(mySmartcards);
+		
+		double[][] costMatrix = createLocalCostMatrix(ptRiders, consistentSmartcards, zonalSmartcardIndex);
 	
 					
 		int[] result;
@@ -389,6 +397,20 @@ public class PublicTransitSystem {
 		} 
 	}
 	
+	private ArrayList<Smartcard> sortSmartcard(ArrayList<Smartcard> mySmartcards2) {
+		// TODO Auto-generated method stub
+		ArrayList<Smartcard> sorted = new ArrayList<Smartcard>();
+		for(Smartcard sm: mySmartcards){
+			if(sm.stationId == 1 || sm.stationId == 2){
+				
+			}
+			else{
+				sorted.add(sm);
+			}
+		}
+		return sorted;
+	}
+
 	public void processMatchingStationByStation() throws IOException {
 		// TODO Auto-generated method stub
 		int count = 0;
@@ -436,27 +458,33 @@ public class PublicTransitSystem {
 	
 
 
-	private ArrayList<BiogemeAgent> getPtRiders(HashMap<Double, ArrayList<BiogemeAgent>> zonalPopulationIndex, HashMap<Double, ArrayList<Smartcard>> zonalChoiceSetsIndex) {
+	private ArrayList<BiogemeAgent> getPtRiders() {
 		// TODO Auto-generated method stub
 		
 		int i = 0;
 		ArrayList<BiogemeAgent> ptRiders = new ArrayList<BiogemeAgent>();
 		Random r = new Random();
 		
-		for(double zoneId: zonalChoiceSetsIndex.keySet()){
-			ArrayList<BiogemeAgent> localPop = zonalPopulationIndex.get(zoneId);
-			while(i<zonalChoiceSetsIndex.get(zoneId).size()){
-				int n = r.nextInt(localPop.size());
-				BiogemeAgent curAgent = localPop.get(n);
-				if(curAgent.isStoRider()&& !curAgent.isDistributed){
-					curAgent.isDistributed = true;
-					ptRiders.add(curAgent);
-					i++;
+		for(Station st: myStations.values()){
+			if(st.myId==1 || st.myId == 2){
+				
+			}
+			else{
+				ArrayList<Smartcard> localSm = st.getSmartcards();
+				if(localSm.size()>0){
+					ArrayList<BiogemeAgent> localPop = st.getLocalPopulation();
+					while(i<localSm.size()){
+						int n = r.nextInt(localPop.size());
+						BiogemeAgent curAgent = localPop.get(n);
+						if(curAgent.isStoRider()&& !curAgent.isDistributed){
+							curAgent.isDistributed = true;
+							ptRiders.add(curAgent);
+							i++;
+						}
+					}
 				}
 			}
-		}
-		
-		
+		}		
 		return ptRiders;
 	}
 
