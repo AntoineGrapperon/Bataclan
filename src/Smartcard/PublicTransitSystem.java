@@ -473,19 +473,94 @@ public class PublicTransitSystem {
 				ArrayList<Smartcard> localSm = st.getSmartcards();
 				if(localSm.size()>0){
 					ArrayList<BiogemeAgent> localPop = st.getLocalPopulation();
-					while(i<localSm.size()){
-						int n = r.nextInt(localPop.size());
-						BiogemeAgent curAgent = localPop.get(n);
-						if(curAgent.isStoRider()&& !curAgent.isDistributed){
-							curAgent.isDistributed = true;
-							ptRiders.add(curAgent);
-							i++;
+					
+					if(!Utils.occupationCriterion){
+						while(i<localSm.size()){
+							int n = r.nextInt(localPop.size());
+							BiogemeAgent curAgent = localPop.get(n);
+							if(curAgent.isStoRider()&& !curAgent.isDistributed){
+								curAgent.isDistributed = true;
+								ptRiders.add(curAgent);
+								i++;
+							}
 						}
 					}
+					else{
+						int nRegularCards = getRegularCardCount(localSm);
+						int nStudentCards = getStudentCardCount(localSm);
+						int nRetireeCards = getRetireeCardCount(localSm);
+						int regCount = 0;
+						int stdtCount = 0;
+						int retCount = 0;
+						while(regCount<nRegularCards){
+							int n = r.nextInt(localPop.size());
+							BiogemeAgent curAgent = localPop.get(n);
+							int occupation = Integer.parseInt(curAgent.myAttributes.get(UtilsSM.dictionnary.get(UtilsTS.occupation)));
+							if(curAgent.isStoRider()&& !curAgent.isDistributed && (occupation == 0 || occupation == 3)){
+								curAgent.isDistributed = true;
+								ptRiders.add(curAgent);
+								i++;
+							}
+						}
+						while(stdtCount<nStudentCards){
+							int n = r.nextInt(localPop.size());
+							BiogemeAgent curAgent = localPop.get(n);
+							int occupation = Integer.parseInt(curAgent.myAttributes.get(UtilsSM.dictionnary.get(UtilsTS.occupation)));
+							if(curAgent.isStoRider()&& !curAgent.isDistributed && occupation == 1 ){
+								curAgent.isDistributed = true;
+								ptRiders.add(curAgent);
+								i++;
+							}
+						}
+						while(retCount<nRetireeCards){
+							int n = r.nextInt(localPop.size());
+							BiogemeAgent curAgent = localPop.get(n);
+							int occupation = Integer.parseInt(curAgent.myAttributes.get(UtilsSM.dictionnary.get(UtilsTS.occupation)));
+							if(curAgent.isStoRider()&& !curAgent.isDistributed && occupation == 2){
+								curAgent.isDistributed = true;
+								ptRiders.add(curAgent);
+								i++;
+							}
+						}
+					}
+					
 				}
 			}
 		}		
 		return ptRiders;
+	}
+
+	private int getRetireeCardCount(ArrayList<Smartcard> localSm) {
+		// TODO Auto-generated method stub
+		int count = 0;
+		for(Smartcard sm:localSm){
+			if(sm.fare == 0){
+				count++;
+			}
+		}
+		return count;
+	}
+
+	private int getStudentCardCount(ArrayList<Smartcard> localSm) {
+		// TODO Auto-generated method stub
+		int count = 0;
+		for(Smartcard sm:localSm){
+			if(sm.fare == 1){
+				count++;
+			}
+		}
+		return count;
+	}
+
+	private int getRegularCardCount(ArrayList<Smartcard> localSm) {
+		// TODO Auto-generated method stub
+		int count = 0;
+		for(Smartcard sm:localSm){
+			if(sm.fare == 2){
+				count++;
+			}
+		}
+		return count;
 	}
 
 	public void localRandomMatch() {

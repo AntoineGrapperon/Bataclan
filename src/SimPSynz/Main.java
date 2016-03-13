@@ -256,42 +256,12 @@ public class Main {
 			System.out.println("--potential smartcard assigned");
 			
 			//########
-			Utils.occupationCriterion = false;
-			//myPublicTransitSystem.processMatchingStationByStation();
-			myPublicTransitSystem.processMatchingOnPtRiders();
-			myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSM.csv");
-			
-			myCtrlGenerator = null;
-			myPublicTransitSystem = null;
-			
-
-			myCtrlGenerator = new BiogemeControlFileGenerator();
-			
-			myPublicTransitSystem = new PublicTransitSystem();
-			
-	    	myCtrlGenerator.initialize(pathControlFile, pathOutput, pathHypothesis);
-			//myCtrlGenerator.generateBiogemeControlFile();
-			//myCtrlGenerator.printChoiceIndex(Utils.DATA_DIR + "biogeme\\choiceIndex.csv");
-			System.out.println("-- control file generator initiated");
-			
-			myPublicTransitSystem.initialize(
-					myCtrlGenerator, 
-					Utils.DATA_DIR + "ptSystem\\smartcardData.txt", 
-					Utils.DATA_DIR + "ptSystem\\stops.txt",
-					Utils.DATA_DIR + "ptSystem\\geoDico500.csv",
-					Utils.DATA_DIR + "ptSystem\\population.csv",
-					Utils.DATA_DIR + "biogeme\\ctrlNest80.F12"
-					);
-			System.out.println("--pt system initialized");
-			myPublicTransitSystem.createZonalSmartcardIndex();
-			myPublicTransitSystem.createZonalPopulationIndex();
-			
-			//myPublicTransitSystem.printStation(Utils.DATA_DIR + "ptSystem\\station_smartcard.csv");
-			System.out.println("--potential smartcard assigned");
 			Utils.occupationCriterion = true;
 			//myPublicTransitSystem.processMatchingStationByStation();
 			myPublicTransitSystem.processMatchingOnPtRiders();
-			myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSMWithChoiceSetControl.csv");
+			myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSMWithChoiceSet.csv");
+			
+			
 			
 
 			//###############################################################################
