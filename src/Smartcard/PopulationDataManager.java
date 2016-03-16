@@ -23,7 +23,17 @@ public class PopulationDataManager extends DataManager {
 	public ArrayList<BiogemeAgent> getAgents(String path) throws IOException{
 		initialize(path);
 		createAgents();
+		setIndex();
 		return myPopulation;
+	}
+
+	private void setIndex() {
+		// TODO Auto-generated method stub
+		int count = 0;
+		for(BiogemeAgent ag: myPopulation){
+			ag.myAttributes.put(UtilsSM.agentId, Integer.toString(count));
+			count++;
+		}
 	}
 
 	private void createAgents() {
@@ -37,8 +47,7 @@ public class PopulationDataManager extends DataManager {
 				String value = myData.get(key).get(i);
 				newAgent.myAttributes.put(key, value);
 			}
-			myPopulation.add(newAgent);
-			
+			myPopulation.add(newAgent);	
 		}
 	}
 }

@@ -211,7 +211,7 @@ public class PublicTransitSystem {
 		int M = mySmartcards.size();
 		int rowIndex = 0;
 		double[][] costMatrix = new double[N][N];
-		
+		int count = 0;
 		for(BiogemeAgent person: myPopulation){
 			double zoneId = Double.parseDouble(person.myAttributes.get(UtilsSM.zoneId));
 			if(zonalSmartcardIndex.containsKey(zoneId)){
@@ -230,6 +230,8 @@ public class PublicTransitSystem {
 				rowIndex++;
 				System.out.println("--this guy shouldn't be there...");
 			}
+			if(count%1000 ==0){System.out.println("processed agent: " + count);}
+			count++;
 		}
 		return costMatrix;
 	}
@@ -370,14 +372,18 @@ public class PublicTransitSystem {
 	
 	public void processMatchingOnPtRiders() throws IOException {
 		// TODO Auto-generated method stub
-		int count = 0;
-		
-		assignColumnIndex(mySmartcards);
 		HashMap<Double, ArrayList<Smartcard>> zonalSmartcardIndex = zonalChoiceSets;// createZonalSmartcardIndex(mySmartcards);
 		System.out.println("--prepare to get pt riders");
-		ArrayList<BiogemeAgent> ptRiders = getPtRiders();
+		ArrayList<Station> stations = new ArrayList<Station>();
+		for(Station st: myStations.values()){
+			stations.add(st);
+		}
+		ArrayList<BiogemeAgent> ptRiders = getPtRiders(stations);
 		System.out.println("--pt riders generated");
+		
+		
 		ArrayList<Smartcard> consistentSmartcards = sortSmartcard(mySmartcards);
+		assignColumnIndex(consistentSmartcards);
 		
 		double[][] costMatrix = createLocalCostMatrix(ptRiders, consistentSmartcards, zonalSmartcardIndex);
 	
@@ -387,17 +393,80 @@ public class PublicTransitSystem {
 		result=hu.execute();
 
 		for(int j=0;j<result.length;j++){
-			if(mySmartcards.size()>result[j]){
-				mySmartcards.get(result[j]).isDistributed = true;
+			if(consistentSmartcards.size()>result[j]){
+				consistentSmartcards.get(result[j]).isDistributed = true;
 				ptRiders.get(j).isDistributed = true;
-				ptRiders.get(j).smartcard = mySmartcards.get(result[j]).cardId;
+				ptRiders.get(j).smartcard = consistentSmartcards.get(result[j]).cardId;
 			}
 			else{
 			}
 		} 
 	}
 	
-	private ArrayList<Smartcard> sortSmartcard(ArrayList<Smartcard> mySmartcards2) {
+	public void processMatchingOnPtRidersByBatch(int n) throws IOException {
+		// TODO Auto-generated method stub
+		HashMap<Double, ArrayList<Smartcard>> zonalSmartcardIndex;
+		System.out.println("--prepare to get pt riders");
+		
+		ArrayList<ArrayList<Station>> batches = new ArrayList<ArrayList<Station>>();
+		for(int i =0; i < n; i++){ batches.add(new ArrayList<Station>());}
+		int batchCount = 0;
+		for(Station st: myStations.values()){
+			if(st.getSmartcards().size()!= 0){
+				batches.get(batchCount).add(st);
+				batchCount++;
+				if(batchCount==n){batchCount = 0;}
+			}
+		}
+		
+		for(ArrayList<Station> batch: batches){
+			ArrayList<BiogemeAgent> ptRidersBatch = getPtRiders(batch);
+			ArrayList<Smartcard> smartcardsBatch = getSmartcard(batch);
+			resetDistributionIndicator(ptRidersBatch);
+			smartcardsBatch = sortSmartcard(smartcardsBatch);
+			assignColumnIndex(smartcardsBatch);
+			zonalSmartcardIndex = createZonalSmartcardIndex(smartcardsBatch);
+			System.out.println("--pt riders generated: " + ptRidersBatch.size());
+			
+			double[][] costMatrix = createLocalCostMatrix(ptRidersBatch, smartcardsBatch, zonalSmartcardIndex);
+			int[] result;
+			HungarianAlgorithm hu =new HungarianAlgorithm(costMatrix);
+			result=hu.execute();
+
+			for(int j=0;j<result.length;j++){
+				if(smartcardsBatch.size()>result[j]){
+					smartcardsBatch.get(result[j]).isDistributed = true;
+					ptRidersBatch.get(j).isDistributed = true;
+					ptRidersBatch.get(j).smartcard = smartcardsBatch.get(result[j]).cardId;
+				}
+				else{
+				}
+			} 
+		}
+	}
+	
+	private void resetDistributionIndicator(ArrayList<BiogemeAgent> ptRidersBatch) {
+		// TODO Auto-generated method stub
+		for(BiogemeAgent ag: ptRidersBatch){
+			ag.isDistributed = false;
+		}
+	}
+
+	private ArrayList<Smartcard> getSmartcard(ArrayList<Station> batch) {
+		// TODO Auto-generated method stub
+		ArrayList<Smartcard> temp = new ArrayList<Smartcard>();
+		for(Station st: batch){
+			if(st.myId==1 || st.myId == 2){
+				
+			}
+			else{
+				temp.addAll(st.getSmartcards());
+			}
+		}
+		return temp;
+	}
+
+	private ArrayList<Smartcard> sortSmartcard(ArrayList<Smartcard> mySmartcards) {
 		// TODO Auto-generated method stub
 		ArrayList<Smartcard> sorted = new ArrayList<Smartcard>();
 		for(Smartcard sm: mySmartcards){
@@ -458,23 +527,25 @@ public class PublicTransitSystem {
 	
 
 
-	private ArrayList<BiogemeAgent> getPtRiders() {
+	private ArrayList<BiogemeAgent> getPtRiders(ArrayList<Station> batch) {
 		// TODO Auto-generated method stub
 		
-		int i = 0;
+		
 		ArrayList<BiogemeAgent> ptRiders = new ArrayList<BiogemeAgent>();
 		Random r = new Random();
 		
-		for(Station st: myStations.values()){
+		for(Station st: batch){
 			if(st.myId==1 || st.myId == 2){
 				
 			}
 			else{
+				
 				ArrayList<Smartcard> localSm = st.getSmartcards();
 				if(localSm.size()>0){
 					ArrayList<BiogemeAgent> localPop = st.getLocalPopulation();
 					
 					if(!Utils.occupationCriterion){
+						int i = 0;
 						while(i<localSm.size()){
 							int n = r.nextInt(localPop.size());
 							BiogemeAgent curAgent = localPop.get(n);
@@ -486,81 +557,120 @@ public class PublicTransitSystem {
 						}
 					}
 					else{
-						int nRegularCards = getRegularCardCount(localSm);
-						int nStudentCards = getStudentCardCount(localSm);
-						int nRetireeCards = getRetireeCardCount(localSm);
+						ArrayList<Smartcard> regularCards = getRegularCard(localSm);
+						ArrayList<Smartcard>  studentCards = getStudentCard(localSm);
+						ArrayList<Smartcard>  retireeCards = getRetireeCard(localSm);
+						ArrayList<BiogemeAgent> regular = getRegularPersons(localPop);
+						ArrayList<BiogemeAgent> student = getStudentPersons(localPop);
+						ArrayList<BiogemeAgent> retiree = getRetireePersons(localPop);
 						int regCount = 0;
 						int stdtCount = 0;
 						int retCount = 0;
-						while(regCount<nRegularCards){
-							int n = r.nextInt(localPop.size());
-							BiogemeAgent curAgent = localPop.get(n);
+						while(regCount<regularCards.size()){
+							int n = r.nextInt(regular.size());
+							BiogemeAgent curAgent = regular.get(n);
 							int occupation = Integer.parseInt(curAgent.myAttributes.get(UtilsSM.dictionnary.get(UtilsTS.occupation)));
 							if(curAgent.isStoRider()&& !curAgent.isDistributed && (occupation == 0 || occupation == 3)){
 								curAgent.isDistributed = true;
 								ptRiders.add(curAgent);
-								i++;
+								regCount++;
 							}
 						}
-						while(stdtCount<nStudentCards){
-							int n = r.nextInt(localPop.size());
-							BiogemeAgent curAgent = localPop.get(n);
+						while(stdtCount<studentCards.size()){
+							int n = r.nextInt(student.size());
+							BiogemeAgent curAgent = student.get(n);
 							int occupation = Integer.parseInt(curAgent.myAttributes.get(UtilsSM.dictionnary.get(UtilsTS.occupation)));
 							if(curAgent.isStoRider()&& !curAgent.isDistributed && occupation == 1 ){
 								curAgent.isDistributed = true;
 								ptRiders.add(curAgent);
-								i++;
+								stdtCount++;
 							}
 						}
-						while(retCount<nRetireeCards){
-							int n = r.nextInt(localPop.size());
-							BiogemeAgent curAgent = localPop.get(n);
+						while(retCount<retireeCards.size()){
+							int n = r.nextInt(retiree.size());
+							BiogemeAgent curAgent = retiree.get(n);
 							int occupation = Integer.parseInt(curAgent.myAttributes.get(UtilsSM.dictionnary.get(UtilsTS.occupation)));
 							if(curAgent.isStoRider()&& !curAgent.isDistributed && occupation == 2){
 								curAgent.isDistributed = true;
 								ptRiders.add(curAgent);
-								i++;
+								retCount++;
 							}
 						}
 					}
-					
 				}
 			}
 		}		
 		return ptRiders;
 	}
+	
 
-	private int getRetireeCardCount(ArrayList<Smartcard> localSm) {
+	private ArrayList<BiogemeAgent> getRetireePersons(ArrayList<BiogemeAgent> localPop) {
 		// TODO Auto-generated method stub
-		int count = 0;
-		for(Smartcard sm:localSm){
-			if(sm.fare == 0){
-				count++;
+		ArrayList<BiogemeAgent> temp = new ArrayList<BiogemeAgent>();
+		for(BiogemeAgent ag: localPop){
+			int occupation = Integer.parseInt(ag.myAttributes.get(UtilsSM.dictionnary.get(UtilsTS.occupation)));
+			if(occupation == 2){
+				temp.add(ag);
 			}
 		}
-		return count;
+		return temp;
 	}
 
-	private int getStudentCardCount(ArrayList<Smartcard> localSm) {
+	private ArrayList<BiogemeAgent> getStudentPersons(ArrayList<BiogemeAgent> localPop) {
 		// TODO Auto-generated method stub
-		int count = 0;
-		for(Smartcard sm:localSm){
-			if(sm.fare == 1){
-				count++;
+		ArrayList<BiogemeAgent> temp = new ArrayList<BiogemeAgent>();
+		for(BiogemeAgent ag: localPop){
+			int occupation = Integer.parseInt(ag.myAttributes.get(UtilsSM.dictionnary.get(UtilsTS.occupation)));
+			if(occupation == 1){
+				temp.add(ag);
 			}
 		}
-		return count;
+		return temp;
 	}
 
-	private int getRegularCardCount(ArrayList<Smartcard> localSm) {
+	private ArrayList<BiogemeAgent> getRegularPersons(ArrayList<BiogemeAgent> localPop) {
 		// TODO Auto-generated method stub
-		int count = 0;
+		ArrayList<BiogemeAgent> temp = new ArrayList<BiogemeAgent>();
+		for(BiogemeAgent ag: localPop){
+			int occupation = Integer.parseInt(ag.myAttributes.get(UtilsSM.dictionnary.get(UtilsTS.occupation)));
+			if(occupation == 0 || occupation == 3){
+				temp.add(ag);
+			}
+		}
+		return temp;
+	}
+
+	private ArrayList<Smartcard> getRetireeCard(ArrayList<Smartcard> localSm) {
+		// TODO Auto-generated method stub
+		ArrayList<Smartcard> temp = new ArrayList<Smartcard>();
 		for(Smartcard sm:localSm){
 			if(sm.fare == 2){
-				count++;
+				temp.add(sm);
 			}
 		}
-		return count;
+		return temp;
+	}
+
+	private ArrayList<Smartcard> getStudentCard(ArrayList<Smartcard> localSm) {
+		// TODO Auto-generated method stub
+		ArrayList<Smartcard> temp = new ArrayList<Smartcard>();
+		for(Smartcard sm:localSm){
+			if(sm.fare == 1){
+				temp.add(sm);
+			}
+		}
+		return temp;
+	}
+
+	private ArrayList<Smartcard> getRegularCard(ArrayList<Smartcard> localSm) {
+		// TODO Auto-generated method stub
+		ArrayList<Smartcard> temp = new ArrayList<Smartcard>();
+		for(Smartcard sm:localSm){
+			if(sm.fare == 0){
+				temp.add(sm);
+			}
+		}
+		return temp;
 	}
 
 	public void localRandomMatch() {

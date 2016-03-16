@@ -36,7 +36,9 @@ public class Station {
 		while(itS.hasNext()){
 			Smartcard tempS = itS.next();
 			if(tempS.stationId == myId){
-				localSmartcards.add(tempS);
+				if(!tempS.isDistributed){
+					localSmartcards.add(tempS);
+				}
 			}
 		}
 		return localSmartcards;

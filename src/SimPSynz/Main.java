@@ -256,10 +256,11 @@ public class Main {
 			System.out.println("--potential smartcard assigned");
 			
 			//########
-			Utils.occupationCriterion = true;
+			Utils.occupationCriterion = false;
 			//myPublicTransitSystem.processMatchingStationByStation();
-			myPublicTransitSystem.processMatchingOnPtRiders();
-			myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSMWithChoiceSet.csv");
+			//myPublicTransitSystem.processMatchingOnPtRiders();
+			myPublicTransitSystem.processMatchingOnPtRidersByBatch(3);
+			myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSMWithoutChoiceSet.csv");
 			
 			
 			

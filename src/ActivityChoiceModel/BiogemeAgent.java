@@ -329,7 +329,7 @@ public class BiogemeAgent {
 		return agentChoiceSet;
 	}
 	
-	public ArrayList<Smartcard> generateChoiceSet( HashMap<Double,ArrayList<Smartcard>> closeSmartcards){
+	public ArrayList<Smartcard> generateChoiceSet(HashMap<Double,ArrayList<Smartcard>> closeSmartcards){
 		// TODO Auto-generated method stub
 		
 		double myZone = Double.parseDouble(myAttributes.get(UtilsSM.zoneId));
@@ -338,6 +338,7 @@ public class BiogemeAgent {
 		if(isDistributed){
 			Smartcard stayHome = PublicTransitSystem.myCtrlGen.getStayHomeChoice();
 			agentChoiceSet.add(stayHome);
+			System.out.println("--problem in choice set generation 1");
 		}
 		else{
 			ArrayList<Smartcard> potentialSmartcard = closeSmartcards.get(myZone);
