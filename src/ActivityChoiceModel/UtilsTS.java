@@ -83,7 +83,7 @@ public class UtilsTS {
 	public static String mode4;
 	public static String mode5;
 	
-	public static String stoUser;
+	
 	
 	
 	//###########DICO pour le recensement
@@ -97,8 +97,13 @@ public class UtilsTS {
 	public static String mStat = "mStat";
 	
 	
-	
-	
+	// ###Dico mode
+	public static String carDriver = "carDriver";
+	public static String carPassenger = "carPassenger";
+	public static String stoUser = "stoUser";
+	public static String ptUserNoSto = "ptUserNoSto";
+	public static String activeMode = "activeMode";
+	public static String nest = "NEST";
 	
 	
 	public UtilsTS(String area){
@@ -251,8 +256,6 @@ public class UtilsTS {
 			 mode3 = "MODE3";
 			 mode4 = "MODE4";
 			 mode5 = "MODE5";
-			 
-			 stoUser = "stoUser";
 		}
 	}
 

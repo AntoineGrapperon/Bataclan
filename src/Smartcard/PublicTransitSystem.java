@@ -14,6 +14,7 @@ import java.util.Random;
 import ActivityChoiceModel.BiogemeAgent;
 import ActivityChoiceModel.BiogemeChoice;
 import ActivityChoiceModel.BiogemeControlFileGenerator;
+import ActivityChoiceModel.BiogemeHypothesis;
 import ActivityChoiceModel.BiogemeSimulator;
 import ActivityChoiceModel.UtilsTS;
 import Associations.HungarianAlgorithm;
@@ -225,7 +226,7 @@ public class PublicTransitSystem {
 			}
 			else{
 				double[] newRow = new double[myPopulation.size()];
-				for(int i = 0; i < myPopulation.size(); i++){newRow[i] = 999999.00;}
+				for(int i = 0; i < myPopulation.size(); i++){newRow[i] = Double.MAX_VALUE;}
 				costMatrix[rowIndex] = newRow;
 				rowIndex++;
 				System.out.println("--this guy shouldn't be there...");
@@ -529,7 +530,7 @@ public class PublicTransitSystem {
 
 	private ArrayList<BiogemeAgent> getPtRiders(ArrayList<Station> batch) {
 		// TODO Auto-generated method stub
-		
+		int multPool =1;
 		
 		ArrayList<BiogemeAgent> ptRiders = new ArrayList<BiogemeAgent>();
 		Random r = new Random();
@@ -546,7 +547,7 @@ public class PublicTransitSystem {
 					
 					if(!Utils.occupationCriterion){
 						int i = 0;
-						while(i<localSm.size()){
+						while(i<multPool * localSm.size()){
 							int n = r.nextInt(localPop.size());
 							BiogemeAgent curAgent = localPop.get(n);
 							if(curAgent.isStoRider()&& !curAgent.isDistributed){
@@ -566,7 +567,7 @@ public class PublicTransitSystem {
 						int regCount = 0;
 						int stdtCount = 0;
 						int retCount = 0;
-						while(regCount<regularCards.size()){
+						while(regCount<multPool *regularCards.size()){
 							int n = r.nextInt(regular.size());
 							BiogemeAgent curAgent = regular.get(n);
 							int occupation = Integer.parseInt(curAgent.myAttributes.get(UtilsSM.dictionnary.get(UtilsTS.occupation)));
@@ -576,7 +577,7 @@ public class PublicTransitSystem {
 								regCount++;
 							}
 						}
-						while(stdtCount<studentCards.size()){
+						while(stdtCount<multPool *studentCards.size()){
 							int n = r.nextInt(student.size());
 							BiogemeAgent curAgent = student.get(n);
 							int occupation = Integer.parseInt(curAgent.myAttributes.get(UtilsSM.dictionnary.get(UtilsTS.occupation)));
@@ -586,7 +587,7 @@ public class PublicTransitSystem {
 								stdtCount++;
 							}
 						}
-						while(retCount<retireeCards.size()){
+						while(retCount<multPool *retireeCards.size()){
 							int n = r.nextInt(retiree.size());
 							BiogemeAgent curAgent = retiree.get(n);
 							int occupation = Integer.parseInt(curAgent.myAttributes.get(UtilsSM.dictionnary.get(UtilsTS.occupation)));
@@ -832,6 +833,14 @@ public class PublicTransitSystem {
 					currLocalPopulation.size());
 		}
 		writer.CloseFile();
+	}
+
+	public void getValues() {
+		// TODO Auto-generated method stub
+		for(BiogemeHypothesis currH: BiogemeSimulator.modelHypothesis){
+			
+			System.out.println(currH.coefName + " " + currH.coefValue);
+		}
 	}
 
 	

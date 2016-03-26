@@ -947,6 +947,7 @@ public class TravelSurveyPreparator {
 		headers.add(UtilsTS.fidelPt);
 		headers.add(UtilsTS.fidelPtRange);
 		headers.add(UtilsTS.nAct);
+		headers.add(UtilsTS.nest);
 		/*headers.add(UtilsTS.firstDep);//FIRST departure
 		headers.add(UtilsTS.lastDep);
 		headers.add(UtilsTS.chainLength);
@@ -1062,6 +1063,7 @@ public class TravelSurveyPreparator {
 		System.out.println("--motorazation rate computed");
 
 		processSTOuser();
+		processNest();
 		
 		processSocioDemographic();
 		System.out.println("--socio demographic category were processed");
@@ -1169,6 +1171,96 @@ public class TravelSurveyPreparator {
 		}
 		myData.put(UtilsTS.stoUser, stoUser);
 	}
+	
+	private void processNest() {
+		// TODO Auto-generated method stub
+		ArrayList<Object> nests = new ArrayList<Object>();
+		for(int i = 0; i < myData.get(UtilsTS.id).size(); i++){
+			String nest;
+			if(myData.get(UtilsTS.pDebut).get(i).equals("T")){
+				int stoCount = 0;
+				int ptCount = 0;
+				int carDriverCount = 0;
+				int carPassCount = 0;
+				int activeModeCount = 0;
+				String hhId = (String)myData.get(UtilsTS.mNumero).get(i);
+				String persId = (String)myData.get(UtilsTS.pRang).get(i);
+				for(int j = i; j < myData.get(UtilsTS.id).size(); j++){
+					if(hhId.equals((String)myData.get(UtilsTS.mNumero).get(j)) && persId.equals((String)myData.get(UtilsTS.pRang).get(j))){
+						String mode1 = ((String) myData.get(UtilsTS.mode1).get(j)).trim();
+						String mode2 = ((String) myData.get(UtilsTS.mode2).get(j)).trim();
+						String mode3 = ((String) myData.get(UtilsTS.mode3).get(j)).trim();
+						String mode4 = ((String) myData.get(UtilsTS.mode4).get(j)).trim();
+						String mode5 = ((String) myData.get(UtilsTS.mode5).get(j)).trim();
+						if(mode1.equals("4")||
+								mode2.equals("4")||
+								mode3.equals("4")||
+								mode4.equals("4")||
+								mode5.equals("4")){
+							stoCount++;
+						}
+						else if(mode1.equals("1")|| //car driver and moto drivers
+								mode2.equals("1")||
+								mode3.equals("1")||
+								mode4.equals("1")||
+								mode5.equals("1")||
+								mode1.equals("15")||
+								mode2.equals("15")||
+								mode3.equals("15")||
+								mode4.equals("15")||
+								mode5.equals("15")){
+							carDriverCount++;
+						}
+						else if(mode1.equals("2")|| // car passengers
+								mode2.equals("2")||
+								mode3.equals("2")||
+								mode4.equals("2")||
+								mode5.equals("2")){
+							carPassCount++;
+						}
+						else if(mode1.equals("11")|| // active modes (bike and walk
+								mode2.equals("11")||
+								mode3.equals("11")||
+								mode4.equals("11")||
+								mode5.equals("11")||
+								mode1.equals("12")||
+								mode2.equals("12")||
+								mode3.equals("12")||
+								mode4.equals("12")||
+								mode5.equals("12")){
+							activeModeCount++;
+						}
+						else{
+							ptCount++;
+						}
+					}
+					else{
+						j+= 400000;
+					}
+				}
+				if(stoCount > 0){
+					nest = "2";
+				}
+				else if( ptCount == Utils.max(carDriverCount,carPassCount,activeModeCount,ptCount)){
+					nest = "3";
+				}
+				else if( carDriverCount == Utils.max(carDriverCount,carPassCount,activeModeCount,ptCount)){
+					nest = "0";
+				}
+				else if( carPassCount == Utils.max(carDriverCount,carPassCount,activeModeCount,ptCount)){
+					nest = "1";
+				}
+				else{
+					nest = "4";
+				}
+			}
+			else{
+				nest = "1000";
+			}
+			nests.add(nest);
+		}
+		myData.put(UtilsTS.nest, nests);
+	}
 
 	private void processSocioDemographic() {
 		// TODO Auto-generated method stub
@@ -1241,32 +1333,44 @@ public class TravelSurveyPreparator {
 		myData.put(UtilsTS.choice, new ArrayList<Object>());
 		
 		for(int i = 0; i < myData.get(UtilsTS.id).size(); i++){
-			String altFirstDep = (String)myData.get(UtilsTS.firstDep + "Short").get(i);
-			String altLastDep = (String)myData.get(UtilsTS.lastDep + "Short").get(i);
-			String fidelPTRange = (String)myData.get(UtilsTS.fidelPtRange).get(i);
-			Integer nActivities = (Integer)myData.get(UtilsTS.nAct).get(i);
+			if(myData.get(UtilsTS.pDebut).get(i).equals("T")){
+				String altFirstDep = (String)myData.get(UtilsTS.firstDep + "Short").get(i);
+				String altLastDep = (String)myData.get(UtilsTS.lastDep + "Short").get(i);
+				String fidelPTRange = (String)myData.get(UtilsTS.fidelPtRange).get(i);
+				Integer nActivities = (Integer)myData.get(UtilsTS.nAct).get(i);
+				String nest = (String) myData.get(UtilsTS.nest).get(i);
+				
+				HashMap<String,Integer> currCombinationChoice = new HashMap<String,Integer>();
+				currCombinationChoice.put(UtilsTS.nAct, nActivities);
+				currCombinationChoice.put(UtilsTS.firstDep+"Short", Integer.parseInt(altFirstDep));
+				currCombinationChoice.put(UtilsTS.lastDep+"Short", Integer.parseInt(altLastDep));
+				currCombinationChoice.put(UtilsTS.fidelPtRange, Integer.parseInt(fidelPTRange));
+				currCombinationChoice.put(UtilsTS.nest, Integer.parseInt(nest));
+				int choice = getChoiceIndex(currCombinationChoice);
+				myData.get(UtilsTS.alternative).add(Integer.toString(choice));
+				String myChoice = BiogemeChoice.getConstantName(currCombinationChoice);
+				myData.get(UtilsTS.choice).add(myChoice);
+			}
+			else{
+				int choice = 10000;
+				myData.get(UtilsTS.alternative).add(Integer.toString(choice));
+				String myChoice = "NOT A DATA POINT";
+				myData.get(UtilsTS.choice).add(myChoice);
+			}
 			
-			HashMap<String,Integer> currCombinationChoice = new HashMap<String,Integer>();
-			currCombinationChoice.put(UtilsTS.nAct, nActivities);
-			currCombinationChoice.put(UtilsTS.firstDep+"Short", Integer.parseInt(altFirstDep));
-			currCombinationChoice.put(UtilsTS.lastDep+"Short", Integer.parseInt(altLastDep));
-			currCombinationChoice.put(UtilsTS.fidelPtRange, Integer.parseInt(fidelPTRange));
-			int choice = getChoiceIndex(currCombinationChoice);
-			myData.get(UtilsTS.alternative).add(Integer.toString(choice));
-			String myChoice = BiogemeChoice.getConstantName(currCombinationChoice);
-			myData.get(UtilsTS.choice).add(myChoice);
 		}
 	}
+	
 	
 	private int getChoiceIndex(HashMap<String, Integer> myCombinationChoice) {
 		// TODO Auto-generated method stub
 		for(BiogemeChoice currChoice: BiogemeControlFileGenerator.choiceIndex){
 			if(areEquals(currChoice.choiceCombination,myCombinationChoice)){
-				return currChoice.biogeme_group_id;
+				return currChoice.biogeme_case_id;
 			}
 		}
-		//System.out.println("--error: combination index was not found for code: " + myCombinationChoice.toString());
-		return 0;
+		System.out.println("--error: combination index was not found for code: " + myCombinationChoice.toString());
+		return 1000;
 	}
 	
 	public boolean areEquals(HashMap<String,Integer> m1,HashMap<String,Integer> m2){

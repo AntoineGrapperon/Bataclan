@@ -64,5 +64,16 @@ public class Utils
             return String.format("%s",d);
     }
     
+    public static double max(double... n) {
+        int i = 0;
+        double max = n[i];
+
+        while (++i < n.length)
+            if (n[i] > max)
+                max = n[i];
+
+        return max;
+    }
+    
     
 }

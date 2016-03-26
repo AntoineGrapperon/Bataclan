@@ -36,10 +36,9 @@ public class BiogemeControlFileGenerator {
     	
     }
     
-    public void initialize(String pathControleFile, String pathOutput, String pathToHypothesis) throws IOException{
+    public void initialize(String pathControleFile, String pathToHypothesis) throws IOException{
     	descReader.OpenFile(pathControleFile);
     	hypothesisReader.OpenFile(pathToHypothesis);
-    	myDataWriter.OpenFile(pathOutput);
     	choiceDimensions = getTripChainAlternatives();
     	hypothesis = getHypothesis();
     	generateCombinations();
@@ -106,7 +105,8 @@ public class BiogemeControlFileGenerator {
     	return answer;
     }
     
-    public void generateBiogemeControlFile() throws IOException{
+    public void generateBiogemeControlFile(String pathOutput) throws IOException{
+    	myDataWriter.OpenFile(pathOutput);
     	writeUpperPart();
     	writeBetaPart();
     	writeCombinations();
@@ -119,8 +119,32 @@ public class BiogemeControlFileGenerator {
     private void writeStructure() throws IOException {
 		// TODO Auto-generated method stub
     	myDataWriter.WriteToFile("[Model]");
-    	myDataWriter.WriteToFile("$MNL");
+    	//myDataWriter.WriteToFile("$MNL");
+    	myDataWriter.WriteToFile("$NL");
+    	myDataWriter.WriteToFile("[NLNests]");
     	
+    	String casesCar = new String();
+    	String casesPass = new String();
+    	String casesSto = new String();
+    	String casesPt = new String();
+    	String casesActive = new String();
+    	ArrayList<Integer> alreadyWritten = new ArrayList<Integer>();
+    	
+    	for(BiogemeChoice c: choiceIndex){
+    		if(!alreadyWritten.contains(c.biogeme_case_id)){
+    			if(c.nest.equals(UtilsTS.carDriver)){casesCar+= c.biogeme_case_id + " ";}
+        		else if(c.nest.equals(UtilsTS.carPassenger)){casesPass+= c.biogeme_case_id + " ";}
+        		else if(c.nest.equals(UtilsTS.stoUser)){casesSto+= c.biogeme_case_id + " ";}
+        		else if(c.nest.equals(UtilsTS.ptUserNoSto)){casesPt+= c.biogeme_case_id + " ";}
+        		else if(c.nest.equals(UtilsTS.activeMode)){casesActive+= c.biogeme_case_id + " ";}
+        		alreadyWritten.add(c.biogeme_case_id);
+    		}
+    	}
+    	myDataWriter.WriteToFile(UtilsTS.carDriver + "    1.0     1.0   10.0   1     " + casesCar);
+    	myDataWriter.WriteToFile(UtilsTS.carPassenger + "      1.0     1.0   10.0   0     " + casesPass);
+    	myDataWriter.WriteToFile(UtilsTS.stoUser + "      1.0     1.0   10.0   0     " + casesSto);	
+    	myDataWriter.WriteToFile(UtilsTS.ptUserNoSto + "      1.0     1.0   10.0   0     " + casesPt);	
+    	myDataWriter.WriteToFile(UtilsTS.activeMode + "      1.0     1.0   10.0   0     " + casesActive);	
 	}
 
 	private void writeBetaPart() throws IOException {
@@ -151,10 +175,10 @@ public class BiogemeControlFileGenerator {
     		if(!alreadyWritten.contains(choiceName)){
     			alreadyWritten.add(choiceName);
     			if(choiceName.equals("C_NOPT")){
-    				myDataWriter.WriteToFile(choiceName + " 	    0.0          -25.0     5.0         1");	
+    				myDataWriter.WriteToFile(choiceName + " 	    0.0          -5.0     5.0         1");	
     			}
     			else{
-    				myDataWriter.WriteToFile(choiceName + " 	    0.0          -25.0     5.0         0");	
+    				myDataWriter.WriteToFile(choiceName + " 	    0.0          -5.0     5.0         0");	
     			}
     		}
     	}
@@ -203,7 +227,7 @@ public class BiogemeControlFileGenerator {
     
     public void writeHypothesisBeta() throws IOException{
     	for(BiogemeHypothesis h: hypothesis){
-    		myDataWriter.WriteToFile(h.coefName + " 	    0.0          -10.0     10.0         0");
+    		myDataWriter.WriteToFile(h.coefName + " 	    0.0          -5.0     5.0         0");
     	}
     }
     
@@ -236,9 +260,12 @@ public class BiogemeControlFileGenerator {
     	while(it.hasNext()){
     		BiogemeChoice currChoice = it.next();
     		String choiceName = currChoice.getConstantName();
-    		Integer choiceId = currChoice.biogeme_group_id;
+    		Integer choiceId = currChoice.biogeme_case_id;
     		String output = new String();
-    		if(!alreadyWritten.contains(choiceName)){
+    		if(choiceId == -1){
+    			
+    		}
+    		else if(!alreadyWritten.contains(choiceName)){
     			alreadyWritten.add(choiceName);
     			output = choiceId + "	" 
     					+ choiceName + "	avail " 
@@ -255,15 +282,35 @@ public class BiogemeControlFileGenerator {
     	for(BiogemeHypothesis e: hypothesis){
     		String affectedDim = e.affectedDimensionName;
     		ArrayList<Integer> affectedCategories = e.affectedCategories;
-    		boolean requiresCoefficient = false;
-    		//System.out.println(affectedDim);
-    		//System.out.println(currCombination.toString());
     		int category = currCombination.get(affectedDim);
-    		for(int i: affectedCategories){
-    			if(i == category){
-    				requiresCoefficient = true;
+    		boolean requiresCoefficient = false;
+    		
+    		/*if(currCombination.get(UtilsTS.fidelPtRange) == 0 || currCombination.get(UtilsTS.nAct) == 0){
+    			if(affectedDim.equals(UtilsTS.fidelPtRange) && category == 0){
+    				for(int i: affectedCategories){
+    	    			if(i == category){
+    	    				requiresCoefficient = true;
+    	    			}
+    	    		}
     			}
     		}
+    		else{
+    			for(int i: affectedCategories){
+        			if(i == category){
+        				requiresCoefficient = true;
+        			}
+        		}
+    		}*/
+    		
+    		if(currCombination.get(UtilsTS.nest) == 2){
+    			requiresCoefficient = shouldWrite(affectedCategories, category);
+    		}
+    		else{
+    			if(affectedDim.equals(UtilsTS.nest)){
+    				requiresCoefficient = shouldWrite(affectedCategories, category);
+    			}
+    		}
+    		
     		if(requiresCoefficient){
     			//output += " + " + e.coefName + " * " + e.coefName + UtilsTS.var;
     			if(e.isDummy){
@@ -277,7 +324,19 @@ public class BiogemeControlFileGenerator {
 		return output;
 	}
     
-    private String getDummyName(BiogemeHypothesis hypo){
+    
+    
+    private boolean shouldWrite(ArrayList<Integer> affectedCategories, int category) {
+		// TODO Auto-generated method stub
+    	for(int i: affectedCategories){
+			if(i == category){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private String getDummyName(BiogemeHypothesis hypo){
     	String addendum = new String();
     	addendum+= hypo.affectingDimensionName;
     	for(int i : hypo.affectingCategories){
@@ -317,13 +376,22 @@ public class BiogemeControlFileGenerator {
 	
 	 public ArrayList<BiogemeChoice> getChoiceIndex(){
 		ArrayList<BiogemeChoice> choiceIndex = new ArrayList<BiogemeChoice>();
-    	boolean home = false;
-    	boolean pt = false;
+    	//boolean home = false;
+    	boolean carDriver = false;
+    	boolean carPass = false;
+    	boolean sto = false;
+    	boolean ptNonSto = false;
+    	boolean activeMode = false;
+    	
     	
     	Iterator<HashMap<String,Integer>> it = combinations.iterator();
     	int combinationId = 0;
-    	int combinationGroupHome = 0;
-    	int combinationGroupPt = 0;
+    	int carDriverId = 0;
+    	int carPassId = 0;
+    	int stoId = 0;
+    	int ptNonStoId = 0;
+    	int activeModeId = 0;
+    	//int combinationGroupHome = 0;
     	
 		while(it.hasNext()){
 			
@@ -331,7 +399,84 @@ public class BiogemeControlFileGenerator {
 			String ref = new String();
 			BiogemeChoice currChoice = new BiogemeChoice();
 			
-			if(currCombination.get(UtilsTS.nAct) == 0 || currCombination.get(UtilsTS.fidelPtRange)==0){
+			if(currCombination.get(UtilsTS.nest) == 0){
+				currChoice.biogeme_id = combinationId;
+				currChoice.choiceCombination = currCombination;
+				currChoice.nest = UtilsTS.carDriver;
+				if(!carDriver){
+					carDriver = true;
+					carDriverId = combinationId;
+					currChoice.biogeme_case_id = carDriverId;
+				}
+				else{
+					currChoice.biogeme_case_id = carDriverId;
+				}
+				combinationId++;
+				
+			}
+			else if(currCombination.get(UtilsTS.nest) == 1){
+				currChoice.biogeme_id = combinationId;
+				currChoice.choiceCombination = currCombination;
+				currChoice.nest = UtilsTS.carPassenger;
+				if(!carPass){
+					carPass = true;
+					carPassId = combinationId;
+					currChoice.biogeme_case_id = carPassId;
+				}
+				else{
+					currChoice.biogeme_case_id = carPassId;
+				}
+				combinationId++;
+				
+			}
+			else if(currCombination.get(UtilsTS.nest) == 2 && 
+					currCombination.get(UtilsTS.nAct) != 0 && 
+					currCombination.get(UtilsTS.fidelPtRange)!=0){
+				currChoice.biogeme_id = combinationId;
+				currChoice.choiceCombination = currCombination;
+				currChoice.nest = UtilsTS.stoUser;
+				if(!sto){
+					sto = true;
+					stoId = combinationId;
+					currChoice.biogeme_case_id = stoId;
+				}
+				else{
+					currChoice.biogeme_case_id = combinationId; //for STO nest, sub choices are not aggregated
+				}
+				combinationId++;
+				
+			}
+			else if(currCombination.get(UtilsTS.nest) == 3){
+				currChoice.biogeme_id = combinationId;
+				currChoice.choiceCombination = currCombination;
+				currChoice.nest = UtilsTS.ptUserNoSto;
+				if(!ptNonSto){
+					ptNonSto = true;
+					ptNonStoId = combinationId;
+					currChoice.biogeme_case_id = ptNonStoId;
+				}
+				else{
+					currChoice.biogeme_case_id = ptNonStoId;
+				}
+				combinationId++;
+				
+			}
+			else if(currCombination.get(UtilsTS.nest) == 4){
+				currChoice.biogeme_id = combinationId;
+				currChoice.choiceCombination = currCombination;
+				currChoice.nest = UtilsTS.activeMode;
+				if(!activeMode){
+					activeMode = true;
+					activeModeId = combinationId;
+					currChoice.biogeme_case_id = activeModeId;
+				}
+				else{
+					currChoice.biogeme_case_id = activeModeId;
+				}
+				combinationId++;
+			}
+			
+			/*if(currCombination.get(UtilsTS.nAct) == 0 || currCombination.get(UtilsTS.fidelPtRange)==0){
 				currChoice.biogeme_id = combinationId;
 				currChoice.choiceCombination = currCombination;
 				if(!home){
@@ -356,15 +501,20 @@ public class BiogemeControlFileGenerator {
 					currChoice.biogeme_group_id = combinationGroupPt;
 				}
 				combinationId++;
-			}*/
+			}
 			else if(currCombination.get(UtilsTS.nAct)!=0 && currCombination.get(UtilsTS.fidelPtRange)!=0){
 				currChoice.biogeme_id = combinationId;
 				currChoice.choiceCombination = currCombination;
 				currChoice.biogeme_group_id = combinationId;
 				combinationId++;
-			}
+			}*/
 			else{
-				System.out.println("there was a problem in the index generation");
+				
+				System.out.println("there was a problem in the index generation, case was labeled -1");
+				currChoice.biogeme_id = combinationId;
+				currChoice.choiceCombination = currCombination;
+				currChoice.biogeme_case_id = -1;
+				currChoice.nest = "-1";
 				combinationId++;
 			}
 			choiceIndex.add(currChoice);
@@ -376,7 +526,7 @@ public class BiogemeControlFileGenerator {
 			// TODO Auto-generated method stub
 			for(BiogemeChoice currChoice: BiogemeControlFileGenerator.choiceIndex){
 				if(areEquals(currChoice.choiceCombination,myCombinationChoice)){
-					return currChoice.biogeme_group_id;
+					return currChoice.biogeme_case_id;
 				}
 			}
 			System.out.println("--error: combination index was not found for code: " + myCombinationChoice.toString());
@@ -457,7 +607,7 @@ public class BiogemeControlFileGenerator {
     	myDataWriter.WriteToFile("MOTOR_var = MOTOR )");*/
     	myDataWriter.WriteToFile("[Exclude]");
     	//myDataWriter.WriteToFile("(GRPAGE == 0) >= 1");
-    	myDataWriter.WriteToFile("(OCCUP == -1) >= 1");
+    	myDataWriter.WriteToFile("(OCCUP == -1) + (CHOICE == -1 ) >= 1");
     			
     	//myDataWriter.WriteToFile("((P_GRAGE == 1) + (P_STATUT == 6) + (P_STATUT == 8) + (P_STATUT == 5) + (N_ACT == 0))  >= 1  //+ ((P_STATUT != 1) + (P_STATUT != 2)) / 2)");
     	

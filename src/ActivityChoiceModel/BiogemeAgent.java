@@ -44,7 +44,7 @@ public class BiogemeAgent {
 		ArrayList<Double> choiceCumProb = getChoicesCumulativeProbabilities(choiceSet);
 		int choiceIndex = antitheticDraw(choiceCumProb);
 		BiogemeChoice choice = choiceSet.get(choiceIndex);
-		myAttributes.put(UtilsTS.sim, Integer.toString(choiceSet.get(choiceIndex).biogeme_group_id));
+		myAttributes.put(UtilsTS.sim, Integer.toString(choiceSet.get(choiceIndex).biogeme_case_id));
 		
 	}
 
@@ -378,7 +378,7 @@ public class BiogemeAgent {
 			newRow[i] = Double.MAX_VALUE;
 		}
 		for(BiogemeChoice currChoice: myChoices){
-			double cost = 100 - currChoice.utility;
+			double cost = 10000 - 1000* currChoice.utility;
 			if(currChoice.getConstantName().equals(UtilsSM.noPt)){
 				//double stayHomeCost = currChoice.probability;
 				for(int i = smartcardCount; i < size; i++){
@@ -471,30 +471,62 @@ public class BiogemeAgent {
 	private ArrayList<Double> getNestCumulativeProbabilities() {
 		// TODO Auto-generated method stub
 		ArrayList<Double> cumProb = new ArrayList<Double>();
-		double logsumStoNest = 0;
-		double logsumNoPtNest = 0;
-		double noPtScale = BiogemeSimulator.noPtScale;
-		double stoScale = BiogemeSimulator.stoScale;
+		HashMap<String,Double> cumProbs = new HashMap<String,Double>();
+		/*double logsumStoNest = 0;
+		double logsumNoPtNest = 0;*/
+		HashMap<String, Double> logsums = new HashMap<String, Double>();
+		//double noPtScale = BiogemeSimulator.noPtScale;
+		//double stoScale = BiogemeSimulator.stoScale;*/
 		
 		for(BiogemeChoice curChoice: BiogemeSimulator.modelChoiceUniverse){
-			if(curChoice.biogeme_group_id == 0){
+			String nestName = curChoice.getNestName();
+			double scale = BiogemeSimulator.nests.get(nestName);
+			double logsum = logsums.get(nestName);
+			
+			logsum += Math.exp(scale * curChoice.utility);
+			logsums.put(nestName, logsum);
+			
+			
+			/*if(curChoice.biogeme_case_id == 0){
 				logsumNoPtNest+= Math.exp(noPtScale * curChoice.utility);
 			}
 			else{
 				logsumStoNest += Math.exp(stoScale * curChoice.utility);
-			}
+			}*/
 		}
-		logsumNoPtNest = Math.log(logsumNoPtNest);
-		logsumStoNest = Math.log(logsumStoNest);
+		/*logsumNoPtNest = Math.log(logsumNoPtNest);
+		logsumStoNest = Math.log(logsumStoNest);*/
+		for(String nest: BiogemeSimulator.nests.keySet()){
+			double logsum = BiogemeSimulator.nests.get(nest);
+			logsum = Math.log(logsum);
+			logsums.put(nest,logsum);
+		}
+		double denom = 0;
+		for(String nest: BiogemeSimulator.nests.keySet()){
+			double logsum = logsums.get(nest);
+			double scale = BiogemeSimulator.nests.get(nest);
+			denom+= Math.exp(logsum/scale);
+		}
+		for(String nest: BiogemeSimulator.nests.keySet()){
+			double logsum = logsums.get(nest);
+			double scale = BiogemeSimulator.nests.get(nest);
+			double prob = Math.exp(logsum/scale)/denom;
+			cumProbs.put(nest, prob);
+		}
 		
+		cumProb.add(cumProbs.get(UtilsTS.carDriver));
+		cumProb.add(cumProb.get(cumProb.size()-1)+cumProbs.get(UtilsTS.carPassenger));
+		cumProb.add(cumProb.get(cumProb.size()-1)+cumProbs.get(UtilsTS.stoUser));
+		cumProb.add(cumProb.get(cumProb.size()-1)+cumProbs.get(UtilsTS.ptUserNoSto));
+		cumProb.add(1.0);
 		
-		Double probSto = Math.exp(logsumStoNest/stoScale)/
+		/*Double probSto = Math.exp(logsumStoNest/stoScale)/
 				(Math.exp(logsumStoNest/stoScale)+Math.exp(logsumNoPtNest/noPtScale));
 		Double probNoPt = Math.exp(logsumNoPtNest/noPtScale)/
 				(Math.exp(logsumStoNest/stoScale)+Math.exp(logsumNoPtNest/noPtScale));
 		
 		cumProb.add(probSto);
-		cumProb.add(1.0);
+		cumProb.add(1.0);*/
 		
 		return cumProb;
 	}
@@ -502,37 +534,66 @@ public class BiogemeAgent {
 	private ArrayList<Double> getChoicesCumulativeProbabilities(ArrayList<BiogemeChoice> myChoices) {
 		// TODO Auto-generated method stub
 		ArrayList<Double> cumProb = new ArrayList<Double>();
-		double logsumStoNest = 0;
-		double logsumNoPtNest = 0;
-		double noPtScale = BiogemeSimulator.noPtScale;
-		double stoScale = BiogemeSimulator.stoScale;
+		HashMap<String, Double> logsums = new HashMap<String, Double>();
+		
+		HashMap<String, Double> subNests = new HashMap<String,Double>();
+		subNests = getRealizedNests(myChoices);
 		
 		for(BiogemeChoice curChoice: myChoices){
-			if(curChoice.biogeme_group_id == 0){
-				logsumNoPtNest+= Math.exp(noPtScale * curChoice.utility);
-			}
-			else{
-				logsumStoNest += Math.exp(stoScale * curChoice.utility);
-			}
+			String nestName = curChoice.getNestName();
+			double scale = subNests.get(nestName);
+			double logsum = logsums.get(nestName);
+			
+			logsum += Math.exp(scale * curChoice.utility);
+			logsums.put(nestName, logsum);
 		}
-		logsumNoPtNest = Math.log(logsumNoPtNest);
-		logsumStoNest = Math.log(logsumStoNest);
+		for(String nest: subNests.keySet()){
+			double logsum = subNests.get(nest);
+			logsum = Math.log(logsum);
+			logsums.put(nest,logsum);
+		}
+		double sumLog = 0;
+		for(String nest: subNests.keySet()){
+			double logsum = logsums.get(nest);
+			double scale = subNests.get(nest);
+			sumLog+= Math.exp(logsum/scale);
+		}
+		
 		double cumP = 0;
 		for(int i = 0; i < myChoices.size(); i++){
 			BiogemeChoice curChoice = myChoices.get(i);
 			double thisProb = 0;
-			if(curChoice.biogeme_group_id == 0){
+			
+			double nestLog = logsums.get(curChoice.getNestName());
+			double nestScale = subNests.get(curChoice.getNestName());
+			
+			thisProb = (Math.exp(nestScale * curChoice.utility) / Math.exp(nestLog)) *
+					(Math.exp(nestLog/nestScale) / sumLog);
+			
+			/*if(curChoice.biogeme_case_id == 0){
 				thisProb = (Math.exp(noPtScale * curChoice.utility) / Math.exp(logsumNoPtNest)) *
 						(Math.exp(logsumNoPtNest/noPtScale) / (Math.exp(logsumNoPtNest/noPtScale) +Math.exp(logsumStoNest/stoScale)));
 			}
 			else{
 				thisProb = (Math.exp(stoScale * curChoice.utility) / Math.exp(logsumStoNest)) *
 						(Math.exp(logsumStoNest/stoScale) / (Math.exp(logsumNoPtNest/noPtScale) +Math.exp(logsumStoNest/stoScale) ));
-			}
+			}*/
 			cumP+=thisProb;
 			cumProb.add(cumP);
 		}
 		return cumProb;
+	}
+
+	private HashMap<String, Double> getRealizedNests(ArrayList<BiogemeChoice> myChoices) {
+		// TODO Auto-generated method stub
+		HashMap<String, Double> realizedNests = new HashMap<String, Double>();
+		for(BiogemeChoice choice: myChoices){
+			String name = choice.getNestName();
+			Double scale = BiogemeSimulator.nests.get(name);
+			realizedNests.put(name, scale);
+		}
+		
+		return realizedNests;
 	}
 
 	public void computeUtilities(ArrayList<? extends BiogemeChoice> choiceSet){
@@ -543,30 +604,61 @@ public class BiogemeAgent {
 			//int choiceId = choiceSet.get(i).biogeme_group_id;
 			BiogemeChoice currChoice = choiceSet.get(i);
 			currChoice.utility = 0;
+			HashMap<String, Integer> currCombination = currChoice.choiceCombination;
 			
 			for(BiogemeHypothesis currH: BiogemeSimulator.modelHypothesis){
-				if(currH.isCst()){
+				if(currChoice.getConstantName().equals(currH.coefName)){
 					utility += currH.getCoefficientValue();
 				}
-				else if(currChoice.isAffected(currH)  && currH.isDummy){
-					if( currChoice.isAffecting(currH, this)){
-						utility += currH.getCoefficientValue();
-					}
+				if(currH.isCst()){
+					
 				}
-				else if(currChoice.isAffected(currH) && !currH.isDummy){
-					if(currH.isAgentSpecificVariable){
-						String att = UtilsSM.dictionnary.get(currH.affectingDimensionName) ;
-						utility += currH.getCoefficientValue() * Double.parseDouble(myAttributes.get(att));
+				else{
+					if(currCombination.get(UtilsTS.fidelPtRange) == 0 || currCombination.get(UtilsTS.nAct) == 0){
+						if(currH.affectedDimensionName.equals(UtilsTS.fidelPtRange) && currH.affectedCategories.contains(0)){
+							if(currChoice.isAffected(currH)  && currH.isDummy){
+								if( currChoice.isAffecting(currH, this)){
+									utility += currH.getCoefficientValue();
+								}
+							}
+							else if(currChoice.isAffected(currH) && !currH.isDummy){
+								if(currH.isAgentSpecificVariable){
+									String att = UtilsSM.dictionnary.get(currH.affectingDimensionName) ;
+									utility += currH.getCoefficientValue() * Double.parseDouble(myAttributes.get(att));
+								}
+								else if(currH.isAlternativeSpecificVariable){
+									String att = UtilsSM.dictionnary.get(currH.affectingDimensionName);
+									utility += currH.getCoefficientValue() * Double.parseDouble(currChoice.myAttributes.get(att));
+								}
+								else{
+									System.out.println(currH.coefName + " was not considered");
+								}
+								//utility += currH.getCoefficientValue() * currChoice.getAffectingValue(currH, this);
+							}
+						}
+						else{
+							if(currChoice.isAffected(currH)  && currH.isDummy){
+								if( currChoice.isAffecting(currH, this)){
+									utility += currH.getCoefficientValue();
+								}
+							}
+							else if(currChoice.isAffected(currH) && !currH.isDummy){
+								if(currH.isAgentSpecificVariable){
+									String att = UtilsSM.dictionnary.get(currH.affectingDimensionName) ;
+									utility += currH.getCoefficientValue() * Double.parseDouble(myAttributes.get(att));
+								}
+								else if(currH.isAlternativeSpecificVariable){
+									String att = UtilsSM.dictionnary.get(currH.affectingDimensionName);
+									utility += currH.getCoefficientValue() * Double.parseDouble(currChoice.myAttributes.get(att));
+								}
+								else{
+									System.out.println(currH.coefName + " was not considered");
+								}
+								//utility += currH.getCoefficientValue() * currChoice.getAffectingValue(currH, this);
+							}
+						}
 					}
-					else if(currH.isAlternativeSpecificVariable){
-						String att = UtilsSM.dictionnary.get(currH.affectingDimensionName);
-						utility += currH.getCoefficientValue() * Double.parseDouble(currChoice.myAttributes.get(att));
-					}
-					else{
-						System.out.println(currH.coefName + " was not considered");
-					}
-					//utility += currH.getCoefficientValue() * currChoice.getAffectingValue(currH, this);
-				}
+				}			
 			}
 			currChoice.utility = utility;
 		}

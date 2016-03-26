@@ -10,12 +10,12 @@ import java.util.ArrayList;
  *
  */
 public class BiogemeHypothesis {
-	String coefName;
+	public String coefName;
 	String affectedDimensionName;
 	ArrayList<Integer> affectedCategories;
 	String affectingDimensionName;	
 	ArrayList<Integer> affectingCategories;
-	double coefValue;
+	public double coefValue;
 	public boolean isDummy = true;
 	public boolean isAgentSpecificVariable;
 	public boolean isAlternativeSpecificVariable;

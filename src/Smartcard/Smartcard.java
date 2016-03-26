@@ -33,7 +33,7 @@ public class Smartcard extends BiogemeChoice{
 	
 	public Smartcard(BiogemeChoice toConvert){
 		biogeme_id = toConvert.biogeme_id;
-		biogeme_group_id = toConvert.biogeme_group_id;
+		biogeme_case_id = toConvert.biogeme_case_id;
 		choiceCombination = toConvert.choiceCombination;
 		probability = toConvert.probability;
 		utility = toConvert.utility;
@@ -56,7 +56,7 @@ public class Smartcard extends BiogemeChoice{
 		myCombination.put(UtilsTS.lastDep+"Short", lastDep);
 		myCombination.put(UtilsTS.nAct, nAct);
 		myCombination.put(UtilsTS.fidelPtRange, ptFidelity);
-		biogeme_group_id = BiogemeControlFileGenerator.returnChoiceId(myCombination);
+		biogeme_case_id = BiogemeControlFileGenerator.returnChoiceId(myCombination);
 		choiceCombination = myCombination;
 	}
 

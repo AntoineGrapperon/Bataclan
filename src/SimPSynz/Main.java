@@ -39,6 +39,7 @@ public class Main {
 
     public static void main(String[] args) {
         // TODO code application logic here
+    	System.out.println(Double.MAX_VALUE);
     	long startTime = System.currentTimeMillis();
 	    World myWorld = new World(505);
 	    ConditionalGenerator condGenerator = new ConditionalGenerator();
@@ -185,12 +186,12 @@ public class Main {
 	    	//Load hypothesis and dimension for the Joint model with Biogeme
 	    	//############################################################################################
 	    	
-	    	/*String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file.txt";
-			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrl.mod";
-			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypothesis7.txt";
+	    	String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file_with_nest.txt";
+			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrl4.mod";
+			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypoMultiNests.txt";
 			BiogemeControlFileGenerator myCtrlGenerator = new BiogemeControlFileGenerator();
-	    	myCtrlGenerator.initialize(pathControlFile, pathOutput, pathHypothesis);
-			/*myCtrlGenerator.generateBiogemeControlFile();
+	    	myCtrlGenerator.initialize(pathControlFile, pathHypothesis);
+			myCtrlGenerator.generateBiogemeControlFile(pathOutput);
 			myCtrlGenerator.printChoiceIndex(Utils.DATA_DIR + "biogeme\\choiceIndex.csv");
 			System.out.println("-- control file generator initiated");
 	    	
@@ -228,9 +229,9 @@ public class Main {
 	    	//Load Smartcard data and process them to label with a choice id
 	    	//############################################################################################
 			
-	    	String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file.txt";
+	    	/*String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file.txt";
 			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrl.mod";
-			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypothesis7.txt";
+			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypothesis9.txt";
 			BiogemeControlFileGenerator myCtrlGenerator = new BiogemeControlFileGenerator();
 			
 			PublicTransitSystem myPublicTransitSystem = new PublicTransitSystem();
@@ -246,8 +247,9 @@ public class Main {
 					Utils.DATA_DIR + "ptSystem\\stops.txt",
 					Utils.DATA_DIR + "ptSystem\\geoDico500.csv",
 					Utils.DATA_DIR + "ptSystem\\population.csv",
-					Utils.DATA_DIR + "biogeme\\ctrlNest80.F12"
+					Utils.DATA_DIR + "biogeme\\ctrl3.F12"
 					);
+			myPublicTransitSystem.getValues();
 			System.out.println("--pt system initialized");
 			myPublicTransitSystem.createZonalSmartcardIndex();
 			myPublicTransitSystem.createZonalPopulationIndex();
@@ -260,7 +262,7 @@ public class Main {
 			//myPublicTransitSystem.processMatchingStationByStation();
 			//myPublicTransitSystem.processMatchingOnPtRiders();
 			myPublicTransitSystem.processMatchingOnPtRidersByBatch(3);
-			myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSMWithoutChoiceSet.csv");
+			myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSMWithChoiceSet2.csv");
 			
 			
 			
@@ -268,8 +270,11 @@ public class Main {
 			//###############################################################################
 	    	//COMPUTE THE SRMSE BETWEEN TWO DATA SETS
 	    	//###############################################################################
-			/*String pathData = Utils.DATA_DIR + "SRMSE//globalRandom.csv";
-			String pathRef = Utils.DATA_DIR + "SRMSE//refOd.csv";
+			//String pathData = Utils.DATA_DIR + "SRMSE//matchedSMGlobalRandom.csv";
+			//String pathData = Utils.DATA_DIR + "SRMSE//matchedSMLocalRandom.csv";
+			//String pathData = Utils.DATA_DIR + "SRMSE//matchedSMWithoutChoiceSet.csv";
+			/*String pathData = Utils.DATA_DIR + "SRMSE//matchedSMWithChoiceSet.csv";
+			String pathRef = Utils.DATA_DIR + "SRMSE//odStoUsers.csv";
 	    	SRMSE srmse = new SRMSE();
 			srmse.getDistributions(pathData, pathRef);
 			double temp = srmse.computeSRMSE();

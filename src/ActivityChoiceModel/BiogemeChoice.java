@@ -16,11 +16,12 @@ import Utils.Utils;
 public class BiogemeChoice {
 	
 	public int biogeme_id;
-	public int biogeme_group_id;
+	public int biogeme_case_id;
 	public HashMap<String,Integer> choiceCombination = new HashMap<String,Integer> ();
 	public double probability;
 	public double utility;
 	public HashMap<String,String> myAttributes = new HashMap<String, String>();
+	public String nest = new String();
 	
 	public BiogemeChoice(){
 		
@@ -83,7 +84,8 @@ public class BiogemeChoice {
 	}
 	
 	public String getConstantName(){
-		String constantName = new String();
+		return getConstantName(choiceCombination);
+		/*String constantName = new String();
 		
 		if(choiceCombination.get(UtilsTS.nAct) == 0 || choiceCombination.get(UtilsTS.fidelPtRange)==0){
 			constantName = UtilsSM.noPt;
@@ -94,40 +96,68 @@ public class BiogemeChoice {
 		else if(choiceCombination.get(UtilsTS.nAct)!= 0 && choiceCombination.get(UtilsTS.fidelPtRange)==0){
 			constantName = "C_NOT_PT_RIDER";
 		}*/
-		else if(choiceCombination.get(UtilsTS.nAct)!=0 && choiceCombination.get(UtilsTS.fidelPtRange)!=0){
+		/*else if(choiceCombination.get(UtilsTS.nAct)!=0 && choiceCombination.get(UtilsTS.fidelPtRange)!=0){
 			/*constantName = "C";
 			for(String key: choiceCombination.keySet()){
 				constantName+= "_"+choiceCombination.get(key);
 			}*/
-			constantName = "C_"+choiceCombination.get(UtilsTS.fidelPtRange) +
+		/*	constantName = "C_"+choiceCombination.get(UtilsTS.fidelPtRange) +
 					"_" + choiceCombination.get(UtilsTS.firstDep+"Short") +
 					"_" + choiceCombination.get(UtilsTS.nAct) +
 					"_" + choiceCombination.get(UtilsTS.lastDep+"Short");
 		}
-		return constantName;
+		return constantName;*/
 	}
 	
 	public static String getConstantName(HashMap<String, Integer> combination){
 		String constantName = new String();
-		
-		if(combination.get(UtilsTS.nAct) == 0 || combination.get(UtilsTS.fidelPtRange)==0){
-			constantName = UtilsSM.noPt;
+		if(combination.get(UtilsTS.nest) == 0){
+			constantName = UtilsTS.carDriver;
 		}
-		/*if(choiceCombination.get(UtilsTS.nAct) == 0){
-			constantName = "C_HOME";
+		else if(combination.get(UtilsTS.nest) == 1){
+			constantName = UtilsTS.carPassenger;
 		}
-		else if(choiceCombination.get(UtilsTS.nAct)!= 0 && choiceCombination.get(UtilsTS.fidelPtRange)==0){
-			constantName = "C_NOT_PT_RIDER";
-		}*/
-		else if(combination.get(UtilsTS.nAct)!=0 && combination.get(UtilsTS.fidelPtRange)!=0){
-			/*constantName = "C";
-			for(String key: choiceCombination.keySet()){
-				constantName+= "_"+choiceCombination.get(key);
-			}*/
+		else if(combination.get(UtilsTS.nest) == 2 &&
+				combination.get(UtilsTS.nAct)!=0 &&
+				combination.get(UtilsTS.fidelPtRange)!=0){
 			constantName = "C_"+combination.get(UtilsTS.fidelPtRange) +
 					"_" + combination.get(UtilsTS.firstDep+"Short") +
 					"_" + combination.get(UtilsTS.nAct) +
 					"_" + combination.get(UtilsTS.lastDep+"Short");
+		}
+		else if(combination.get(UtilsTS.nest) == 3){
+			constantName = UtilsTS.ptUserNoSto;
+		}
+		else if(combination.get(UtilsTS.nest) == 4){
+			constantName = UtilsTS.activeMode;
+		}
+		else{ //last case is active mode and we added all 'bad record of the other cases
+			constantName = "-1";
+		}
+		return constantName;
+	}
+	
+	public  String getNestName(){
+		return getNestName(choiceCombination);
+	}
+	
+	public static String getNestName(HashMap<String, Integer> combination){
+		String constantName = new String();
+		if(combination.get(UtilsTS.nest) == 0){
+			constantName = UtilsTS.carDriver;
+		}
+		else if(combination.get(UtilsTS.nest) == 1){
+			constantName = UtilsTS.carPassenger;
+		}
+		else if(combination.get(UtilsTS.nest) == 2 &&
+				combination.get(UtilsTS.nAct)!=0 && combination.get(UtilsTS.fidelPtRange)!=0){
+			constantName = UtilsTS.stoUser;
+		}
+		else if(combination.get(UtilsTS.nest) == 3){
+			constantName = UtilsTS.ptUserNoSto;
+		}
+		else{ //last case is active mode and we added all 'bad record of the other cases
+			constantName = UtilsTS.activeMode;
 		}
 		return constantName;
 	}

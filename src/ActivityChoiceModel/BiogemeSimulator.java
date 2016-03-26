@@ -28,9 +28,10 @@ public class BiogemeSimulator {
 	ArrayList<BiogemeAgent> myPopulationSample = new ArrayList<BiogemeAgent>();
 	public static ArrayList<BiogemeHypothesis> modelHypothesis = new ArrayList<BiogemeHypothesis>();
 	public static ArrayList<BiogemeChoice> modelChoiceUniverse = new ArrayList<BiogemeChoice>();
+	public static HashMap<String, Double> nests = new HashMap<String, Double>();
 	
-	public static double stoScale = 1;
-	public static double noPtScale = 1;
+	//public static double stoScale = 1;
+	//public static double noPtScale = 1;
 	
 	/**
 	 * choiceUniverse is required only for simulating the model with smart card data. For simulating the model with the travel survey, alternatives are computed a bit differently.
@@ -41,8 +42,8 @@ public class BiogemeSimulator {
 	}
 	
 	public BiogemeSimulator(String pathControleFile, String pathOutput, String pathHypothesis) throws IOException{
-		myCtrlGen.generateBiogemeControlFile();
-		myCtrlGen.initialize(pathControleFile, pathOutput, pathHypothesis);
+		myCtrlGen.generateBiogemeControlFile(pathOutput);
+		myCtrlGen.initialize(pathControleFile, pathHypothesis);
 	}
 	
 	public BiogemeSimulator(BiogemeControlFileGenerator ctrlGen){
@@ -142,7 +143,7 @@ public class BiogemeSimulator {
 	private String getChoice(String string) {
 		// TODO Auto-generated method stub
 		for(BiogemeChoice temp: myCtrlGen.choiceIndex){
-			if(temp.biogeme_group_id == Integer.parseInt(string)){
+			if(temp.biogeme_case_id == Integer.parseInt(string)){
 				return temp.getConstantName();
 			}
 		}
@@ -152,7 +153,7 @@ public class BiogemeSimulator {
 	public static BiogemeChoice getChoice(int groupId) {
 		// TODO Auto-generated method stub
 		for(BiogemeChoice temp: modelChoiceUniverse){
-			if(temp.biogeme_group_id == groupId){
+			if(temp.biogeme_case_id == groupId){
 				return temp;
 			}
 		}
@@ -209,8 +210,8 @@ public class BiogemeSimulator {
 		HashMap<Integer, Boolean> list = new HashMap<Integer,Boolean>();
 		ArrayList<BiogemeChoice> choiceUniverse = new ArrayList<BiogemeChoice>();
 		for(BiogemeChoice curChoice: BiogemeControlFileGenerator.choiceIndex){
-			if(!list.containsKey(curChoice.biogeme_group_id)){
-				list.put(curChoice.biogeme_group_id, true);
+			if(!list.containsKey(curChoice.biogeme_case_id)){
+				list.put(curChoice.biogeme_case_id, true);
 				choiceUniverse.add(curChoice);
 			}
 		}
@@ -306,8 +307,20 @@ public class BiogemeSimulator {
 	
 	private void updateNest(String coefName, double coefValue) {
 		// TODO Auto-generated method stub
-		if(coefName.equals("STO")){
-			stoScale = coefValue;
+		if(coefName.equals(UtilsTS.carDriver)){
+			nests.put(UtilsTS.carDriver, coefValue);
+		}
+		else if (coefName.equals(UtilsTS.carPassenger)){
+			nests.put(UtilsTS.carPassenger, coefValue);
+		}
+		else if (coefName.equals(UtilsTS.stoUser)){
+			nests.put(UtilsTS.stoUser, coefValue);
+		}
+		else if (coefName.equals(UtilsTS.ptUserNoSto)){
+			nests.put(UtilsTS.ptUserNoSto, coefValue);
+		}
+		else if (coefName.equals(UtilsTS.activeMode)){
+			nests.put(UtilsTS.activeMode, coefValue);
 		}
 	}
 	
