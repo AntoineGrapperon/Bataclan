@@ -45,7 +45,6 @@ public class BiogemeAgent {
 		int choiceIndex = antitheticDraw(choiceCumProb);
 		BiogemeChoice choice = choiceSet.get(choiceIndex);
 		myAttributes.put(UtilsTS.sim, Integer.toString(choiceSet.get(choiceIndex).biogeme_case_id));
-		
 	}
 
 	
@@ -280,8 +279,8 @@ public class BiogemeAgent {
 		ArrayList<Smartcard> agentChoiceSet = new ArrayList<Smartcard>();
 		//ArrayList<Integer> myStations = PublicTransitSystem.geoDico.get(myZone);
 		if(isDistributed){
-			Smartcard stayHome = PublicTransitSystem.myCtrlGen.getStayHomeChoice();
-			agentChoiceSet.add(stayHome);
+			ArrayList<Smartcard> stayHome = PublicTransitSystem.myCtrlGen.getNestsChoice();
+			agentChoiceSet.addAll(stayHome);
 		}
 		else{
 			ArrayList<Smartcard> potentialSmartcard = closeSmartcards.get(myZone);
@@ -322,8 +321,8 @@ public class BiogemeAgent {
 					}
 				}
 			}
-			Smartcard stayHome = PublicTransitSystem.myCtrlGen.getStayHomeChoice();
-			agentChoiceSet.add(stayHome);
+			ArrayList<Smartcard> stayHome = PublicTransitSystem.myCtrlGen.getNestsChoice();
+			agentChoiceSet.addAll(stayHome);
 		}
 		
 		return agentChoiceSet;
@@ -336,8 +335,8 @@ public class BiogemeAgent {
 		ArrayList<Smartcard> agentChoiceSet = new ArrayList<Smartcard>();
 		//ArrayList<Integer> myStations = PublicTransitSystem.geoDico.get(myZone);
 		if(isDistributed){
-			Smartcard stayHome = PublicTransitSystem.myCtrlGen.getStayHomeChoice();
-			agentChoiceSet.add(stayHome);
+			ArrayList<Smartcard> stayHome = PublicTransitSystem.myCtrlGen.getNestsChoice();
+			agentChoiceSet.addAll(stayHome);
 			System.out.println("--problem in choice set generation 1");
 		}
 		else{
@@ -535,6 +534,7 @@ public class BiogemeAgent {
 		// TODO Auto-generated method stub
 		ArrayList<Double> cumProb = new ArrayList<Double>();
 		HashMap<String, Double> logsums = new HashMap<String, Double>();
+		logsums = initLogsum(myChoices);
 		
 		HashMap<String, Double> subNests = new HashMap<String,Double>();
 		subNests = getRealizedNests(myChoices);
@@ -548,7 +548,7 @@ public class BiogemeAgent {
 			logsums.put(nestName, logsum);
 		}
 		for(String nest: subNests.keySet()){
-			double logsum = subNests.get(nest);
+			double logsum = logsums.get(nest);
 			logsum = Math.log(logsum);
 			logsums.put(nest,logsum);
 		}
@@ -581,6 +581,8 @@ public class BiogemeAgent {
 			cumP+=thisProb;
 			cumProb.add(cumP);
 		}
+		cumProb.remove(cumProb.size()-1);
+		cumProb.add(1.0);
 		return cumProb;
 	}
 
@@ -593,6 +595,16 @@ public class BiogemeAgent {
 			realizedNests.put(name, scale);
 		}
 		
+		return realizedNests;
+	}
+	
+	private HashMap<String, Double> initLogsum(ArrayList<BiogemeChoice> myChoices) {
+		// TODO Auto-generated method stub
+		HashMap<String, Double> realizedNests = new HashMap<String, Double>();
+		for(BiogemeChoice choice: myChoices){
+			String name = choice.getNestName();
+			realizedNests.put(name, 0.0);
+		}
 		return realizedNests;
 	}
 
@@ -610,60 +622,119 @@ public class BiogemeAgent {
 				if(currChoice.getConstantName().equals(currH.coefName)){
 					utility += currH.getCoefficientValue();
 				}
-				if(currH.isCst()){
-					
+				else if(currCombination.get(UtilsTS.nest).equals(UtilsTS.carDriver) &&
+						currH.affectedDimensionName.equals(UtilsTS.nest) &&
+						currH.affectedCategories.contains(0)
+						){
+					utility = updateUtility(currH,currChoice,utility);
 				}
-				else{
-					if(currCombination.get(UtilsTS.fidelPtRange) == 0 || currCombination.get(UtilsTS.nAct) == 0){
-						if(currH.affectedDimensionName.equals(UtilsTS.fidelPtRange) && currH.affectedCategories.contains(0)){
-							if(currChoice.isAffected(currH)  && currH.isDummy){
-								if( currChoice.isAffecting(currH, this)){
-									utility += currH.getCoefficientValue();
-								}
-							}
-							else if(currChoice.isAffected(currH) && !currH.isDummy){
-								if(currH.isAgentSpecificVariable){
-									String att = UtilsSM.dictionnary.get(currH.affectingDimensionName) ;
-									utility += currH.getCoefficientValue() * Double.parseDouble(myAttributes.get(att));
-								}
-								else if(currH.isAlternativeSpecificVariable){
-									String att = UtilsSM.dictionnary.get(currH.affectingDimensionName);
-									utility += currH.getCoefficientValue() * Double.parseDouble(currChoice.myAttributes.get(att));
-								}
-								else{
-									System.out.println(currH.coefName + " was not considered");
-								}
-								//utility += currH.getCoefficientValue() * currChoice.getAffectingValue(currH, this);
-							}
-						}
-						else{
-							if(currChoice.isAffected(currH)  && currH.isDummy){
-								if( currChoice.isAffecting(currH, this)){
-									utility += currH.getCoefficientValue();
-								}
-							}
-							else if(currChoice.isAffected(currH) && !currH.isDummy){
-								if(currH.isAgentSpecificVariable){
-									String att = UtilsSM.dictionnary.get(currH.affectingDimensionName) ;
-									utility += currH.getCoefficientValue() * Double.parseDouble(myAttributes.get(att));
-								}
-								else if(currH.isAlternativeSpecificVariable){
-									String att = UtilsSM.dictionnary.get(currH.affectingDimensionName);
-									utility += currH.getCoefficientValue() * Double.parseDouble(currChoice.myAttributes.get(att));
-								}
-								else{
-									System.out.println(currH.coefName + " was not considered");
-								}
-								//utility += currH.getCoefficientValue() * currChoice.getAffectingValue(currH, this);
-							}
-						}
-					}
+				else if(currCombination.get(UtilsTS.nest).equals(UtilsTS.carPassenger) &&
+						currH.affectedDimensionName.equals(UtilsTS.nest) &&
+						currH.affectedCategories.contains(1)
+						){
+					utility = updateUtility(currH,currChoice,utility);
+				}
+				else if(currCombination.get(UtilsTS.nest).equals(UtilsTS.ptUserNoSto) &&
+						currH.affectedDimensionName.equals(UtilsTS.nest) &&
+						currH.affectedCategories.contains(3)
+						){
+					utility = updateUtility(currH,currChoice,utility);
+				}
+				else if(currCombination.get(UtilsTS.nest).equals(UtilsTS.activeMode) &&
+						currH.affectedDimensionName.equals(UtilsTS.nest) &&
+						currH.affectedCategories.contains(4)
+						){
+					utility = updateUtility(currH,currChoice,utility);
+				}
+				else if(currCombination.get(UtilsTS.nest).equals(UtilsTS.stoUser)){
+					utility = updateUtility(currH,currChoice,utility);
 				}			
 			}
 			currChoice.utility = utility;
-		}
+		}	
 		myChoices = choiceSet;
 	}
+	/*for(BiogemeHypothesis currH: BiogemeSimulator.modelHypothesis){
+	if(currChoice.getConstantName().equals(currH.coefName)){
+		utility += currH.getCoefficientValue();
+	}
+	if(currH.isCst()){
+		
+	}
+	else{
+		if(currCombination.get(UtilsTS.fidelPtRange) == 0 || currCombination.get(UtilsTS.nAct) == 0){
+			if(currH.affectedDimensionName.equals(UtilsTS.fidelPtRange) && currH.affectedCategories.contains(0)){
+				if(currChoice.isAffected(currH)  && currH.isDummy){
+					if( currChoice.isAffecting(currH, this)){
+						utility += currH.getCoefficientValue();
+					}
+				}
+				else if(currChoice.isAffected(currH) && !currH.isDummy){
+					if(currH.isAgentSpecificVariable){
+						String att = UtilsSM.dictionnary.get(currH.affectingDimensionName) ;
+						utility += currH.getCoefficientValue() * Double.parseDouble(myAttributes.get(att));
+					}
+					else if(currH.isAlternativeSpecificVariable){
+						String att = UtilsSM.dictionnary.get(currH.affectingDimensionName);
+						utility += currH.getCoefficientValue() * Double.parseDouble(currChoice.myAttributes.get(att));
+					}
+					else{
+						System.out.println(currH.coefName + " was not considered");
+					}
+					//utility += currH.getCoefficientValue() * currChoice.getAffectingValue(currH, this);
+				}
+			}
+			else{
+				if(currChoice.isAffected(currH)  && currH.isDummy){
+					if( currChoice.isAffecting(currH, this)){
+						utility += currH.getCoefficientValue();
+					}
+				}
+				else if(currChoice.isAffected(currH) && !currH.isDummy){
+					if(currH.isAgentSpecificVariable){
+						String att = UtilsSM.dictionnary.get(currH.affectingDimensionName) ;
+						utility += currH.getCoefficientValue() * Double.parseDouble(myAttributes.get(att));
+					}
+					else if(currH.isAlternativeSpecificVariable){
+						String att = UtilsSM.dictionnary.get(currH.affectingDimensionName);
+						utility += currH.getCoefficientValue() * Double.parseDouble(currChoice.myAttributes.get(att));
+					}
+					else{
+						System.out.println(currH.coefName + " was not considered");
+					}
+					//utility += currH.getCoefficientValue() * currChoice.getAffectingValue(currH, this);
+				}
+			}
+		}
+	}			
+}
+currChoice.utility = utility;
+}*/
+
+	private double updateUtility(BiogemeHypothesis currH, BiogemeChoice currChoice, double utility) {
+		// TODO Auto-generated method stub
+		if(currChoice.isAffected(currH)  && currH.isDummy){
+			if( currChoice.isAffecting(currH, this)){
+				utility += currH.getCoefficientValue();
+			}
+		}
+		else if(currChoice.isAffected(currH) && !currH.isDummy){
+			if(currH.isAgentSpecificVariable){
+				String att = UtilsSM.dictionnary.get(currH.affectingDimensionName) ;
+				utility += currH.getCoefficientValue() * Double.parseDouble(myAttributes.get(att));
+			}
+			else if(currH.isAlternativeSpecificVariable){
+				String att = UtilsSM.dictionnary.get(currH.affectingDimensionName);
+				utility += currH.getCoefficientValue() * Double.parseDouble(currChoice.myAttributes.get(att));
+			}
+			else{
+				System.out.println(currH.coefName + " was not considered");
+			}
+			//utility += currH.getCoefficientValue() * currChoice.getAffectingValue(currH, this);
+		}
+		return utility;
+	}
+			
 	
 	/*
 	@Deprecated

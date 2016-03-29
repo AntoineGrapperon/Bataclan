@@ -187,12 +187,13 @@ public class Main {
 	    	//############################################################################################
 	    	
 	    	String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file_with_nest.txt";
-			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrl4.mod";
+			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrl9.mod";
 			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypoMultiNests.txt";
+			//String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\noHypo.txt";
 			BiogemeControlFileGenerator myCtrlGenerator = new BiogemeControlFileGenerator();
 	    	myCtrlGenerator.initialize(pathControlFile, pathHypothesis);
 			myCtrlGenerator.generateBiogemeControlFile(pathOutput);
-			myCtrlGenerator.printChoiceIndex(Utils.DATA_DIR + "biogeme\\choiceIndex.csv");
+			//myCtrlGenerator.printChoiceIndex(Utils.DATA_DIR + "biogeme\\choiceIndex.csv");
 			System.out.println("-- control file generator initiated");
 	    	
 			//############################################################################################
@@ -218,12 +219,12 @@ public class Main {
 			//BE CAREFUL : HYPOTHESIS SHOULD NOT BE CHANGED, HOWEVER IT IS IMPORTANT TO EDIT THE CONTROL FILE
 			//BEFORE CALIBRATING THE MODEL WITH BIOGEME : THE FIXED PARAMETER SHOULD BE CHOOSEN, DUMMIES SHOULD SPECIFIED
 			//AND 
-			
-			/*mySimulator = new BiogemeSimulator(myCtrlGenerator);
-			mySimulator.initialize(Utils.DATA_DIR + "biogeme\\data.csv");
-			mySimulator.importBiogemeModel(Utils.DATA_DIR + "biogeme\\ctrlNest80.F12");
-			mySimulator.importNest(Utils.DATA_DIR + "biogeme\\ctrlNest80.F12");
-			mySimulator.applyModelOnTravelSurveyPopulation(Utils.DATA_DIR + "biogeme\\simulationResultsCHEAT.csv",3);*/
+			/*String pathToModel = Utils.DATA_DIR + "ptSystem\\TEST.F12";
+			mySimulator = new BiogemeSimulator(myCtrlGenerator);
+			mySimulator.initialize(Utils.DATA_DIR + "biogeme\\pureData.csv");
+			mySimulator.importBiogemeModel(pathToModel);
+			mySimulator.importNest(pathToModel);
+			mySimulator.applyModelOnTravelSurveyPopulation(Utils.DATA_DIR + "biogeme\\TEST.csv",1);
 			
 			//############################################################################################
 	    	//Load Smartcard data and process them to label with a choice id

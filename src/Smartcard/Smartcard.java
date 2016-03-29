@@ -28,7 +28,7 @@ public class Smartcard extends BiogemeChoice{
 	public int fare;
 	
 	public Smartcard(){
-	
+		nest = UtilsTS.stoUser;
 	}
 	
 	public Smartcard(BiogemeChoice toConvert){
@@ -37,6 +37,7 @@ public class Smartcard extends BiogemeChoice{
 		choiceCombination = toConvert.choiceCombination;
 		probability = toConvert.probability;
 		utility = toConvert.utility;
+		nest = UtilsTS.stoUser;
 	}
 	
 	public void setId(double id) {
@@ -56,6 +57,7 @@ public class Smartcard extends BiogemeChoice{
 		myCombination.put(UtilsTS.lastDep+"Short", lastDep);
 		myCombination.put(UtilsTS.nAct, nAct);
 		myCombination.put(UtilsTS.fidelPtRange, ptFidelity);
+		myCombination.put(UtilsTS.nest, 2);
 		biogeme_case_id = BiogemeControlFileGenerator.returnChoiceId(myCombination);
 		choiceCombination = myCombination;
 	}

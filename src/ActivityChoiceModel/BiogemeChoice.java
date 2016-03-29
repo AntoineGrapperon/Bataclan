@@ -112,10 +112,10 @@ public class BiogemeChoice {
 	public static String getConstantName(HashMap<String, Integer> combination){
 		String constantName = new String();
 		if(combination.get(UtilsTS.nest) == 0){
-			constantName = UtilsTS.carDriver;
+			constantName = "C_" + UtilsTS.carDriver;
 		}
 		else if(combination.get(UtilsTS.nest) == 1){
-			constantName = UtilsTS.carPassenger;
+			constantName = "C_" + UtilsTS.carPassenger;
 		}
 		else if(combination.get(UtilsTS.nest) == 2 &&
 				combination.get(UtilsTS.nAct)!=0 &&
@@ -126,10 +126,10 @@ public class BiogemeChoice {
 					"_" + combination.get(UtilsTS.lastDep+"Short");
 		}
 		else if(combination.get(UtilsTS.nest) == 3){
-			constantName = UtilsTS.ptUserNoSto;
+			constantName = "C_" + UtilsTS.ptUserNoSto;
 		}
 		else if(combination.get(UtilsTS.nest) == 4){
-			constantName = UtilsTS.activeMode;
+			constantName = "C_" + UtilsTS.activeMode;
 		}
 		else{ //last case is active mode and we added all 'bad record of the other cases
 			constantName = "-1";

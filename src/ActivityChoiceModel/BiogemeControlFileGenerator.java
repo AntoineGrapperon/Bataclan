@@ -42,7 +42,7 @@ public class BiogemeControlFileGenerator {
     	choiceDimensions = getTripChainAlternatives();
     	hypothesis = getHypothesis();
     	generateCombinations();
-    	choiceIndex.addAll(getChoiceIndex());
+    	choiceIndex.addAll(createChoiceIndex());
     }
     
   private ArrayList<BiogemeHypothesis> getHypothesis() throws NumberFormatException, IOException {
@@ -171,15 +171,17 @@ public class BiogemeControlFileGenerator {
     	Iterator<BiogemeChoice> it = choiceIndex.iterator();
     	while(it.hasNext()){
     		BiogemeChoice currChoice = it.next();
-    		String choiceName = currChoice.getConstantName();
-    		if(!alreadyWritten.contains(choiceName)){
-    			alreadyWritten.add(choiceName);
-    			if(choiceName.equals("C_NOPT")){
-    				myDataWriter.WriteToFile(choiceName + " 	    0.0          -5.0     5.0         1");	
-    			}
-    			else{
-    				myDataWriter.WriteToFile(choiceName + " 	    0.0          -5.0     5.0         0");	
-    			}
+    		if(!(currChoice.biogeme_case_id == -1)){
+    			String choiceName = currChoice.getConstantName();
+        		if(!alreadyWritten.contains(choiceName)){
+        			alreadyWritten.add(choiceName);
+        			if(choiceName.equals("C_" + UtilsTS.carDriver)){
+        				myDataWriter.WriteToFile(choiceName + " 	    0.0          -10.0     2.0         1");	
+        			}
+        			else{
+        				myDataWriter.WriteToFile(choiceName + " 	    0.0          -10.0     2.0         0");	
+        			}
+        		}
     		}
     	}
     	
@@ -374,7 +376,7 @@ public class BiogemeControlFileGenerator {
 	}
 
 	
-	 public ArrayList<BiogemeChoice> getChoiceIndex(){
+	 public ArrayList<BiogemeChoice> createChoiceIndex(){
 		ArrayList<BiogemeChoice> choiceIndex = new ArrayList<BiogemeChoice>();
     	//boolean home = false;
     	boolean carDriver = false;
@@ -635,6 +637,23 @@ public class BiogemeControlFileGenerator {
 			tempWriter.WriteToFile(c.toString());
 		}
 		tempWriter.CloseFile();
+	}
+	
+	public ArrayList<Smartcard> getNestsChoice(){
+		int count = 0;
+		ArrayList<Smartcard> nestsChoices = new ArrayList<Smartcard>();
+		for(BiogemeChoice temp: BiogemeSimulator.modelChoiceUniverse){
+			if(temp.getConstantName().equals(UtilsTS.carDriver)||
+					temp.getConstantName().equals(UtilsTS.carPassenger)||
+					temp.getConstantName().equals(UtilsTS.ptUserNoSto)||
+					temp.getConstantName().equals(UtilsTS.activeMode)){
+				Smartcard answer = new Smartcard(temp);
+				answer.columnId = PublicTransitSystem.mySmartcards.size() + count;
+				count++;
+				nestsChoices.add(answer);
+			}
+		}
+		return nestsChoices;
 	}
 
 	public Smartcard getStayHomeChoice() {

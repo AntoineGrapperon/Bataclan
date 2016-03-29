@@ -62,10 +62,11 @@ public class PublicTransitSystem {
 		GeoDicoManager myGeoDico = new GeoDicoManager();
 		PopulationDataManager myPopGenerator = new PopulationDataManager();
 		
+		mySimulator.extractChoiceUniverse();
 		mySimulator.setHypothesis();
 		mySimulator.importBiogemeModel(pathModel);
 		mySimulator.importNest(pathModel);
-		mySimulator.extractChoiceUniverse();
+		
 		
 		myStations = myStationManager.prepareStations(pathStations);
 		mySmartcards = mySmartcardManager.prepareSmartcards(pathSmartcard);

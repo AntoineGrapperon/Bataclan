@@ -72,7 +72,7 @@ public class BiogemeSimulator {
 	private ArrayList<BiogemeHypothesis> generateConstantHypothesis() {
 		// TODO Auto-generated method stub
 		ArrayList<BiogemeHypothesis> constants = new ArrayList<BiogemeHypothesis>();
-		boolean noPt = false;
+		/*boolean noPt = false;
 		for(BiogemeChoice currChoice: BiogemeControlFileGenerator.choiceIndex){
 			BiogemeHypothesis currHypothesis = new BiogemeHypothesis();
 			String currCstName = currChoice.getConstantName();
@@ -94,6 +94,12 @@ public class BiogemeSimulator {
 				currHypothesis.setAffectedDimension(dim, category);
 			}*/
 			
+		//}
+	for(BiogemeChoice currChoice: modelChoiceUniverse){
+			BiogemeHypothesis currHypothesis = new BiogemeHypothesis();
+			String currCstName = currChoice.getConstantName();
+			currHypothesis.setCoefName(currCstName);
+			constants.add(currHypothesis);		
 		}
 		return constants;
 	}
@@ -115,11 +121,16 @@ public class BiogemeSimulator {
 		}
 		
 		myOutputFileWriter.OpenFile(outputPath);
-		String headers = "Observed choice, Simulated choice, Weigh";
+		String headers = "Observed choice, Simulated choice, Age, Sex, Occup,Cars, Pers, Weight";
 		myOutputFileWriter.WriteToFile(headers);
 		for(BiogemeAgent person: myPopulationSample){
 			String newLine = getChoice(person.myAttributes.get(UtilsTS.alternative)) + 
 					Utils.COLUMN_DELIMETER +getChoice(person.myAttributes.get(UtilsTS.sim)) +
+					Utils.COLUMN_DELIMETER + person.myAttributes.get(UtilsTS.ageGroup) +
+					Utils.COLUMN_DELIMETER + person.myAttributes.get(UtilsTS.sex) +
+					Utils.COLUMN_DELIMETER + person.myAttributes.get(UtilsTS.occupation) +
+					Utils.COLUMN_DELIMETER + person.myAttributes.get(UtilsTS.cars) +
+					Utils.COLUMN_DELIMETER + person.myAttributes.get(UtilsTS.pers) +
 					Utils.COLUMN_DELIMETER + person.myAttributes.get(UtilsTS.weigth);
 			myOutputFileWriter.WriteToFile(newLine);
 		}
@@ -210,7 +221,8 @@ public class BiogemeSimulator {
 		HashMap<Integer, Boolean> list = new HashMap<Integer,Boolean>();
 		ArrayList<BiogemeChoice> choiceUniverse = new ArrayList<BiogemeChoice>();
 		for(BiogemeChoice curChoice: BiogemeControlFileGenerator.choiceIndex){
-			if(!list.containsKey(curChoice.biogeme_case_id)){
+			if(!list.containsKey(curChoice.biogeme_case_id) &&
+					curChoice.biogeme_case_id != -1){
 				list.put(curChoice.biogeme_case_id, true);
 				choiceUniverse.add(curChoice);
 			}

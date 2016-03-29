@@ -908,7 +908,8 @@ public class TravelSurveyPreparator {
 		myOutputFileWritter.WriteToFile(headers);
 		
 		for(int i=0; i < myData.get(UtilsTS.id).size(); i++){
-			if(myData.get(UtilsTS.pDebut).get(i).equals("1")){
+			if(myData.get(UtilsTS.pDebut).get(i).equals("1") &&
+					!myData.get(UtilsTS.alternative).get(i).equals("-1")){
 				String line = new String();
 				Iterator<String> it2 = toPrint.iterator();
 				while(it2.hasNext()){
@@ -1115,20 +1116,6 @@ public class TravelSurveyPreparator {
     	
     	System.out.println("--alternatives processed");
 		toBoolean(UtilsTS.pDebut, "T");
-		
-		/*processDummies();
-		System.out.println("-- dummies processed");
-		
-		nActivitiesSimulation();
-		System.out.println("--number of activities were simulated");
-		ptFidelitySimulation();
-		System.out.println("--pt fidelity simulated");
-		firstDepartureSimulation();
-		System.out.println("--first departure simulated");
-		lastDepartureSimulation();
-		System.out.println("--last departure simulated");*/
-		
-		
 		selectAndPrint(nAlternatives);
 		cores.shutdown();
     }
