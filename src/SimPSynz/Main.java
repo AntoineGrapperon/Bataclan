@@ -194,7 +194,7 @@ public class Main {
 	    	myCtrlGenerator.initialize(pathControlFile, pathHypothesis);
 			//myCtrlGenerator.generateBiogemeControlFile(pathOutput);
 			//myCtrlGenerator.printChoiceIndex(Utils.DATA_DIR + "biogeme\\choiceIndex.csv");
-			System.out.println("-- control file generator initiated");*/
+			System.out.println("-- control file generator initiated");
 	    	
 			//############################################################################################
 	    	//prepare OD data for modeling using multithreading, input: travel survey as CSV file
@@ -219,12 +219,12 @@ public class Main {
 			//BE CAREFUL : HYPOTHESIS SHOULD NOT BE CHANGED, HOWEVER IT IS IMPORTANT TO EDIT THE CONTROL FILE
 			//BEFORE CALIBRATING THE MODEL WITH BIOGEME : THE FIXED PARAMETER SHOULD BE CHOOSEN, DUMMIES SHOULD SPECIFIED
 			//AND 
-			/*String pathToModel = Utils.DATA_DIR + "ptSystem\\ctrl11~2.F12";
+		/*	String pathToModel = Utils.DATA_DIR + "ptSystem\\ctrl11~2.F12";
 			mySimulator = new BiogemeSimulator(myCtrlGenerator);
 			mySimulator.initialize(Utils.DATA_DIR + "biogeme\\pureData.csv");
 			mySimulator.importBiogemeModel(pathToModel);
 			mySimulator.importNest(pathToModel);
-			mySimulator.applyModelOnTravelSurveyPopulation(Utils.DATA_DIR + "biogeme\\ageCriterion4.csv",1, true);*/
+			mySimulator.applyModelOnTravelSurveyPopulation(Utils.DATA_DIR + "biogeme\\ageCriterion6.csv",1, true);*/
 			
 			//############################################################################################
 	    	//Load Smartcard data and process them to label with a choice id
@@ -259,11 +259,11 @@ public class Main {
 			System.out.println("--potential smartcard assigned");
 			
 			//########
-			Utils.occupationCriterion = true;
+			Utils.occupationCriterion = false;
 			//myPublicTransitSystem.processMatchingStationByStation();
 			//myPublicTransitSystem.processMatchingOnPtRiders();
 			myPublicTransitSystem.processMatchingOnPtRidersByBatch(3);
-			myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSMWithChoiceSet3.csv");
+			myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSMWithoutChoiceSet4.csv");
 			
 			
 			

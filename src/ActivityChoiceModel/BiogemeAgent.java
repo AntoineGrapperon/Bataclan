@@ -487,11 +487,20 @@ public class BiogemeAgent {
 		
 		
 		//apply a post treatement to balance when needed
-		if(choice == 2){
+		if(myAttributes.get(UtilsSM.dictionnary.get(UtilsTS.ageGroup)).equals("0") && choice == 2){
 			Random r = new Random();
-			int rInt = r.nextInt(13);
-			if(!(rInt <= 7)){
+			int rInt = r.nextInt(15);
+			if(rInt <= 5){
 				choice = 3;
+			}
+		}
+		if((myAttributes.get(UtilsSM.dictionnary.get(UtilsTS.ageGroup)).equals("5") ||
+				myAttributes.get(UtilsSM.dictionnary.get(UtilsTS.ageGroup)).equals("6"))
+				&& choice == 2){
+			Random r = new Random();
+			int rInt = r.nextInt(10);
+			if(rInt < 5){
+				choice = 1;
 			}
 		}
 		

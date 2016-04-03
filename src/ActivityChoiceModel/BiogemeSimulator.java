@@ -165,11 +165,22 @@ public class BiogemeSimulator {
 			// TODO Auto-generated method stub
 		int choiceId = Integer.parseInt(person.myAttributes.get(UtilsTS.sim));
 		BiogemeChoice tempChoice = getChoice(choiceId);
-		if(tempChoice.nest.equals(UtilsTS.stoUser)){
+		if(tempChoice.nest.equals(UtilsTS.stoUser) && person.myAttributes.get(UtilsTS.ageGroup).equals("0")){
 			Random r = new Random();
-			int rInt = r.nextInt(13);
-			if(!(rInt <= 7)){
+			int rInt = r.nextInt(15);
+			if((rInt <= 5)){
 				int ptCaseId = getCaseId("C_" + UtilsTS.ptUserNoSto);
+				person.myAttributes.put(UtilsTS.sim, Integer.toString(ptCaseId));
+			}
+		}
+		
+		if((person.myAttributes.get(UtilsTS.ageGroup).equals("5") ||
+				person.myAttributes.get(UtilsTS.ageGroup).equals("6"))
+				&& tempChoice.nest.equals(UtilsTS.stoUser) ){
+			Random r = new Random();
+			int rInt = r.nextInt(10);
+			if(rInt < 5){
+				int ptCaseId = getCaseId("C_" + UtilsTS.carPassenger);
 				person.myAttributes.put(UtilsTS.sim, Integer.toString(ptCaseId));
 			}
 		}
