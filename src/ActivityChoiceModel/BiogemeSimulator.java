@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.Scanner;
 
 import Smartcard.Smartcard;
@@ -104,16 +105,22 @@ public class BiogemeSimulator {
 		return constants;
 	}
 
-	public void applyModelOnTravelSurveyPopulation(String outputPath, int mode) throws IOException{
+	public void applyModelOnTravelSurveyPopulation(String outputPath, int mode, boolean useAge) throws IOException{
 		int n = 0;
 		int N = myPopulationSample.size();
 		for(BiogemeAgent person: myPopulationSample){
 			ArrayList<BiogemeChoice> choiceSet = new ArrayList<BiogemeChoice>();
-			if(mode == 1){choiceSet = modelChoiceUniverse;;}
-			else if(mode == 2){choiceSet = person.generateChoiceSetFromTravelSurvey();}
+			if(mode == 1){choiceSet = modelChoiceUniverse;}
+			else if(mode == 2){
+				System.out.println("this was not coded");
+				choiceSet = person.generateChoiceSetFromTravelSurvey();}
 			else if(mode == 3){choiceSet = person.generateChoiceSetFromTravelSurveyCHEAT();}
-
+			
+			if(useAge){
+				choiceSet = person.restrainChoiceSet(choiceSet);
+			}
 			person.applyModel(choiceSet);
+			applyPostTreatment(person);
 			n++;
 			if(n%1000 == 0){
 				System.out.println("-- " + n + " agents were processed out of " + N);
@@ -124,8 +131,8 @@ public class BiogemeSimulator {
 		String headers = "Observed choice, Simulated choice, Age, Sex, Occup,Cars, Pers, Weight";
 		myOutputFileWriter.WriteToFile(headers);
 		for(BiogemeAgent person: myPopulationSample){
-			String newLine = getChoice(person.myAttributes.get(UtilsTS.alternative)) + 
-					Utils.COLUMN_DELIMETER +getChoice(person.myAttributes.get(UtilsTS.sim)) +
+			String newLine = getChoiceName(person.myAttributes.get(UtilsTS.alternative)) + 
+					Utils.COLUMN_DELIMETER +getChoiceName(person.myAttributes.get(UtilsTS.sim)) +
 					Utils.COLUMN_DELIMETER + person.myAttributes.get(UtilsTS.ageGroup) +
 					Utils.COLUMN_DELIMETER + person.myAttributes.get(UtilsTS.sex) +
 					Utils.COLUMN_DELIMETER + person.myAttributes.get(UtilsTS.occupation) +
@@ -151,7 +158,34 @@ public class BiogemeSimulator {
 	}*/
 	
 
-	private String getChoice(String string) {
+	
+
+	private void applyPostTreatment(BiogemeAgent person) {
+		// TODO Auto-generated method stub
+			// TODO Auto-generated method stub
+		int choiceId = Integer.parseInt(person.myAttributes.get(UtilsTS.sim));
+		BiogemeChoice tempChoice = getChoice(choiceId);
+		if(tempChoice.nest.equals(UtilsTS.stoUser)){
+			Random r = new Random();
+			int rInt = r.nextInt(13);
+			if(!(rInt <= 7)){
+				int ptCaseId = getCaseId("C_" + UtilsTS.ptUserNoSto);
+				person.myAttributes.put(UtilsTS.sim, Integer.toString(ptCaseId));
+			}
+		}
+	}
+
+	private int getCaseId(String caseName) {
+		// TODO Auto-generated method stu
+		for(BiogemeChoice curChoice: modelChoiceUniverse){
+			if(curChoice.getConstantName().equals(caseName)){
+				return curChoice.biogeme_case_id;
+			}
+		}
+		return -1;
+	}
+
+	private String getChoiceName(String string) {
 		// TODO Auto-generated method stub
 		for(BiogemeChoice temp: myCtrlGen.choiceIndex){
 			if(temp.biogeme_case_id == Integer.parseInt(string)){
@@ -314,6 +348,10 @@ public class BiogemeSimulator {
 		}
 		if(!wasFound){
 			System.out.println("--error: one of the coefficient was not loaded: " + coefName);
+			BiogemeHypothesis temp = new BiogemeHypothesis();
+			temp.coefName = coefName;
+			temp.coefValue = coefValue;
+			modelHypothesis.add(temp);
 		}
 	}
 	
@@ -363,8 +401,8 @@ public class BiogemeSimulator {
 		for(String header: currAgent.myAttributes.keySet()){
 			newLine += currAgent.myAttributes.get(header) + Utils.COLUMN_DELIMETER;
 		}
-		newLine += getChoice(currAgent.myAttributes.get(UtilsTS.alternative)) + 
-				Utils.COLUMN_DELIMETER +getChoice(currAgent.myAttributes.get(UtilsTS.sim)) ;
+		newLine += getChoiceName(currAgent.myAttributes.get(UtilsTS.alternative)) + 
+				Utils.COLUMN_DELIMETER +getChoiceName(currAgent.myAttributes.get(UtilsTS.sim)) ;
 		myOutputFileWriter.WriteToFile(newLine);
 	}
 

@@ -186,15 +186,15 @@ public class Main {
 	    	//Load hypothesis and dimension for the Joint model with Biogeme
 	    	//############################################################################################
 	    	
-	    	String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file_with_nest.txt";
-			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrl9.mod";
-			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypoMultiNests.txt";
+	    	/*String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file_with_nest.txt";
+			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrl11~2.mod";
+			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypoMultiNests11.txt";
 			//String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\noHypo.txt";
 			BiogemeControlFileGenerator myCtrlGenerator = new BiogemeControlFileGenerator();
 	    	myCtrlGenerator.initialize(pathControlFile, pathHypothesis);
-			myCtrlGenerator.generateBiogemeControlFile(pathOutput);
+			//myCtrlGenerator.generateBiogemeControlFile(pathOutput);
 			//myCtrlGenerator.printChoiceIndex(Utils.DATA_DIR + "biogeme\\choiceIndex.csv");
-			System.out.println("-- control file generator initiated");
+			System.out.println("-- control file generator initiated");*/
 	    	
 			//############################################################################################
 	    	//prepare OD data for modeling using multithreading, input: travel survey as CSV file
@@ -219,25 +219,25 @@ public class Main {
 			//BE CAREFUL : HYPOTHESIS SHOULD NOT BE CHANGED, HOWEVER IT IS IMPORTANT TO EDIT THE CONTROL FILE
 			//BEFORE CALIBRATING THE MODEL WITH BIOGEME : THE FIXED PARAMETER SHOULD BE CHOOSEN, DUMMIES SHOULD SPECIFIED
 			//AND 
-			/*String pathToModel = Utils.DATA_DIR + "ptSystem\\TEST.F12";
+			/*String pathToModel = Utils.DATA_DIR + "ptSystem\\ctrl11~2.F12";
 			mySimulator = new BiogemeSimulator(myCtrlGenerator);
 			mySimulator.initialize(Utils.DATA_DIR + "biogeme\\pureData.csv");
 			mySimulator.importBiogemeModel(pathToModel);
 			mySimulator.importNest(pathToModel);
-			mySimulator.applyModelOnTravelSurveyPopulation(Utils.DATA_DIR + "biogeme\\TEST.csv",1);
+			mySimulator.applyModelOnTravelSurveyPopulation(Utils.DATA_DIR + "biogeme\\ageCriterion4.csv",1, true);*/
 			
 			//############################################################################################
 	    	//Load Smartcard data and process them to label with a choice id
 	    	//############################################################################################
+	    	String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file_with_nest.txt";
+			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrl11~2.mod";
+			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypoMultiNests11.txt";
 			
-	    	/*String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file.txt";
-			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrl.mod";
-			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypothesis9.txt";
 			BiogemeControlFileGenerator myCtrlGenerator = new BiogemeControlFileGenerator();
 			
 			PublicTransitSystem myPublicTransitSystem = new PublicTransitSystem();
 			
-	    	myCtrlGenerator.initialize(pathControlFile, pathOutput, pathHypothesis);
+	    	myCtrlGenerator.initialize(pathControlFile, pathHypothesis);
 			//myCtrlGenerator.generateBiogemeControlFile();
 			//myCtrlGenerator.printChoiceIndex(Utils.DATA_DIR + "biogeme\\choiceIndex.csv");
 			System.out.println("-- control file generator initiated");
@@ -248,7 +248,7 @@ public class Main {
 					Utils.DATA_DIR + "ptSystem\\stops.txt",
 					Utils.DATA_DIR + "ptSystem\\geoDico500.csv",
 					Utils.DATA_DIR + "ptSystem\\population.csv",
-					Utils.DATA_DIR + "biogeme\\ctrl3.F12"
+					Utils.DATA_DIR + "ptSystem\\ctrl11~2.F12"
 					);
 			myPublicTransitSystem.getValues();
 			System.out.println("--pt system initialized");
@@ -259,11 +259,11 @@ public class Main {
 			System.out.println("--potential smartcard assigned");
 			
 			//########
-			Utils.occupationCriterion = false;
+			Utils.occupationCriterion = true;
 			//myPublicTransitSystem.processMatchingStationByStation();
 			//myPublicTransitSystem.processMatchingOnPtRiders();
 			myPublicTransitSystem.processMatchingOnPtRidersByBatch(3);
-			myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSMWithChoiceSet2.csv");
+			myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSMWithChoiceSet3.csv");
 			
 			
 			

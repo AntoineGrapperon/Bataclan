@@ -267,6 +267,14 @@ public class BiogemeControlFileGenerator {
     		if(choiceId == -1){
     			
     		}
+    		else if(!alreadyWritten.contains(choiceName) && choiceName.equals("C_" + UtilsTS.carDriver)){
+    			alreadyWritten.add(choiceName);
+    			output = choiceId + "	" 
+    					+ choiceName + "	avail1 " 
+    					+ choiceName + " * one" 
+    					+ addCoefficients(currChoice.choiceCombination);	
+    			myDataWriter.WriteToFile(output);
+    		}
     		else if(!alreadyWritten.contains(choiceName)){
     			alreadyWritten.add(choiceName);
     			output = choiceId + "	" 
@@ -603,6 +611,7 @@ public class BiogemeControlFileGenerator {
     	myDataWriter.WriteToFile("[Expressions] ");
     	myDataWriter.WriteToFile("one = 1 ");
     	myDataWriter.WriteToFile("avail = 1 ");
+    	myDataWriter.WriteToFile("avail1 = (GRPAGE != 0) * (NBVEH != 0 )");
     	writeDummies();
     	/*myDataWriter.WriteToFile("EARLY_WORKER_var = (OCCUP == 0 ) * (FIRST_DEPShort * 0 )");
     	myDataWriter.WriteToFile("RETIRE_FIRST_DEP_var = (OCCUP == 2 ) * (FIRST_DEPShort * 2 )");

@@ -4,6 +4,7 @@
 package ActivityChoiceModel;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
@@ -167,25 +168,47 @@ public class BiogemeAgent {
 	public ArrayList<BiogemeChoice> generateChoiceSetFromTravelSurveyCHEAT() {
 		// TODO Auto-generated method stub
 		ArrayList<BiogemeChoice> choiceSet = new ArrayList<BiogemeChoice>();
+		ArrayList<String> alreadySampled = new ArrayList<String>();
+		
 		boolean pt = false;
 		for(String header: myAttributes.keySet()){
 			//System.out.println(header);
 			//System.out.println(header);
 			if(header.contains(UtilsTS.alternative)){
 				int choiceIndex = Integer.parseInt(myAttributes.get(header));
-				BiogemeChoice curChoice = BiogemeSimulator.getChoice(choiceIndex);
-				if(curChoice.getConstantName().equals(UtilsTS.noPt) && !pt){
-					choiceSet.add(curChoice);
-					pt = true;
-				}
-				else if(!curChoice.getConstantName().equals(UtilsTS.noPt)){
-					choiceSet.add(curChoice);
+				
+				if(! (choiceIndex == -1)){
+					BiogemeChoice curChoice = BiogemeSimulator.getChoice(choiceIndex);
+					String cstName = curChoice.getConstantName();
+					if(!alreadySampled.contains(cstName)){
+						choiceSet.add(curChoice);
+						alreadySampled.add(cstName);
+					}
 				}
 			}
 		}
+		
+		addNestChoices(choiceSet, alreadySampled);
 		return choiceSet;
 	}
-	
+
+	private void addNestChoices(ArrayList<BiogemeChoice> choiceSet, ArrayList<String> alreadySampled) {
+		// TODO Auto-generated method stub
+		for(BiogemeChoice curChoice: BiogemeSimulator.modelChoiceUniverse){
+			String cstName = curChoice.nest;
+			if(cstName.equals(UtilsTS.carDriver) ||
+					cstName.equals(UtilsTS.carPassenger) ||
+					cstName.equals(UtilsTS.activeMode) ||
+					cstName.equals(UtilsTS.ptUserNoSto)){
+				if(!alreadySampled.contains(cstName)){
+					choiceSet.add(curChoice);
+					alreadySampled.add(cstName);
+				}
+			}
+		}
+	}
+
+	@Deprecated
 	public ArrayList<BiogemeChoice> generateChoiceSetFromTravelSurvey() {
 		// TODO Auto-generated method stub
 		ArrayList<BiogemeChoice> choiceSet = new ArrayList<BiogemeChoice>();
@@ -455,10 +478,25 @@ public class BiogemeAgent {
 	public boolean isStoRider() {
 		// TODO Auto-generated method stub
 		ArrayList<BiogemeChoice> choiceSet = BiogemeSimulator.modelChoiceUniverse;
+		choiceSet = restrainChoiceSet(choiceSet);
+		HashMap<String, Double> realizedNests = getRealizedNests(choiceSet);
+		
 		computeUtilities(choiceSet);
-		ArrayList<Double> nestCumProb = getNestCumulativeProbabilities();
+		ArrayList<Double> nestCumProb = getNestCumulativeProbabilities(choiceSet, realizedNests);
 		int choice = antitheticDraw(nestCumProb);
-		if(choice == 0){
+		
+		
+		//apply a post treatement to balance when needed
+		if(choice == 2){
+			Random r = new Random();
+			int rInt = r.nextInt(13);
+			if(!(rInt <= 7)){
+				choice = 3;
+			}
+		}
+		
+		
+		if(choice == 2){
 			return true;
 		}
 		else{
@@ -467,52 +505,58 @@ public class BiogemeAgent {
 	}
 
 
-	private ArrayList<Double> getNestCumulativeProbabilities() {
+	private ArrayList<Double> getNestCumulativeProbabilities(ArrayList<BiogemeChoice> choices, HashMap<String, Double> nests) {
 		// TODO Auto-generated method stub
 		ArrayList<Double> cumProb = new ArrayList<Double>();
+		
 		HashMap<String,Double> cumProbs = new HashMap<String,Double>();
-		/*double logsumStoNest = 0;
-		double logsumNoPtNest = 0;*/
+		for(String nest: BiogemeSimulator.nests.keySet()){
+			cumProbs.put(nest, 0.0);
+		}
+		
 		HashMap<String, Double> logsums = new HashMap<String, Double>();
+		for(String nest: BiogemeSimulator.nests.keySet()){
+			logsums.put(nest, 0.0);
+		}
 		//double noPtScale = BiogemeSimulator.noPtScale;
 		//double stoScale = BiogemeSimulator.stoScale;*/
 		
-		for(BiogemeChoice curChoice: BiogemeSimulator.modelChoiceUniverse){
+		
+		//compute sum of exp(utility*scale)
+		for(BiogemeChoice curChoice: choices){
 			String nestName = curChoice.getNestName();
 			double scale = BiogemeSimulator.nests.get(nestName);
 			double logsum = logsums.get(nestName);
 			
 			logsum += Math.exp(scale * curChoice.utility);
 			logsums.put(nestName, logsum);
-			
-			
-			/*if(curChoice.biogeme_case_id == 0){
-				logsumNoPtNest+= Math.exp(noPtScale * curChoice.utility);
-			}
-			else{
-				logsumStoNest += Math.exp(stoScale * curChoice.utility);
-			}*/
 		}
-		/*logsumNoPtNest = Math.log(logsumNoPtNest);
-		logsumStoNest = Math.log(logsumStoNest);*/
-		for(String nest: BiogemeSimulator.nests.keySet()){
-			double logsum = BiogemeSimulator.nests.get(nest);
+		
+		//take the logarithm of the sum of exp
+		for(String nest: nests.keySet()){
+			double logsum = logsums.get(nest);
 			logsum = Math.log(logsum);
 			logsums.put(nest,logsum);
 		}
+		
+		//compute the common enominator
 		double denom = 0;
-		for(String nest: BiogemeSimulator.nests.keySet()){
+		for(String nest: nests.keySet()){
 			double logsum = logsums.get(nest);
 			double scale = BiogemeSimulator.nests.get(nest);
 			denom+= Math.exp(logsum/scale);
 		}
-		for(String nest: BiogemeSimulator.nests.keySet()){
+		
+		//compute the probabilities
+		for(String nest: nests.keySet()){
 			double logsum = logsums.get(nest);
 			double scale = BiogemeSimulator.nests.get(nest);
 			double prob = Math.exp(logsum/scale)/denom;
 			cumProbs.put(nest, prob);
 		}
 		
+		
+		//create cumulative probabilities
 		cumProb.add(cumProbs.get(UtilsTS.carDriver));
 		cumProb.add(cumProb.get(cumProb.size()-1)+cumProbs.get(UtilsTS.carPassenger));
 		cumProb.add(cumProb.get(cumProb.size()-1)+cumProbs.get(UtilsTS.stoUser));
@@ -734,6 +778,37 @@ currChoice.utility = utility;
 		}
 		return utility;
 	}
+
+	
+	// TODO Auto-generated method stub
+	public ArrayList<BiogemeChoice> restrainChoiceSet(ArrayList<BiogemeChoice> choiceSet) {
+		// TODO Auto-generated method stub
+		ArrayList<BiogemeChoice> temp = new ArrayList<BiogemeChoice>();
+		
+		for(int i = 0; i < choiceSet.size(); i++){
+			boolean t = true;
+			BiogemeChoice curChoice = choiceSet.get(i);
+			if(curChoice.getNestName().equals(UtilsTS.carDriver)){
+				if(myAttributes.get(UtilsSM.dictionnary.get(UtilsTS.ageGroup)).equals("0")){
+					Random r = new Random();
+					int rInt = r.nextInt(8);
+					if(!(rInt == 1)){
+						t = false;
+					}
+				}
+				else if(myAttributes.get(UtilsSM.dictionnary.get(UtilsTS.cars)).equals("0")){
+					t = false;
+				}
+			}
+			if(t){
+				temp.add(curChoice);
+			}
+		}
+		return temp;
+	}
+
+
+	
 			
 	
 	/*
