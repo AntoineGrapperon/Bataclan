@@ -21,12 +21,16 @@ public class UtilsSM {
 	public static String cardId = "numCarte";
 	public static String date = "dateComp";
 	public static String firstTrans = "dailyFirstTransaction";
+	public static String lastTrans = "dailyLastTransaction";
 	public static String time = "heureComp";
 	public static String isNotFirst = "F";
+	public static String isNotLast = "F";
 	public static String isFirst = "T";
+	public static String isLast = "T";
 	public static String zoneId = "DAUID";
 	public static String lineId = "NM_LI";
 	public static String stationId = "NUM_ARRET";
+	public static String destStationId = "DER_Num_Arret_Dest";
 	public static String nextStationId = "DER_Num_Arret_Dest";
 	
 	public static double morningPeakHourStart = 420; 
@@ -51,6 +55,7 @@ public class UtilsSM {
 	public static HashMap<String, String> dictionnary = new HashMap<String, String>();
 	public static String agentId = "agentId";
 	public static String fare = "paidFare";
+	
 	
 	public UtilsSM(){
 		dictionnary.put(UtilsTS.ageGroup, "age");

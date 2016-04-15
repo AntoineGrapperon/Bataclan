@@ -186,13 +186,13 @@ public class Main {
 	    	//Load hypothesis and dimension for the Joint model with Biogeme
 	    	//############################################################################################
 	    	
-	    	/*String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file_with_nest.txt";
-			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrl11~2.mod";
-			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypoMultiNests11.txt";
+	    	String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file_with_nest.txt";
+			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrlWithAccess2.mod";
+			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypoMultiNestWithAccess2.txt";
 			//String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\noHypo.txt";
 			BiogemeControlFileGenerator myCtrlGenerator = new BiogemeControlFileGenerator();
 	    	myCtrlGenerator.initialize(pathControlFile, pathHypothesis);
-			//myCtrlGenerator.generateBiogemeControlFile(pathOutput);
+			myCtrlGenerator.generateBiogemeControlFile(pathOutput);
 			//myCtrlGenerator.printChoiceIndex(Utils.DATA_DIR + "biogeme\\choiceIndex.csv");
 			System.out.println("-- control file generator initiated");
 	    	
@@ -206,11 +206,11 @@ public class Main {
 	    	//Therefore, it is no honest to separate in subsample, because by doing so I am assuming that alternatives in the other samples are not reachable.
 	    	//Which is false. Therefore, the non multithreading function should be used. (it is 8 hours against 1/2 hours).
 			
-	    	/*odGatineau.initialize(Utils.DATA_DIR + "\\odGatineauRESTREINT.csv");
+	    	/*odGatineau.initialize(Utils.DATA_DIR + "\\odGatineau.csv");
 	    	int numberOfLogicalProcessors = Runtime.getRuntime().availableProcessors() -1;
-	    	numberOfLogicalProcessors = 4;
+	    	numberOfLogicalProcessors = 1;
 	    	System.out.println("--computation with: " + numberOfLogicalProcessors + " logical processors");
-	    	odGatineau.processDataMultiThreads(numberOfLogicalProcessors, 20, myCtrlGenerator);*/
+	    	odGatineau.processDataMultiThreads(numberOfLogicalProcessors, 20, myCtrlGenerator);
 	    	
 	    	//############################################################################################
 	    	//Load Agents and simulate their choices from the travel survey
@@ -219,7 +219,7 @@ public class Main {
 			//BE CAREFUL : HYPOTHESIS SHOULD NOT BE CHANGED, HOWEVER IT IS IMPORTANT TO EDIT THE CONTROL FILE
 			//BEFORE CALIBRATING THE MODEL WITH BIOGEME : THE FIXED PARAMETER SHOULD BE CHOOSEN, DUMMIES SHOULD SPECIFIED
 			//AND 
-		/*	String pathToModel = Utils.DATA_DIR + "ptSystem\\ctrl11~2.F12";
+			String pathToModel = Utils.DATA_DIR + "ptSystem\\ctrl11~2.F12";
 			mySimulator = new BiogemeSimulator(myCtrlGenerator);
 			mySimulator.initialize(Utils.DATA_DIR + "biogeme\\pureData.csv");
 			mySimulator.importBiogemeModel(pathToModel);
@@ -229,7 +229,7 @@ public class Main {
 			//############################################################################################
 	    	//Load Smartcard data and process them to label with a choice id
 	    	//############################################################################################
-	    	String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file_with_nest.txt";
+	    	/*String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file_with_nest.txt";
 			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrl11~2.mod";
 			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypoMultiNests11.txt";
 			
@@ -259,11 +259,11 @@ public class Main {
 			System.out.println("--potential smartcard assigned");
 			
 			//########
-			Utils.occupationCriterion = false;
+			Utils.occupationCriterion = true;
 			//myPublicTransitSystem.processMatchingStationByStation();
 			//myPublicTransitSystem.processMatchingOnPtRiders();
 			myPublicTransitSystem.processMatchingOnPtRidersByBatch(3);
-			myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSMWithoutChoiceSet4.csv");
+			myPublicTransitSystem.printSmartcards(Utils.DATA_DIR + "ptSystem\\matchedSMWithCHoiceSetWithBetterLivingLocation.csv");*/
 			
 			
 			
@@ -274,12 +274,14 @@ public class Main {
 			//String pathData = Utils.DATA_DIR + "SRMSE//matchedSMGlobalRandom.csv";
 			//String pathData = Utils.DATA_DIR + "SRMSE//matchedSMLocalRandom.csv";
 			//String pathData = Utils.DATA_DIR + "SRMSE//matchedSMWithoutChoiceSet.csv";
-			/*String pathData = Utils.DATA_DIR + "SRMSE//matchedSMWithChoiceSet.csv";
+			//String pathData = Utils.DATA_DIR + "SRMSE//matchedSMWithChoiceSet.csv";
+			//String pathData = Utils.DATA_DIR + "SRMSE//matchedSMWithCHoiceSetWithBetterLivingLocation.csv";
+	    	/*String pathData = Utils.DATA_DIR + "SRMSE//matchedSMWithoutChoiceSet4.csv";
 			String pathRef = Utils.DATA_DIR + "SRMSE//odStoUsers.csv";
 	    	SRMSE srmse = new SRMSE();
 			srmse.getDistributions(pathData, pathRef);
 			double temp = srmse.computeSRMSE();
-			System.out.println(temp);*/
+			System.out.println(temp);
 
 	    	
 	    	//###############################################################################

@@ -141,10 +141,10 @@ public class BiogemeControlFileGenerator {
     		}
     	}
     	myDataWriter.WriteToFile(UtilsTS.carDriver + "    1.0     1.0   10.0   1     " + casesCar);
-    	myDataWriter.WriteToFile(UtilsTS.carPassenger + "      1.0     1.0   10.0   0     " + casesPass);
-    	myDataWriter.WriteToFile(UtilsTS.stoUser + "      1.0     1.0   10.0   0     " + casesSto);	
-    	myDataWriter.WriteToFile(UtilsTS.ptUserNoSto + "      1.0     1.0   10.0   0     " + casesPt);	
-    	myDataWriter.WriteToFile(UtilsTS.activeMode + "      1.0     1.0   10.0   0     " + casesActive);	
+    	myDataWriter.WriteToFile(UtilsTS.carPassenger + "      1.0     1.0   10.0   1     " + casesPass);
+    	myDataWriter.WriteToFile(UtilsTS.stoUser + "      7.5     1.0   10.0   1     " + casesSto);	
+    	myDataWriter.WriteToFile(UtilsTS.ptUserNoSto + "      1.0     1.0   10.0   1     " + casesPt);	
+    	myDataWriter.WriteToFile(UtilsTS.activeMode + "      1.0     1.0   10.0   1     " + casesActive);	
 	}
 
 	private void writeBetaPart() throws IOException {
@@ -176,7 +176,7 @@ public class BiogemeControlFileGenerator {
         		if(!alreadyWritten.contains(choiceName)){
         			alreadyWritten.add(choiceName);
         			if(choiceName.equals("C_" + UtilsTS.carDriver)){
-        				myDataWriter.WriteToFile(choiceName + " 	    0.0          -10.0     2.0         1");	
+        				myDataWriter.WriteToFile(choiceName + " 	    1          -10.0     2.0         1");	
         			}
         			else{
         				myDataWriter.WriteToFile(choiceName + " 	    0.0          -10.0     2.0         0");	

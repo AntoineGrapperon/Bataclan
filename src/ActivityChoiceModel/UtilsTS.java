@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 public class UtilsTS {
 	
+	public static String end = "endWith";
+	public static String startWithSto = "startWithSto";
+	public static String accessToPt = "accessIndicator";
 	public static String city;
 	//Constants
     public static String id;

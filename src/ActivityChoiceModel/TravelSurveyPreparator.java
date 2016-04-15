@@ -914,7 +914,12 @@ public class TravelSurveyPreparator {
 				Iterator<String> it2 = toPrint.iterator();
 				while(it2.hasNext()){
 					String head = it2.next();
-					line += myData.get(head).get(i) + Utils.COLUMN_DELIMETER;
+					try{
+						line += myData.get(head).get(i) + Utils.COLUMN_DELIMETER;
+					}
+					catch(NullPointerException e){
+						line += Utils.COLUMN_DELIMETER;
+					}
 				}
 				line = line.substring(0, line.length()-1);
 				myOutputFileWritter.WriteToFile(line);
@@ -928,6 +933,8 @@ public class TravelSurveyPreparator {
 	public void selectAndPrint(int choiceSetSize){
 		ArrayList<String> headers = new ArrayList<String>();
 		headers.add(UtilsTS.id);
+		headers.add("X");
+		headers.add("Y");
 		headers.add(UtilsTS.mNumero);
 		headers.add(UtilsTS.domSdr);
 		headers.add(UtilsTS.domAd);
@@ -949,6 +956,10 @@ public class TravelSurveyPreparator {
 		headers.add(UtilsTS.fidelPtRange);
 		headers.add(UtilsTS.nAct);
 		headers.add(UtilsTS.nest);
+		headers.add(UtilsTS.startWithSto);
+		headers.add(UtilsTS.accessToPt);
+		headers.add(UtilsTS.end);
+		
 		/*headers.add(UtilsTS.firstDep);//FIRST departure
 		headers.add(UtilsTS.lastDep);
 		headers.add(UtilsTS.chainLength);
@@ -1065,6 +1076,8 @@ public class TravelSurveyPreparator {
 
 		processSTOuser();
 		processNest();
+		processStartWithSTO();
+		processLastWithSTO();
 		
 		processSocioDemographic();
 		System.out.println("--socio demographic category were processed");
@@ -1120,6 +1133,63 @@ public class TravelSurveyPreparator {
 		cores.shutdown();
     }
 	
+	private void processLastWithSTO() {
+		// TODO Auto-generated method stub
+		ArrayList<Object> ends = new ArrayList<Object>();
+		for(int i = 0; i < myData.get(UtilsTS.id).size();i++){
+			String end = new String();
+			if(myData.get(UtilsTS.pDebut).get(i).equals("T")){
+				String hhId = (String)myData.get(UtilsTS.mNumero).get(i);
+				String persId = (String)myData.get(UtilsTS.pRang).get(i);
+				for(int j = i; j < myData.get(UtilsTS.id).size(); j++){
+					if(hhId.equals((String)myData.get(UtilsTS.mNumero).get(j)) && persId.equals((String)myData.get(UtilsTS.pRang).get(j))){
+						String mode1 = (String)myData.get(UtilsTS.mode1).get(j);
+						String mode2 = (String)myData.get(UtilsTS.mode2).get(j);
+						String mode3 = (String)myData.get(UtilsTS.mode3).get(j);
+						String mode4 = (String)myData.get(UtilsTS.mode4).get(j);
+						String mode5 = (String)myData.get(UtilsTS.mode5).get(j);
+						if(!mode5.equals("")){end = mode5;}
+						else if(!mode4.equals("")){end = mode4;}
+						else if(!mode3.equals("")){end = mode3;}
+						else if(!mode2.equals("")){end = mode2;}
+						else if(!mode1.equals("")){end = mode1;}
+						
+					}
+					else{
+						j+=400000;
+					}
+				}
+			}
+			else{
+				end = "nothing";
+			}
+			ends.add(end);
+		}
+		myData.put(UtilsTS.end, ends);
+	}
+
+	private void processStartWithSTO() {
+		// TODO Auto-generated method stub
+		ArrayList<Object> startWithSto = new ArrayList<Object>();
+		for(int i = 0; i < myData.get(UtilsTS.id).size(); i++){
+			String start;
+			if(myData.get(UtilsTS.pDebut).get(i).equals("T")){
+				start = (String) myData.get(UtilsTS.mode1).get(i);
+				if(start.equals("4")){
+					start = "1";
+				}
+				else{
+					start = "0";
+				}
+			}
+			else{
+				start = "0";
+			}
+			startWithSto.add(start);
+		}
+		myData.put(UtilsTS.startWithSto, startWithSto);
+	}
+
 	private void processSTOuser() {
 		// TODO Auto-generated method stub
 		ArrayList<Object> stoUser = new ArrayList<Object>();

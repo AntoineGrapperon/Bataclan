@@ -37,6 +37,8 @@ public class SmartcardDataManager extends DataManager{
 		assignChoiceId();
 		System.out.println("--identify choice Id");
 		prepareTripChainAttributes();
+		
+		
 		assignColumnIndex();
 		
 		return mySmartcards;
@@ -107,7 +109,10 @@ public class SmartcardDataManager extends DataManager{
 		// TODO Auto-generated method stub
 		for(Smartcard currSm : mySmartcards){
 			currSm.tagFirstTransaction();
-			currSm.identifyMostFrequentStation();
+			currSm.tagLastTransaction();
+			//currSm.identifyMostFrequentStation();
+			currSm.identifyLivingStation();
+			
 		}
 	}
 

@@ -189,6 +189,7 @@ public class Smartcard extends BiogemeChoice{
 		else{return 3;}
 	}
 	
+	
 	public int getWeekDayAveragePtFidelity(double distanceThreshold){
 		int counterTripLegs = 0;
 		int counterNonPt = 0;
@@ -248,6 +249,77 @@ public class Smartcard extends BiogemeChoice{
 		stationId = Integer.parseInt(myStationId);
 	}
 
+	private ArrayList<Object> getAverageFirstDepTime() {
+		// TODO Auto-generated method stub
+		HashMap<String, Integer> stopFrequencies = new HashMap<String, Integer>();
+		HashMap<String, Double> stopTime = new HashMap<String,Double>();
+		
+		for(int i = 0; i < myData.get(UtilsSM.cardId).size(); i++){
+			String date = myData.get(UtilsSM.date).get(i);
+			double time = hourStrToDouble(myData.get(UtilsSM.time).get(i));
+			if(isFirst(date, time)){
+				String stopId = myData.get(UtilsSM.stationId).get(i);
+				if(stopFrequencies.containsKey(stopId)){
+					int fr = stopFrequencies.get(stopId) + 1;
+					double t = stopFrequencies.get(stopId) + time;
+					stopFrequencies.put(stopId, fr);
+					stopTime.put(stopId, t);
+				}
+				else{
+					stopFrequencies.put(stopId, 1);
+					stopTime.put(stopId, time);
+				}
+			}
+		}
+		
+		String myStationId = new String();
+		Integer freq = 0;
+		for(String key: stopFrequencies.keySet()){
+			if(stopFrequencies.get(key)>freq){
+				myStationId = key;
+				freq = stopFrequencies.get(key);
+			}
+		}
+		
+		double avgTime = stopTime.get(myStationId);
+		avgTime = avgTime/stopTime.size();
+		ArrayList<Object> answer = new ArrayList<Object>();
+		answer.add(myStationId);
+		answer.add(avgTime);
+		return answer;
+	}
+	
+	private String getMostFrequentLastStation() {
+		// TODO Auto-generated method stub
+		HashMap<String, Integer> stopFrequencies = new HashMap<String, Integer>();
+		
+		for(int i = 0; i < myData.get(UtilsSM.cardId).size(); i++){
+			String date = myData.get(UtilsSM.date).get(i);
+			double time = hourStrToDouble(myData.get(UtilsSM.time).get(i));
+			if(isLast(date, time)){
+				String stopId = myData.get(UtilsSM.destStationId).get(i);
+				if(stopFrequencies.containsKey(stopId) && !stopId.equals("0")){
+					int fr = stopFrequencies.get(stopId) + 1;
+					stopFrequencies.put(stopId, fr);
+				}
+				else{
+					stopFrequencies.put(stopId, 1);
+				}
+			}
+		}
+		
+		String myStationId = new String();
+		Integer freq = 0;
+		for(String key: stopFrequencies.keySet()){
+			if(stopFrequencies.get(key)>freq){
+				myStationId = key;
+				freq = stopFrequencies.get(key);
+			}
+		}
+		
+		return myStationId;
+	}
+
 	/**
 	 * This function returns a HashMap those key set is constituted of all the zone id that the smart card holder validated in for the first trip of each day.
 	 * The value is the number of time he validated in in the zone.
@@ -300,6 +372,20 @@ public class Smartcard extends BiogemeChoice{
 		return true;
 	}
 	
+	public void tagLastTransaction(){
+		myData.put(UtilsSM.lastTrans, new ArrayList<String>());	
+		for(int i = 0; i < myData.get(UtilsSM.cardId).size(); i++){
+			String date = myData.get(UtilsSM.date).get(i);
+			double time = hourStrToDouble(myData.get(UtilsSM.time).get(i));
+			if(isLast(date,time)){
+				myData.get(UtilsSM.lastTrans).add(UtilsSM.isLast);
+			}
+			else{
+				myData.get(UtilsSM.lastTrans).add(UtilsSM.isNotLast);
+			}
+		}
+	}
+	
 	public boolean isLast(String date, double time){
 		for(int j = 0; j < myData.get(UtilsSM.cardId).size(); j++){
 			String date2 = myData.get(UtilsSM.date).get(j);
@@ -325,5 +411,43 @@ public class Smartcard extends BiogemeChoice{
 			hour = 60 * Double.parseDouble(Character.toString(time.charAt(0))) + Double.parseDouble(time.substring(1,2));
 		}
 		return hour; //here, hour is in minutes
+	}
+
+	public void identifyLivingStation() {
+		// TODO Auto-generated method stub
+		
+		int nAct = getDailyBoardings();
+		
+		ArrayList<Object> firstDepTime = getAverageFirstDepTime();
+		String station = (String)firstDepTime.get(0);
+		double depTime = (double)firstDepTime.get(1);
+		
+		if(nAct <= 1){
+			if(depTime < 720 ){
+				stationId = Integer.parseInt(station);
+			}
+			else{
+				stationId = Integer.parseInt(getMostFrequentLastStation());
+			}
+		}
+		else{
+			stationId = Integer.parseInt(station);
+		}
+		
+	}
+
+	private int getDailyBoardings() {
+		// TODO Auto-generated method stub
+		int dayCount = 0;
+		
+		
+		for(int j = 0; j < myData.get(UtilsSM.cardId).size(); j++){
+			String date2 = myData.get(UtilsSM.date).get(j);
+			double time2 = hourStrToDouble(myData.get(UtilsSM.time).get(j));
+			if(isFirst(date2,time2)){
+				dayCount++;
+			}
+		}
+		return myData.size()/dayCount;
 	}
 }
