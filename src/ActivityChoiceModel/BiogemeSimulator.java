@@ -37,7 +37,7 @@ public class BiogemeSimulator {
 	/**
 	 * choiceUniverse is required only for simulating the model with smart card data. For simulating the model with the travel survey, alternatives are computed a bit differently.
 	 */
-	HashMap<String, BiogemeChoice> choiceUniverse = new HashMap<String, BiogemeChoice>();
+	//HashMap<String, BiogemeChoice> choiceUniverse = new HashMap<String, BiogemeChoice>();
 	
 	public BiogemeSimulator(){
 	}
@@ -120,7 +120,7 @@ public class BiogemeSimulator {
 				choiceSet = person.restrainChoiceSet(choiceSet);
 			}
 			person.applyModel(choiceSet);
-			applyPostTreatment(person);
+			//applyPostTreatment(person);
 			n++;
 			if(n%1000 == 0){
 				System.out.println("-- " + n + " agents were processed out of " + N);

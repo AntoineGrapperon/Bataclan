@@ -611,6 +611,7 @@ public class BiogemeControlFileGenerator {
     	myDataWriter.WriteToFile("[Expressions] ");
     	myDataWriter.WriteToFile("one = 1 ");
     	myDataWriter.WriteToFile("avail = 1 ");
+    	myDataWriter.WriteToFile("avail = (accessIndicator == 1 ) ");
     	myDataWriter.WriteToFile("avail1 = (GRPAGE != 0) * (NBVEH != 0 )");
     	writeDummies();
     	/*myDataWriter.WriteToFile("EARLY_WORKER_var = (OCCUP == 0 ) * (FIRST_DEPShort * 0 )");

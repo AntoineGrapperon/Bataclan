@@ -58,7 +58,7 @@ public class UtilsSM {
 	
 	
 	public UtilsSM(){
-		dictionnary.put(UtilsTS.ageGroup, "age");
+		/*dictionnary.put(UtilsTS.ageGroup, "age");
 		dictionnary.put(UtilsTS.sex, "sex");
 		dictionnary.put(UtilsTS.mStat, "mStat");
 		dictionnary.put(UtilsTS.pers, "nPers");
@@ -66,9 +66,9 @@ public class UtilsSM {
 		dictionnary.put(UtilsTS.cars, "car");
 		dictionnary.put(UtilsTS.occupation, "occ");
 		dictionnary.put(UtilsTS.edu, "edu");
-		dictionnary.put(UtilsTS.motor, "car");
+		dictionnary.put(UtilsTS.motor, "car");*/
 		
-		/*dictionnary.put(UtilsTS.motor, "car");
+		dictionnary.put(UtilsTS.motor, "car");
 		dictionnary.put(UtilsTS.edu, "edu");
 		dictionnary.put(UtilsTS.ageGroup, UtilsTS.ageGroup);
 		dictionnary.put(UtilsTS.sex, UtilsTS.sex);
@@ -78,7 +78,7 @@ public class UtilsSM {
 		dictionnary.put(UtilsTS.cars, UtilsTS.cars);
 		dictionnary.put(UtilsTS.occupation, UtilsTS.occupation);
 		dictionnary.put(UtilsTS.edu, UtilsTS.edu);
-		dictionnary.put(UtilsTS.motor, UtilsTS.motor);*/
+		dictionnary.put(UtilsTS.motor, UtilsTS.motor);
 		
 	}
 	

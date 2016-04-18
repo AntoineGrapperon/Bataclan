@@ -187,8 +187,8 @@ public class Main {
 	    	//############################################################################################
 	    	
 	    	String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file_with_nest.txt";
-			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrlWithAccess2.mod";
-			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypoMultiNestWithAccess2.txt";
+			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrlWithAccess4.mod";
+			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypoMultiNestWithAccess3.txt";
 			//String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\noHypo.txt";
 			BiogemeControlFileGenerator myCtrlGenerator = new BiogemeControlFileGenerator();
 	    	myCtrlGenerator.initialize(pathControlFile, pathHypothesis);
@@ -210,7 +210,7 @@ public class Main {
 	    	int numberOfLogicalProcessors = Runtime.getRuntime().availableProcessors() -1;
 	    	numberOfLogicalProcessors = 1;
 	    	System.out.println("--computation with: " + numberOfLogicalProcessors + " logical processors");
-	    	odGatineau.processDataMultiThreads(numberOfLogicalProcessors, 20, myCtrlGenerator);
+	    	odGatineau.processDataMultiThreads(numberOfLogicalProcessors, 2, myCtrlGenerator);*/
 	    	
 	    	//############################################################################################
 	    	//Load Agents and simulate their choices from the travel survey
@@ -219,12 +219,12 @@ public class Main {
 			//BE CAREFUL : HYPOTHESIS SHOULD NOT BE CHANGED, HOWEVER IT IS IMPORTANT TO EDIT THE CONTROL FILE
 			//BEFORE CALIBRATING THE MODEL WITH BIOGEME : THE FIXED PARAMETER SHOULD BE CHOOSEN, DUMMIES SHOULD SPECIFIED
 			//AND 
-			String pathToModel = Utils.DATA_DIR + "ptSystem\\ctrl11~2.F12";
+			/*String pathToModel = Utils.DATA_DIR + "ptSystem\\ctrlWithAccess3~1.F12";
 			mySimulator = new BiogemeSimulator(myCtrlGenerator);
-			mySimulator.initialize(Utils.DATA_DIR + "biogeme\\pureData.csv");
+			mySimulator.initialize(Utils.DATA_DIR + "biogeme\\odGatineauRESTREINTWithAccess_prepared.csv");
 			mySimulator.importBiogemeModel(pathToModel);
 			mySimulator.importNest(pathToModel);
-			mySimulator.applyModelOnTravelSurveyPopulation(Utils.DATA_DIR + "biogeme\\ageCriterion6.csv",1, true);*/
+			mySimulator.applyModelOnTravelSurveyPopulation(Utils.DATA_DIR + "biogeme\\simuleOD1704-2.csv",1, true);
 			
 			//############################################################################################
 	    	//Load Smartcard data and process them to label with a choice id
