@@ -187,8 +187,8 @@ public class Main {
 	    	//############################################################################################
 	    	
 	    	String pathControlFile =Utils.DATA_DIR + "biogeme\\ctrl\\biogeme_ctrl_file_with_nest.txt";
-			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrlWithAccess4.mod";
-			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypoMultiNestWithAccess3.txt";
+			String pathOutput = Utils.DATA_DIR + "\\biogeme\\ctrlWithZones.mod";
+			String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\hypoMultiNestWithZones.txt";
 			//String pathHypothesis = Utils.DATA_DIR + "biogeme\\ctrl\\noHypo.txt";
 			BiogemeControlFileGenerator myCtrlGenerator = new BiogemeControlFileGenerator();
 	    	myCtrlGenerator.initialize(pathControlFile, pathHypothesis);
@@ -219,12 +219,12 @@ public class Main {
 			//BE CAREFUL : HYPOTHESIS SHOULD NOT BE CHANGED, HOWEVER IT IS IMPORTANT TO EDIT THE CONTROL FILE
 			//BEFORE CALIBRATING THE MODEL WITH BIOGEME : THE FIXED PARAMETER SHOULD BE CHOOSEN, DUMMIES SHOULD SPECIFIED
 			//AND 
-			/*String pathToModel = Utils.DATA_DIR + "ptSystem\\ctrlWithAccess3~1.F12";
+			String pathToModel = Utils.DATA_DIR + "ptSystem\\ctrlWithZones~1.F12";
 			mySimulator = new BiogemeSimulator(myCtrlGenerator);
-			mySimulator.initialize(Utils.DATA_DIR + "biogeme\\odGatineauRESTREINTWithAccess_prepared.csv");
+			mySimulator.initialize(Utils.DATA_DIR + "biogeme\\dataZones2.csv");
 			mySimulator.importBiogemeModel(pathToModel);
 			mySimulator.importNest(pathToModel);
-			mySimulator.applyModelOnTravelSurveyPopulation(Utils.DATA_DIR + "biogeme\\simuleOD1704-2.csv",1, true);
+			mySimulator.applyModelOnTravelSurveyPopulation(Utils.DATA_DIR + "Outputs\\simuleOD2704.csv",1, true);
 			
 			//############################################################################################
 	    	//Load Smartcard data and process them to label with a choice id
